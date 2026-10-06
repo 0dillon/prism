@@ -10,7 +10,12 @@ type Result = { data: unknown; error: { message: string } | null };
  * a user sees and writes only their own lessons, and cannot write pipeline jobs.
  */
 export class FakeSupabase {
-  tables: Record<string, Row[]> = { lessons: [], ingestion_jobs: [], concept_sign_links: [] };
+  tables: Record<string, Row[]> = {
+    lessons: [],
+    ingestion_jobs: [],
+    concept_sign_links: [],
+    concept_variants: [],
+  };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
   rpcHandlers: Record<
@@ -82,6 +87,14 @@ export class FakeSupabase {
     if (table === "lessons") {
       return rows.filter((r) => r.owner_id === userId || r.status === "published");
     }
+    if (table === "concept_variants") {
+      const readable = new Set(
+        this.tables.lessons
+          .filter((l) => l.owner_id === userId || l.status === "published")
+          .map((l) => l.id),
+      );
+      return rows.filter((r) => readable.has(r.lesson_id));
+    }
     const owned = new Set(
       this.tables.lessons.filter((r) => r.owner_id === userId).map((r) => r.id),
     );
@@ -116,6 +129,16 @@ export class FakeSupabase {
               return {
                 data: null,
                 error: { message: "new row violates row-level security policy" },
+              };
+            }
+          }
+          if (table === "concept_variants") {
+            const key = (r: Row) =>
+              [r.lesson_id, r.concept_id, r.graph_version, r.reading_level].join("|");
+            if (this.tables.concept_variants.some((r) => key(r) === key(payload))) {
+              return {
+                data: null,
+                error: { message: "duplicate key value", code: "23505" } as { message: string },
               };
             }
           }
