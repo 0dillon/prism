@@ -11,7 +11,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:types": "tsx scripts/gen-db-types.ts",
+    "db:types:supabase": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
+    "db:reset": "supabase db reset"
   },
   "dependencies": {
     "@langchain/anthropic": "^1.5.12",
@@ -48,6 +51,7 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "supabase": "^2.119.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.3"
   }
