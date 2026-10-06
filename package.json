@@ -15,7 +15,8 @@
     "db:types": "tsx scripts/gen-db-types.ts",
     "db:types:supabase": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
     "db:reset": "supabase db reset",
-    "smoke:supabase": "node --env-file=.env.local scripts/smoke-supabase.mjs"
+    "smoke:supabase": "node --env-file=.env.local scripts/smoke-supabase.mjs",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@langchain/anthropic": "^1.5.12",
@@ -36,7 +37,9 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@electric-sql/pglite": "^0.5.8",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
