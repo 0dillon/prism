@@ -9,6 +9,7 @@ export const INGESTION_STAGES = [
   "extracting",
   "merging",
   "generating_quizzes",
+  "tagging_signs",
   "validating",
   "ready",
 ] as const;
@@ -21,6 +22,7 @@ export const STAGE_LABELS: Record<IngestionStage, string> = {
   extracting: "Finding the key ideas",
   merging: "Organizing the lesson",
   generating_quizzes: "Writing quiz questions",
+  tagging_signs: "Matching sign clips",
   validating: "Checking the lesson",
   ready: "Ready for review",
 };
@@ -30,8 +32,9 @@ const RANGES: Record<IngestionStage, [number, number]> = {
   reading: [2, 10],
   extracting: [10, 50],
   merging: [50, 58],
-  generating_quizzes: [58, 90],
-  validating: [90, 98],
+  generating_quizzes: [58, 88],
+  tagging_signs: [88, 92],
+  validating: [92, 98],
   ready: [100, 100],
 };
 

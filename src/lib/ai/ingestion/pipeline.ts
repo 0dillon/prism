@@ -7,6 +7,7 @@ import { extractConcepts } from "./concepts";
 import { extractSourceDocument } from "./extract";
 import { mergeConcepts, createIdFactory, type IdFactory } from "./merge";
 import { generateQuizItems } from "./quiz";
+import { tagSigns } from "./signs";
 import { overallProgress, type IngestionStage } from "./stages";
 import type { JobArtifacts, PipelineStore } from "./store";
 import { ExtractionError } from "./types";
@@ -150,6 +151,28 @@ export async function runIngestion(input: IngestionInput): Promise<IngestionResu
       });
       await report("generating_quizzes", 1, { artifacts });
     } else resumedSteps.push("quiz");
+
+    // Signs: propose clips for key terms. Optional, so a failure here never fails the lesson.
+    if (!artifacts.signs) {
+      await report("tagging_signs", 0);
+      try {
+        const glosses = await store.listSignGlosses();
+        artifacts.signs = await tagSigns({
+          concepts: artifacts.merged.concepts,
+          glosses,
+          generate,
+          onUsage: tracker.record,
+        });
+        await store.saveSignLinks(lessonId, artifacts.signs);
+      } catch (error) {
+        logger.warn("sign tagging skipped", {
+          lessonId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        artifacts.signs = [];
+      }
+      await report("tagging_signs", 1, { artifacts });
+    } else resumedSteps.push("signs");
 
     // Validating: the graph must satisfy the schema and its integrity rules.
     await report("validating", 0);
