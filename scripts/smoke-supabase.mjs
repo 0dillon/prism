@@ -88,16 +88,14 @@ try {
     (await b.db.from("render_profiles").select("user_id")).data?.length === 0,
   );
 
-  const concept = await admin
-    .from("concepts")
-    .insert({
-      id: "c_1",
-      lesson_id: lessonId,
-      graph_version: 1,
-      order_index: 0,
-      title: "T",
-      summary: "S",
-    });
+  const concept = await admin.from("concepts").insert({
+    id: "c_1",
+    lesson_id: lessonId,
+    graph_version: 1,
+    order_index: 0,
+    title: "T",
+    summary: "S",
+  });
   check("service role can write concepts", !concept.error, concept.error?.message);
 
   const event = (i, correct, userId = b.id) => ({
