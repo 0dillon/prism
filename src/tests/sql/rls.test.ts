@@ -253,8 +253,14 @@ describe("learning_events and concept_mastery", () => {
     );
     expect(seenByA.every((row) => row.user_id === learnerA)).toBe(true);
 
-    const mastery = await asUser(db, learnerA, (tx) => count(tx, `select 1 from concept_mastery`));
-    expect(mastery).toBe(0);
+    const mastery = await asUser(
+      db,
+      learnerA,
+      async (tx) =>
+        (await tx.query<{ user_id: string }>(`select user_id from concept_mastery`)).rows,
+    );
+    expect(mastery.length).toBeGreaterThan(0);
+    expect(mastery.every((row) => row.user_id === learnerA)).toBe(true);
   });
 
   it("makes events immutable for clients", async () => {
