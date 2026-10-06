@@ -1061,7 +1061,7 @@ Update this table when a phase completes.
 - [x] **P5-02** [MVP] `POST /api/events`: validate the batch, enforce `userId` equals the session user, insert with conflict-ignore on ID. Done when: replaying a batch inserts nothing new.
 - [x] **P5-03** [MVP] Emit events from the session store actions (not from renderers): `lesson_started`, `concept_viewed`, `quiz_presented`, `quiz_answered`, `lesson_completed`, `profile_changed`. Done when: completing the fixture lesson in each of the four renderers produces the same event types and counts. (CE-10)
 - [x] **P5-04** [MVP] Active time tracking: attribute `durationMs` to `concept_viewed`, pausing on tab hide and after 60 seconds idle. Done when: a fake-timer test shows idle time excluded.
-- [ ] **P5-05** [MVP] Learner home page: assigned and purchased lessons with progress bars from `concept_mastery`. File: `src/app/learn/page.tsx`. Done when: progress matches mastered over total for the seed user.
+- [x] **P5-05** [MVP] Learner home page: assigned and purchased lessons with progress bars from `concept_mastery`. File: `src/app/learn/page.tsx`. Done when: progress matches mastered over total for the seed user.
 - [ ] **P5-06** [MVP] Simple progress comparison page for the demo: the same lesson, each demo learner, progress and mastery side by side, with no layout shown. File: `src/app/teach/lessons/[id]/progress/page.tsx`. Done when: three seeded learners using three renderers appear on one common scale.
 - [ ] **P5-07** Parity test: an automated test completes the fixture lesson with identical answers in all four renderers and asserts identical `concept_mastery` rows. Done when: the test passes in CI.
 
