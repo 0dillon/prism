@@ -12,9 +12,21 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@langchain/anthropic": "^1.5.12",
+    "@langchain/core": "^1.2.16",
+    "@langchain/openai": "^1.6.2",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
+    "langchain": "^1.5.15",
+    "motion": "^14.0.0",
     "next": "16.3.8",
+    "radix-ui": "^1.7.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "ulid": "^3.0.2",
+    "unpdf": "^1.8.1",
+    "zod": "^4.6.5",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
