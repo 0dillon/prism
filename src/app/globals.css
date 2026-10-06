@@ -227,3 +227,17 @@ body {
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
 }
+
+/*
+ * The renderer root paints its own theme and typography from the custom properties that
+ * useProfileStyles sets, so a Render Profile can restyle the lesson without touching the
+ * rest of the page.
+ */
+[data-prism-root] {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: calc(1rem * var(--type-scale));
+  letter-spacing: var(--letter-spacing);
+  word-spacing: var(--word-spacing);
+  line-height: var(--line-height);
+}
