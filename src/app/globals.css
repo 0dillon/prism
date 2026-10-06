@@ -241,6 +241,19 @@ body {
   animation: prism-burst 800ms ease-out 1 both;
 }
 
+/*
+ * The sentence being read aloud. A tinted background and an outline, so it does not rely on
+ * colour alone, and the text keeps the colour it already has contrast for.
+ */
+[data-sentence][data-active="true"] {
+  background-color: var(--surface);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 /* Reduced motion: honor the OS setting and the profile's explicit override. */
 @media (prefers-reduced-motion: reduce) {
   *,
