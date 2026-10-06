@@ -49,7 +49,7 @@ export async function loadLessonProgress(
   }
 
   const [concepts, mastery, events] = await Promise.all([
-    admin.from("concepts").select("id").eq("lesson_id", lessonId),
+    admin.from("concepts").select("id").eq("lesson_id", lessonId).eq("retired", false),
     admin
       .from("concept_mastery")
       .select("user_id, concept_id, status, attempts, correct_count")

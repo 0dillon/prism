@@ -58,7 +58,7 @@ function seed(mastery: Mastery[] = []) {
     [L2, ["x", "y"]],
     [DRAFT, ["z"]],
   ] as const) {
-    for (const id of ids) db.tables.concepts.push({ lesson_id: lesson, id });
+    for (const id of ids) db.tables.concepts.push({ lesson_id: lesson, id, retired: false });
   }
   for (const [user, lesson, concept, status] of mastery) {
     db.tables.concept_mastery.push({
@@ -131,6 +131,13 @@ describe("loadLearnerHome", () => {
     const fractions = (await loadLearnerHome(db.asUser(ME))).find((p) => p.lessonId === L2)!;
     expect(fractions.masteredConcepts).toBe(2);
     expect(progressFraction(fractions)).toBe(1);
+  });
+
+  it("does not count an idea the lesson has dropped", async () => {
+    seed([[ME, L2, "x", "mastered"]]);
+    db.tables.concepts.find((c) => c.lesson_id === L2 && c.id === "y")!.retired = true;
+    const fractions = (await loadLearnerHome(db.asUser(ME))).find((p) => p.lessonId === L2)!;
+    expect(fractions).toMatchObject({ totalConcepts: 1, masteredConcepts: 1, status: "complete" });
   });
 
   it("copes with a lesson that has no ideas", async () => {

@@ -34,7 +34,7 @@ export async function loadLearnerHome(user: UserClient): Promise<LessonProgress[
 
   const ids = rows.map((l) => l.id);
   const [concepts, mastery] = await Promise.all([
-    user.from("concepts").select("lesson_id, id").in("lesson_id", ids),
+    user.from("concepts").select("lesson_id, id").in("lesson_id", ids).eq("retired", false),
     user.from("concept_mastery").select("lesson_id, concept_id, status").in("lesson_id", ids),
   ]);
   if (concepts.error) fail("concepts", concepts.error.message);

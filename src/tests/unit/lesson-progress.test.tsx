@@ -64,7 +64,7 @@ beforeEach(() => {
     status: "published",
     owner_id: OWNER,
   });
-  for (const id of CONCEPTS) db.tables.concepts.push({ lesson_id: LESSON, id });
+  for (const id of CONCEPTS) db.tables.concepts.push({ lesson_id: LESSON, id, retired: false });
   db.tables.users_public.push(
     { id: MAYA, display_name: "Maya" },
     { id: TUNDE, display_name: "Tunde" },
