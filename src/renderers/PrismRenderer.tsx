@@ -12,6 +12,7 @@ import {
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import { useSession, useSessionHydration, type SessionStore } from "@/lib/session/store";
 import { LAYOUT_LABELS, prefetchRenderers, renderers } from "./registry";
+import { useProfileStyles } from "./shared/useProfileStyles";
 import { RENDERER_HEADING_ATTRIBUTE, type SessionActions } from "./types";
 
 interface PrismRendererProps {
@@ -90,10 +91,11 @@ export function PrismRenderer({
     setSwitchPending(false);
   }, [profile.layout]);
 
+  const styles = useProfileStyles(profile);
   const Renderer = renderers[profile.layout];
 
   return (
-    <div ref={rootRef} data-layout={profile.layout}>
+    <div ref={rootRef} data-layout={profile.layout} {...styles}>
       <Suspense fallback={<p role="status">Loading the {LAYOUT_LABELS[profile.layout]} view…</p>}>
         <Renderer
           key={profile.layout}
