@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { requestVariant, type VariantResponse } from "@/lib/lessons/variants-client";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import type { VariantResponse } from "@/lib/lessons/variants-client";
 import { track } from "@/lib/session/events";
 import type { RenderProfile } from "@/lib/schemas/render-profile";
+import { VariantSourceContext, type VariantSource } from "../shared/variant-source";
 
 export type ReadingLevel = RenderProfile["content"]["readingLevel"];
 
@@ -25,8 +26,8 @@ interface UseVariantsOptions {
   defaultLevel: ReadingLevel;
   /** Concepts on screen. Their variants are fetched when the level asks for one. */
   conceptIds: readonly string[];
-  /** Replaces the network call. Used by tests. */
-  request?: typeof requestVariant;
+  /** Replaces where variants come from. Defaults to the source in context, which is the server. */
+  request?: VariantSource;
 }
 
 export interface VariantsApi {
@@ -55,8 +56,10 @@ export function useVariants({
   graphVersion,
   defaultLevel,
   conceptIds,
-  request = requestVariant,
+  request: requestOverride,
 }: UseVariantsOptions): VariantsApi {
+  const contextSource = useContext(VariantSourceContext);
+  const request = requestOverride ?? contextSource;
   const [overrides, setOverrides] = useState<Record<string, ReadingLevel>>({});
   const [bodies, setBodies] = useState<Record<string, VariantResponse>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
