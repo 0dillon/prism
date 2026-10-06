@@ -1024,7 +1024,7 @@ Update this table when a phase completes.
 
 #### 4B. Reader renderer
 
-- [ ] **P4-07** [MVP] `ReaderRenderer`: sections and concepts as semantic headings and paragraphs, styled from profile custom properties, honoring `content.chunkSize`. File: `src/renderers/reader/ReaderRenderer.tsx`. Done when: heading levels are sequential and `maxLineLength` constrains the column. (CE-8)
+- [x] **P4-07** [MVP] `ReaderRenderer`: sections and concepts as semantic headings and paragraphs, styled from profile custom properties, honoring `content.chunkSize`. File: `src/renderers/reader/ReaderRenderer.tsx`. Done when: heading levels are sequential and `maxLineLength` constrains the column. (CE-8)
 - [ ] **P4-08** [MVP] Inline quiz blocks at the configured cadence. Done when: answering emits the same session actions as the cards renderer.
 - [ ] **P4-09** [MVP] Word anchors: a pure function that splits a word into bold lead and remainder, applied only when `typography.wordAnchors` is true, with the accessible text unchanged. File: `src/renderers/reader/wordAnchors.tsx`. Done when: a screen reader test reads the sentence normally and a unit test covers short words and punctuation.
 - [ ] **P4-10** [MVP] Read-aloud with browser `speechSynthesis`: play, pause, rate, and sentence highlighting using boundary events. File: `src/renderers/reader/ReadAloud.tsx`. Done when: the highlighted sentence tracks speech in Chrome.
