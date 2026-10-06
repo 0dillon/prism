@@ -4,7 +4,10 @@ import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import { createClient } from "@/lib/supabase/server";
+import { loadSignReview } from "@/lib/lessons/sign-service";
 import { ReviewEditor } from "./ReviewEditor";
+import { ReviewTabs } from "./ReviewTabs";
+import { SignsPanel } from "./SignsPanel";
 
 export const metadata: Metadata = { title: "Review lesson" };
 
@@ -71,6 +74,9 @@ export default async function ReviewPage({ params }: PageProps<"/teach/lessons/[
     );
   }
 
+  // Sign clips are optional. If they cannot be loaded the review page still works.
+  const signs = await loadSignReview(supabase, auth.user.id, lesson.id).catch(() => []);
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-12">
       <div>
@@ -80,10 +86,26 @@ export default async function ReviewPage({ params }: PageProps<"/teach/lessons/[
           Learners see nothing until you publish.
         </p>
       </div>
-      <ReviewEditor
-        lessonId={lesson.id}
-        initialGraph={graph.data}
-        initialUpdatedAt={lesson.updated_at}
+      <ReviewTabs
+        signCount={signs.length}
+        concepts={
+          <ReviewEditor
+            lessonId={lesson.id}
+            initialGraph={graph.data}
+            initialUpdatedAt={lesson.updated_at}
+          />
+        }
+        signs={
+          <SignsPanel
+            lessonId={lesson.id}
+            items={signs}
+            concepts={graph.data.concepts.map((c) => ({
+              id: c.id,
+              title: c.title,
+              keyTerm: c.keyTerm,
+            }))}
+          />
+        }
       />
     </div>
   );
