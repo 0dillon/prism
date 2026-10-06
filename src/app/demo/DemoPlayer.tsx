@@ -10,6 +10,7 @@ import { DEMO_LEARNERS, type DemoLearnerId } from "@/lib/demo/learners";
 import { SAMPLE_GRAPH_VERSION, SAMPLE_LESSON, SAMPLE_VARIANTS } from "@/lib/demo/sample-lesson";
 import { PRESET_DESCRIPTIONS } from "@/lib/profile/presets";
 import { PrismRenderer } from "@/renderers/PrismRenderer";
+import { useOfflineReady } from "./offline";
 import { createFixedVariantSource, VariantSourceContext } from "@/renderers/shared/variant-source";
 
 const variantSource = createFixedVariantSource(SAMPLE_VARIANTS, SAMPLE_GRAPH_VERSION);
@@ -62,6 +63,7 @@ function DemoStage() {
   }, [learnerId, resets]);
 
   const preset = PRESET_DESCRIPTIONS[kit.learner.preset];
+  const offline = useOfflineReady();
 
   return (
     <VariantSourceContext.Provider value={variantSource}>
@@ -108,6 +110,13 @@ function DemoStage() {
           <p ref={statusRef} tabIndex={-1} className="text-muted outline-none">
             Showing {kit.learner.name}, who likes: {preset.label.toLowerCase()}.
           </p>
+          {offline !== "unsupported" ? (
+            <p role="status" className="text-muted text-sm" data-offline={offline}>
+              {offline === "ready"
+                ? "Ready to use without a connection. Only the box that changes your settings, and free questions, need one."
+                : "Getting ready to work without a connection…"}
+            </p>
+          ) : null}
 
           <div className="flex flex-wrap gap-3">
             <SettingsPanel profileStore={kit.profileStore} />
