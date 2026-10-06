@@ -92,11 +92,11 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "concept_sign_links_lesson_id_concept_id_fkey";
-            columns: ["lesson_id", "concept_id"];
-            isOneToOne: true;
-            referencedRelation: "concepts";
-            referencedColumns: ["lesson_id", "id"];
+            foreignKeyName: "concept_sign_links_lesson_fk";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
           },
           {
             foreignKeyName: "concept_sign_links_sign_clip_id_fkey";

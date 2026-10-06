@@ -89,17 +89,26 @@ describe("sign clip tables migration", () => {
     );
   });
 
-  it("allows one link per concept and ties links to a real concept", async () => {
+  it("allows one link per concept", async () => {
     await expect(
       db.query(
         `insert into concept_sign_links (lesson_id, concept_id, sign_clip_id) values ($1, 'c_1', $2)`,
         [lesson, clip],
       ),
     ).rejects.toThrow(/duplicate key/);
+  });
+});
+
+describe("links before publish", () => {
+  it("can be created for a concept that has no normalized row yet, but only for a real lesson", async () => {
+    await db.query(
+      `insert into concept_sign_links (lesson_id, concept_id, sign_clip_id) values ($1, 'c_not_published_yet', $2)`,
+      [lesson, clip],
+    );
     await expect(
       db.query(
-        `insert into concept_sign_links (lesson_id, concept_id, sign_clip_id) values ($1, 'c_ghost', $2)`,
-        [lesson, clip],
+        `insert into concept_sign_links (lesson_id, concept_id, sign_clip_id) values ('00000000-0000-4000-8000-000000000000', 'c_x', $1)`,
+        [clip],
       ),
     ).rejects.toThrow(/foreign key/);
   });
