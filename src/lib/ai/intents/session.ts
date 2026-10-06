@@ -24,6 +24,8 @@ export const IntentContext = z.object({
 export type IntentContext = z.infer<typeof IntentContext>;
 
 export const SessionIntentRequest = z.object({
+  /** The lesson, so the public demo lesson can be told apart from a real one. */
+  lessonId: z.string().max(100).optional(),
   utterance: z
     .string()
     .trim()

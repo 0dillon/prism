@@ -340,6 +340,36 @@ describe("POST /api/session/intent", () => {
     expect((await call({ utterance: "forward a bit please" })).status).toBe(200);
   });
 
+  it("serves the public demo lesson without sign-in", async () => {
+    mocks.userId = null;
+    const response = await call({ utterance: "next", lessonId: "demo-water-cycle" });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ intent: { type: "next" }, source: "local" });
+  });
+
+  it("still needs sign-in when the lesson is not the demo", async () => {
+    mocks.userId = null;
+    expect((await call({ utterance: "next", lessonId: "someone-elses-lesson" })).status).toBe(401);
+  });
+
+  it("limits the demo by address, separately from signed-in learners", async () => {
+    mocks.userId = null;
+    const demo = async (ip: string) => {
+      const { POST } = await import("@/app/api/session/intent/route");
+      return POST(
+        new NextRequest("http://localhost/api/session/intent", {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-forwarded-for": ip },
+          body: JSON.stringify({ utterance: "forward a bit please", lessonId: "demo-water-cycle" }),
+        }),
+      );
+    };
+    let last: Response | null = null;
+    for (let i = 0; i < 31; i++) last = await demo("203.0.113.50");
+    expect(last!.status).toBe(429);
+    expect((await demo("203.0.113.51")).status).toBe(200);
+  });
+
   it("returns unknown when the model asks for something it cannot have", async () => {
     llm.output = { type: "answer", value: "B" }; // no question is waiting
     const response = await call({ utterance: "blah blah" });
