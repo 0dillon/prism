@@ -5,7 +5,18 @@ import { SessionIntent } from "@/lib/schemas/intents";
 const PHRASINGS: Array<[SessionIntent, string[]]> = [
   [
     { type: "next" },
-    ["next", "Next one", "go to the next part", "move on", "Okay, next!", "skip this", "I'm ready"],
+    [
+      "start",
+      "Begin the lesson",
+      "let's go",
+      "next",
+      "Next one",
+      "go to the next part",
+      "move on",
+      "Okay, next!",
+      "skip this",
+      "I'm ready",
+    ],
   ],
   [
     { type: "previous" },
