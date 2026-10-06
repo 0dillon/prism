@@ -70,28 +70,67 @@ export function parseBlocks(markdown: string): Block[] {
 const INLINE =
   /(\*\*[^*\n]+\*\*|(?<![A-Za-z0-9])__[^_\n]+__(?![A-Za-z0-9])|`[^`\n]+`|\*[^*\s][^*\n]*\*|(?<![A-Za-z0-9])_[^_\s][^_\n]*_(?![A-Za-z0-9]))/g;
 
-/** Bold, italic and code. Anything that is not clearly one of those stays as plain text. */
-export function renderInline(text: string): ReactNode[] {
-  return text.split(INLINE).map((part, index) => {
-    if (!part) return null;
+export type InlineStyle = "plain" | "strong" | "em" | "code";
+
+export interface InlineToken {
+  /** The text with its Markdown marks taken off. */
+  text: string;
+  style: InlineStyle;
+}
+
+/**
+ * Splits a line into plain, bold, italic and code pieces. Anything that is not clearly
+ * one of those stays as plain text. Joining the tokens' text gives the line as it reads,
+ * which is what read-aloud and highlighting work from.
+ */
+export function parseInline(text: string): InlineToken[] {
+  const tokens: InlineToken[] = [];
+  for (const part of text.split(INLINE)) {
+    if (!part) continue;
     if (
-      (part.startsWith("**") && part.endsWith("**")) ||
-      (part.startsWith("__") && part.endsWith("__"))
+      ((part.startsWith("**") && part.endsWith("**")) ||
+        (part.startsWith("__") && part.endsWith("__"))) &&
+      part.length > 4
     ) {
-      if (part.length > 4) return <strong key={index}>{part.slice(2, -2)}</strong>;
-    }
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return <code key={index}>{part.slice(1, -1)}</code>;
-    }
-    if (
+      tokens.push({ text: part.slice(2, -2), style: "strong" });
+    } else if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+      tokens.push({ text: part.slice(1, -1), style: "code" });
+    } else if (
       ((part.startsWith("*") && part.endsWith("*")) ||
         (part.startsWith("_") && part.endsWith("_"))) &&
       part.length > 2
     ) {
-      return <em key={index}>{part.slice(1, -1)}</em>;
+      tokens.push({ text: part.slice(1, -1), style: "em" });
+    } else {
+      tokens.push({ text: part, style: "plain" });
     }
-    return <Fragment key={index}>{part}</Fragment>;
-  });
+  }
+  return tokens;
+}
+
+/** The text of a line as it reads, with the Markdown marks gone. */
+export function plainText(markdown: string): string {
+  return parseInline(markdown)
+    .map((token) => token.text)
+    .join("");
+}
+
+/** Wraps already-rendered children in the element for a style. */
+export function styled(style: InlineStyle, children: ReactNode, key?: string | number): ReactNode {
+  switch (style) {
+    case "strong":
+      return <strong key={key}>{children}</strong>;
+    case "em":
+      return <em key={key}>{children}</em>;
+    case "code":
+      return <code key={key}>{children}</code>;
+    default:
+      return <Fragment key={key}>{children}</Fragment>;
+  }
+}
+
+export function renderInline(text: string): ReactNode[] {
+  return parseInline(text).map((token, index) => styled(token.style, token.text, index));
 }
 
 export function MarkdownBody({ markdown, className }: { markdown: string; className?: string }) {

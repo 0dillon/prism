@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { MarkdownBody, parseBlocks } from "@/renderers/shared/markdown";
+import { MarkdownBody, parseBlocks, parseInline, plainText } from "@/renderers/shared/markdown";
 import { expectNoAxeViolations } from "../a11y";
 
 describe("parseBlocks", () => {
@@ -61,6 +61,35 @@ describe("parseBlocks", () => {
     expect(parseBlocks("Well-known fact. 3.5 litres.")).toEqual([
       { kind: "paragraph", text: "Well-known fact. 3.5 litres." },
     ]);
+  });
+});
+
+describe("parseInline", () => {
+  it("splits a line into plain, bold, italic and code pieces", () => {
+    expect(parseInline("A **bold**, *slanted* and `code` bit")).toEqual([
+      { text: "A ", style: "plain" },
+      { text: "bold", style: "strong" },
+      { text: ", ", style: "plain" },
+      { text: "slanted", style: "em" },
+      { text: " and ", style: "plain" },
+      { text: "code", style: "code" },
+      { text: " bit", style: "plain" },
+    ]);
+  });
+
+  it("returns one plain piece for plain text and nothing for empty text", () => {
+    expect(parseInline("just words")).toEqual([{ text: "just words", style: "plain" }]);
+    expect(parseInline("")).toEqual([]);
+  });
+
+  it("leaves unmatched or empty marks as plain text", () => {
+    expect(plainText("a ** b and ____ c and * d")).toBe("a ** b and ____ c and * d");
+  });
+
+  it("gives back the line as it reads, with the marks gone", () => {
+    expect(plainText("The **sun** warms _water_ in `rivers`.")).toBe(
+      "The sun warms water in rivers.",
+    );
   });
 });
 
