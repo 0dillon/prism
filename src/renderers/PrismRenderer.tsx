@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StoreApi } from "zustand/vanilla";
 import { announce } from "@/lib/a11y/live-region";
+import { getEventQueue } from "@/lib/session/events";
 import type { ProfilePatch } from "@/lib/profile/merge";
 import {
   getProfileStore,
@@ -103,6 +104,11 @@ export function PrismRenderer({
     rootRef.current?.querySelector<HTMLElement>(`[${RENDERER_HEADING_ATTRIBUTE}]`)?.focus();
     announce(`Switched to the ${LAYOUT_LABELS[profile.layout]} view.`);
     setSwitchPending(false);
+  }, [profile.layout]);
+
+  // Events are stamped with the layout on screen (product analytics only, PRD 5.7).
+  useEffect(() => {
+    getEventQueue().setLayout(profile.layout);
   }, [profile.layout]);
 
   const styles = useProfileStyles(profile);

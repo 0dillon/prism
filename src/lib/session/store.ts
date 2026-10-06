@@ -3,6 +3,8 @@ import { z } from "zod";
 import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
+import type { TrackInput } from "./events";
+import { deriveEvents, type OpenView } from "./telemetry";
 import {
   createSession,
   reduceSession,
@@ -60,6 +62,11 @@ export interface SessionStoreOptions {
   getSettings: () => QuizSettings;
   storage?: StorageLike | null;
   now?: () => number;
+  /**
+   * Receives each learning event the lesson produces (PRD 5.7). The store raises them, not
+   * the renderers, so every layout reports the same events. Leave it out to report nothing.
+   */
+  onEvent?: (event: TrackInput) => void;
 }
 
 export interface SessionStoreState {
@@ -164,12 +171,23 @@ export const MAX_ACTIVE_GAP_MS = 60_000;
 
 export function createSessionStore(options: SessionStoreOptions): StoreApi<SessionStore> {
   let lastActionAt: number | null = null;
+  // The idea the learner is on, so the time spent on it can be reported when they leave.
+  let openView: OpenView | null = null;
   const storage = options.storage === undefined ? browserStorage() : options.storage;
   const key = `${SESSION_STORAGE_PREFIX}${options.lessonId}`;
   const now = options.now ?? Date.now;
   const context = () => buildContext(options.graph, options.getSettings());
   const fresh = () =>
     createSession({ lessonId: options.lessonId, graphVersion: options.graphVersion, now: now() });
+
+  const eventContext = () => {
+    const ctx = context();
+    const owner = new Map<string, string>();
+    for (const [conceptId, items] of Object.entries(ctx.quizItemsByConcept)) {
+      for (const id of items) owner.set(id, conceptId);
+    }
+    return { conceptIds: ctx.conceptIds, conceptOfItem: (id: string) => owner.get(id) };
+  };
 
   const store = createStore<SessionStore>((set, get) => ({
     session: fresh(),
@@ -186,9 +204,24 @@ export function createSessionStore(options: SessionStoreOptions): StoreApi<Sessi
       const gap =
         lastActionAt === null ? 0 : Math.min(Math.max(time - lastActionAt, 0), MAX_ACTIVE_GAP_MS);
       lastActionAt = time;
-      set({
-        session: { ...reduced, activeMs: action.type === "restart" ? 0 : reduced.activeMs + gap },
-      });
+      const before = get().session;
+      const next = {
+        ...reduced,
+        activeMs: action.type === "restart" ? 0 : reduced.activeMs + gap,
+      };
+      set({ session: next });
+
+      if (options.onEvent) {
+        // Starting over zeroes the clock, so the time on the idea being left is read before that.
+        const derived = deriveEvents(
+          before,
+          action.type === "restart" ? { ...next, activeMs: before.activeMs + gap } : next,
+          openView,
+          eventContext(),
+        );
+        openView = derived.view;
+        for (const event of derived.events) options.onEvent(event);
+      }
     },
 
     start: () => get().dispatch({ type: "start" }),
@@ -209,10 +242,14 @@ export function createSessionStore(options: SessionStoreOptions): StoreApi<Sessi
       } catch {
         saved = null;
       }
-      set({
-        hydrated: true,
-        session: saved ? restoreSession(saved, fresh(), context()) : get().session,
-      });
+      const session = saved ? restoreSession(saved, fresh(), context()) : get().session;
+      set({ hydrated: true, session });
+      // Coming back to an idea mid-lesson starts a view of it; nothing is reported for the one before.
+      const ids = context().conceptIds;
+      openView =
+        session.phase === "learning" && ids[session.conceptIndex]
+          ? { conceptId: ids[session.conceptIndex], activeAtStart: session.activeMs }
+          : null;
     },
   }));
 

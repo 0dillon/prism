@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { getProfileStore } from "@/lib/profile/store";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
+import { getEventQueue, track } from "@/lib/session/events";
 import { createSessionStore } from "@/lib/session/store";
+import { trackProfileChanges } from "@/lib/session/telemetry";
 import { PrismRenderer } from "@/renderers/PrismRenderer";
 import { SignClipsContext, type SignClipMap } from "@/renderers/visual/signs";
 
@@ -28,6 +30,8 @@ export function LessonPlayer({ lessonId, graphVersion, graph, signClips = {} }: 
       lessonId,
       graphVersion,
       graph,
+      // The store reports the lesson's events, so every layout reports the same ones.
+      onEvent: track,
       getSettings: () => {
         const { quiz } = profileStore.getState().profile;
         return {
@@ -38,6 +42,16 @@ export function LessonPlayer({ lessonId, graphVersion, graph, signClips = {} }: 
       },
     });
   });
+
+  // Send events to the server while the lesson is open, and report changes to the settings.
+  useEffect(() => {
+    const stopSync = getEventQueue().start();
+    const stopProfile = trackProfileChanges(getProfileStore(), { lessonId, graphVersion, track });
+    return () => {
+      stopProfile();
+      stopSync();
+    };
+  }, [lessonId, graphVersion]);
 
   return (
     <SignClipsContext.Provider value={signClips}>
