@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SettingsPanel } from "@/components/SettingsPanel";
 import { getProfileStore } from "@/lib/profile/store";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import { createSessionStore } from "@/lib/session/store";
@@ -15,6 +16,7 @@ interface LessonPlayerProps {
 /**
  * Mounts one learner session for a lesson and hands it to PrismRenderer. The session
  * reads the quiz cadence from the profile each time, so changing it takes effect at once.
+ * The settings button sits above the lesson, so every setting is reachable in every layout.
  */
 export function LessonPlayer({ lessonId, graphVersion, graph }: LessonPlayerProps) {
   const [sessionStore] = useState(() => {
@@ -34,5 +36,12 @@ export function LessonPlayer({ lessonId, graphVersion, graph }: LessonPlayerProp
     });
   });
 
-  return <PrismRenderer graph={graph} sessionStore={sessionStore} />;
+  return (
+    <>
+      <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4">
+        <SettingsPanel />
+      </div>
+      <PrismRenderer graph={graph} sessionStore={sessionStore} />
+    </>
+  );
 }
