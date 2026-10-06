@@ -1057,7 +1057,7 @@ Update this table when a phase completes.
 
 ### Phase 5: Learning events and progress
 
-- [ ] **P5-01** [MVP] Event queue: `track(event)` adds layout, IDs, and timestamps, batches every 5 seconds and on `visibilitychange`, persists unsent events locally, retries with backoff. File: `src/lib/session/events.ts`. Done when: events queued offline are sent after reconnect with no duplicates.
+- [x] **P5-01** [MVP] Event queue: `track(event)` adds layout, IDs, and timestamps, batches every 5 seconds and on `visibilitychange`, persists unsent events locally, retries with backoff. File: `src/lib/session/events.ts`. Done when: events queued offline are sent after reconnect with no duplicates.
 - [ ] **P5-02** [MVP] `POST /api/events`: validate the batch, enforce `userId` equals the session user, insert with conflict-ignore on ID. Done when: replaying a batch inserts nothing new.
 - [ ] **P5-03** [MVP] Emit events from the session store actions (not from renderers): `lesson_started`, `concept_viewed`, `quiz_presented`, `quiz_answered`, `lesson_completed`, `profile_changed`. Done when: completing the fixture lesson in each of the four renderers produces the same event types and counts. (CE-10)
 - [ ] **P5-04** [MVP] Active time tracking: attribute `durationMs` to `concept_viewed`, pausing on tab hide and after 60 seconds idle. Done when: a fake-timer test shows idle time excluded.
