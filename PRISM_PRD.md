@@ -1017,7 +1017,7 @@ Update this table when a phase completes.
 
 - [x] **P4-01** [MVP] `ConceptCard`: title, summary, optional example, expandable body. File: `src/renderers/cards/ConceptCard.tsx`. Done when: it renders a fixture concept and the expand control has correct `aria-expanded`.
 - [x] **P4-02** [MVP] `CardsRenderer`: one card at a time, advance by swipe, tap, arrow keys, and space, with visible Next and Back buttons. File: `src/renderers/cards/CardsRenderer.tsx`. Done when: all four input methods dispatch `next`. (CE-7)
-- [ ] **P4-03** [MVP] Quiz card using `QuizBlock`, shown when the session phase is `quiz`, with large option targets. Done when: after `quiz.cadence` concepts the quiz card appears.
+- [x] **P4-03** [MVP] Quiz card using `QuizBlock`, shown when the session phase is `quiz`, with large option targets. Done when: after `quiz.cadence` concepts the quiz card appears.
 - [ ] **P4-04** [MVP] Feedback: progress bar fill, celebration by `feedback.celebration`, static alternative under reduced motion, icon plus text for correct and incorrect, optional haptic through the Vibration API. File: `src/renderers/cards/Feedback.tsx`. Done when: with reduced motion on, no animation runs and the result is still announced.
 - [ ] **P4-05** [MVP] Streak counter and completion summary card. Done when: the summary shows concepts mastered and active time.
 - [ ] **P4-06** Suggested break card every 10 active minutes with Continue and Stop here. Done when: a fake-timer test shows the card at 10 minutes.
