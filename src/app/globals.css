@@ -1,29 +1,207 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+/*
+ * Theme tokens (PRD 5.3 visual.theme, 6.3).
+ *
+ * Every color is a CSS custom property so the Render Profile can retheme any
+ * subtree by setting data-theme on it. The root and data-theme="system" follow
+ * the OS preferences; an explicit theme always wins over them.
+ * All text pairs meet WCAG AA (4.5:1) and component borders meet 3:1.
+ */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --fg: #14141a;
+  --muted: #4b5563;
+  --surface: #f3f4f8;
+  --border: #6b7280;
+  --accent: #4338ca;
+  --accent-fg: #ffffff;
+  --success: #15803d;
+  --danger: #b91c1c;
+  --focus: #1d4ed8;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme]),
+  [data-theme="system"] {
+    color-scheme: dark;
+    --bg: #0f1115;
+    --fg: #ececf1;
+    --muted: #a1a7b3;
+    --surface: #1a1d24;
+    --border: #8b93a1;
+    --accent: #a5b4fc;
+    --accent-fg: #0f1115;
+    --success: #4ade80;
+    --danger: #f87171;
+    --focus: #93c5fd;
   }
 }
 
+@media (prefers-contrast: more) {
+  :root:not([data-theme]),
+  [data-theme="system"] {
+    color-scheme: dark;
+    --bg: #000000;
+    --fg: #ffffff;
+    --muted: #e6e6e6;
+    --surface: #000000;
+    --border: #ffffff;
+    --accent: #ffff00;
+    --accent-fg: #000000;
+    --success: #4ade80;
+    --danger: #ff8a8a;
+    --focus: #ffff00;
+  }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --fg: #ececf1;
+  --muted: #a1a7b3;
+  --surface: #1a1d24;
+  --border: #8b93a1;
+  --accent: #a5b4fc;
+  --accent-fg: #0f1115;
+  --success: #4ade80;
+  --danger: #f87171;
+  --focus: #93c5fd;
+}
+
+[data-theme="high_contrast"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --fg: #ffffff;
+  --muted: #e6e6e6;
+  --surface: #000000;
+  --border: #ffffff;
+  --accent: #ffff00;
+  --accent-fg: #000000;
+  --success: #4ade80;
+  --danger: #ff8a8a;
+  --focus: #ffff00;
+}
+
+[data-theme="cream"] {
+  color-scheme: light;
+  --bg: #faf3e0;
+  --fg: #1f1b16;
+  --muted: #4a4339;
+  --surface: #f1e8cf;
+  --border: #7a6f5a;
+  --accent: #1e40af;
+  --accent-fg: #ffffff;
+  --success: #166534;
+  --danger: #9f1239;
+  --focus: #1e40af;
+}
+
+[data-theme="blue_tint"] {
+  color-scheme: light;
+  --bg: #e6f0fa;
+  --fg: #0f1f33;
+  --muted: #36475e;
+  --surface: #d6e6f6;
+  --border: #56708f;
+  --accent: #1d4ed8;
+  --accent-fg: #ffffff;
+  --success: #166534;
+  --danger: #b91c1c;
+  --focus: #1d4ed8;
+}
+
+/*
+ * Typography and motion tokens. The renderer root overrides these from the
+ * Render Profile (useProfileStyles, P3-09); the defaults match the profile defaults.
+ */
+:root {
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --type-scale: 1;
+  --letter-spacing: 0em;
+  --word-spacing: 0em;
+  --line-height: 1.5;
+  --measure: 70ch;
+  --motion-scale: 1;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-focus: var(--focus);
+  --font-sans: var(--font-body);
+}
+
+html {
+  font-size: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: calc(1rem * var(--type-scale));
+  letter-spacing: var(--letter-spacing);
+  word-spacing: var(--word-spacing);
+  line-height: var(--line-height);
+}
+
+/* Visible focus everywhere (WCAG 2.4.7, 2.4.11). */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Skip link: hidden until it receives keyboard focus. */
+.skip-link {
+  position: absolute;
+  inset-inline-start: 0.5rem;
+  top: 0.5rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: 0.375rem;
+  background: var(--accent);
+  color: var(--accent-fg);
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* The main landmark is a programmatic focus target for the skip link. */
+#main-content:focus {
+  outline: none;
+}
+
+/* Reduced motion: honor the OS setting and the profile's explicit override. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+[data-reduced-motion="true"] *,
+[data-reduced-motion="true"] *::before,
+[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
