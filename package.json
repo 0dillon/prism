@@ -20,6 +20,7 @@
   "dependencies": {
     "@langchain/anthropic": "^1.5.12",
     "@langchain/core": "^1.2.16",
+    "@langchain/google-genai": "^2.3.2",
     "@langchain/openai": "^1.6.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
