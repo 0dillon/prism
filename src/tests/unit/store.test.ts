@@ -121,7 +121,7 @@ describe("createSupabaseStore", () => {
   it("raises a readable error when the download fails", async () => {
     const { admin } = fakeAdmin({ fail: true });
     await expect(createSupabaseStore(admin).downloadSource("x")).rejects.toThrow(
-      /Could not read the uploaded file: boom/,
+      /could not find the uploaded file/,
     );
   });
 

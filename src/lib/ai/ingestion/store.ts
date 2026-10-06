@@ -6,7 +6,7 @@ import { Concept, QuizItem, Section, type KnowledgeGraph } from "@/lib/schemas/k
 import { Chunk } from "./chunk";
 import { CandidateConcept } from "./concepts";
 import { type IngestionStage } from "./stages";
-import { SourceDocument } from "./types";
+import { ExtractionError, SourceDocument } from "./types";
 
 /**
  * Persistence for the ingestion pipeline. The pipeline talks to this interface so it
@@ -88,7 +88,10 @@ export function createSupabaseStore(admin: Admin): PipelineStore {
   return {
     async downloadSource(path) {
       const { data, error } = await admin.storage.from(BUCKETS.sources).download(path);
-      if (error || !data) throw new Error(`Could not read the uploaded file: ${error?.message}`);
+      if (error || !data) {
+        // The usual cause is an upload that never finished. Say so, in words for a teacher.
+        throw new ExtractionError("We could not find the uploaded file. Please upload it again.");
+      }
       return new Uint8Array(await data.arrayBuffer());
     },
 
