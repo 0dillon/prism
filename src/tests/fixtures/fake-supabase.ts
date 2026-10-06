@@ -10,7 +10,7 @@ type Result = { data: unknown; error: { message: string } | null };
  * a user sees and writes only their own lessons, and cannot write pipeline jobs.
  */
 export class FakeSupabase {
-  tables: Record<string, Row[]> = { lessons: [], ingestion_jobs: [] };
+  tables: Record<string, Row[]> = { lessons: [], ingestion_jobs: [], concept_sign_links: [] };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
   rpcHandlers: Record<
@@ -132,15 +132,17 @@ export class FakeSupabase {
         let rows = this.visible(table, userId).filter((r) => filters.every(([c, v]) => r[c] === v));
 
         if (op === "update") {
-          if (userId !== null && table !== "lessons") {
+          if (userId !== null && table !== "lessons" && table !== "concept_sign_links") {
             return { data: null, error: { message: "permission denied for table" } };
           }
-          if (userId !== null) rows = rows.filter((r) => r.owner_id === userId);
+          if (userId !== null && table === "lessons")
+            rows = rows.filter((r) => r.owner_id === userId);
           rows.forEach((r) => Object.assign(r, payload, { updated_at: this.clock() }));
           return { data: rows, error: null };
         }
         if (op === "delete") {
-          if (userId !== null) rows = rows.filter((r) => r.owner_id === userId);
+          if (userId !== null && table === "lessons")
+            rows = rows.filter((r) => r.owner_id === userId);
           this.tables[table] = this.tables[table].filter((r) => !rows.includes(r));
           return { data: rows, error: null };
         }
