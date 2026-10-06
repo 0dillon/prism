@@ -129,6 +129,11 @@ describe("verifyCandidates", () => {
     expect(candidate.examples).toEqual(["a"]);
   });
 
+  it("keeps at most twelve concepts per chunk", () => {
+    const many = Array.from({ length: 15 }, (_, i) => draft({ title: `Concept ${i}` }));
+    expect(verifyCandidates({ concepts: many }, chunk, document)).toHaveLength(12);
+  });
+
   it("returns nothing for an empty model answer", () => {
     expect(verifyCandidates({ concepts: [] }, chunk, document)).toEqual([]);
   });

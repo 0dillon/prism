@@ -20,24 +20,27 @@ export const CONCURRENCY_LIMIT = 4;
 const MAX_TITLE = 80;
 const MAX_SUMMARY = 240;
 const MAX_EXCERPT = 1200;
+const MAX_CONCEPTS_PER_CHUNK = 12;
 
-/** What the model returns. Length limits are enforced after the call, not by the schema, so a long title is trimmed instead of costing a retry. */
+/**
+ * What the model returns. Length and count limits are enforced after the call, not by the
+ * schema: a long title is trimmed instead of costing a retry, and Gemini rejects bounded
+ * arrays of objects as too complex.
+ */
 export const ExtractionOutput = z.object({
-  concepts: z
-    .array(
-      z.object({
-        title: z.string().min(1),
-        summary: z.string().min(1),
-        body: z.string().min(1),
-        keyTerm: z.string().optional(),
-        definition: z.string().optional(),
-        examples: z.array(z.string()).default([]),
-        visualHint: z.string().optional(),
-        excerpt: z.string().min(1),
-        confidence: z.enum(["high", "medium", "low"]),
-      }),
-    )
-    .max(12),
+  concepts: z.array(
+    z.object({
+      title: z.string().min(1),
+      summary: z.string().min(1),
+      body: z.string().min(1),
+      keyTerm: z.string().optional(),
+      definition: z.string().optional(),
+      examples: z.array(z.string()).default([]),
+      visualHint: z.string().optional(),
+      excerpt: z.string().min(1),
+      confidence: z.enum(["high", "medium", "low"]),
+    }),
+  ),
 });
 export type ExtractionOutput = z.infer<typeof ExtractionOutput>;
 
@@ -93,7 +96,7 @@ export function verifyCandidates(
 ): CandidateConcept[] {
   const candidates: CandidateConcept[] = [];
 
-  for (const draft of output.concepts) {
+  for (const draft of output.concepts.slice(0, MAX_CONCEPTS_PER_CHUNK)) {
     let excerpt = draft.excerpt.trim();
     let repaired = false;
 
