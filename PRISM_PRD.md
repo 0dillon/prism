@@ -942,7 +942,7 @@ Update this table when a phase completes.
 - [x] **P0-03** [MVP] Install core dependencies: `zod`, `zustand`, `@supabase/supabase-js`, `@supabase/ssr`, `langchain` core packages plus the chosen provider package, `unpdf`, `ulid`, Radix primitives, and Motion. Done when: `package.json` lists them and the build passes.
 - [x] **P0-04** [MVP] Add `.env.example` with every variable from Section 7.6 and a typed env loader. File: `src/lib/env.ts`. Done when: the app throws a clear error at startup if a required server variable is missing.
 - [ ] **P0-05** [MVP] Initialize Supabase locally (`supabase init`) and add browser and server client helpers. Files: `src/lib/supabase/client.ts`, `src/lib/supabase/server.ts`. Done when: a server component can query the database.
-- [ ] **P0-06** [MVP] Set up Vitest with one passing sample test. Done when: `npm test` passes.
+- [x] **P0-06** [MVP] Set up Vitest with one passing sample test. Done when: `npm test` passes.
 - [ ] **P0-07** Set up Playwright with `@axe-core/playwright` and one smoke test that loads the home page with zero axe violations. Done when: `npm run e2e` passes.
 - [ ] **P0-08** Add CI (GitHub Actions) that runs lint, type check, unit tests, and e2e on pull requests. Done when: the workflow passes on the main branch.
 - [ ] **P0-09** [MVP] Build the base layout: skip link, landmark regions, a global polite and assertive live region, and theme tokens as CSS custom properties. Files: `src/app/layout.tsx`, `src/lib/a11y/live-region.tsx`, `src/app/globals.css`. Done when: `announce("text")` is callable from any client component and is read by a screen reader.
