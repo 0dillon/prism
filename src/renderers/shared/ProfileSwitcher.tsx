@@ -38,8 +38,7 @@ export function ProfileSwitcher({ profile, onSelect }: ProfileSwitcherProps) {
                     : "bg-background border-line"
                 }`}
               >
-                {PRESET_DESCRIPTIONS[preset].label}
-                {current ? <span className="sr-only"> (current)</span> : null}
+                {PRESET_DESCRIPTIONS[preset].label + (current ? " (current)" : "")}
               </button>
             </li>
           );
