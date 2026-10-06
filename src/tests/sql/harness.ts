@@ -8,7 +8,7 @@ import { join } from "node:path";
  * There is no Docker on every dev machine, so `supabase db reset` is not always
  * available. PGlite is real Postgres compiled to WASM. The shim below recreates the
  * parts of a Supabase project that migrations depend on: the three API roles, the
- * auth and storage schemas, auth.uid(), and Supabase's default table privileges.
+ * auth and storage schemas, auth.uid(), and the no-default-privileges setup of a project with automatic table exposure off.
  * Migrations are then applied in filename order, exactly as `supabase db reset` would.
  */
 
@@ -64,10 +64,10 @@ $$;
 grant select, insert, update, delete on storage.objects to anon, authenticated, service_role;
 grant select on storage.buckets to anon, authenticated, service_role;
 
--- Supabase grants every new public object to the API roles by default.
-alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+-- Match a project with "Automatically expose new tables" off, the recommended
+-- setting: new public tables get no default privileges for the API roles, so every
+-- migration must grant access explicitly. Only functions keep the default execute grant.
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
-alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 `;
 
 export type Db = PGlite;
