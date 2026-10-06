@@ -944,7 +944,7 @@ Update this table when a phase completes.
 - [x] **P0-05** [MVP] Initialize Supabase locally (`supabase init`) and add browser and server client helpers. Files: `src/lib/supabase/client.ts`, `src/lib/supabase/server.ts`. Done when: a server component can query the database.
 - [x] **P0-06** [MVP] Set up Vitest with one passing sample test. Done when: `npm test` passes.
 - [x] **P0-07** Set up Playwright with `@axe-core/playwright` and one smoke test that loads the home page with zero axe violations. Done when: `npm run e2e` passes.
-- [ ] **P0-08** Add CI (GitHub Actions) that runs lint, type check, unit tests, and e2e on pull requests. Done when: the workflow passes on the main branch.
+- [x] **P0-08** Add CI (GitHub Actions) that runs lint, type check, unit tests, and e2e on pull requests. Done when: the workflow passes on the main branch.
 - [x] **P0-09** [MVP] Build the base layout: skip link, landmark regions, a global polite and assertive live region, and theme tokens as CSS custom properties. Files: `src/app/layout.tsx`, `src/lib/a11y/live-region.tsx`, `src/app/globals.css`. Done when: `announce("text")` is callable from any client component and is read by a screen reader.
 - [x] **P0-10** [MVP] Add self-hosted fonts (Atkinson Hyperlegible, Lexend, OpenDyslexic) with their license files. Folder: `public/fonts/`. Done when: each font is selectable through a CSS custom property.
 
