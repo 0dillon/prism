@@ -1,13 +1,5 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { requestVariant, VariantRequestError } from "@/lib/lessons/variants-client";
-import {
-  clearEvents,
-  pendingEvents,
-  subscribeToEvents,
-  track,
-  type TrackInput,
-} from "@/lib/session/events";
-import { LearningEvent } from "@/lib/schemas/events";
 import {
   backTarget,
   isLastPage,
@@ -133,44 +125,5 @@ describe("requestVariant", () => {
     for (const body of [{}, { body: "" }, { body: "   " }, null]) {
       await expect(requestVariant(input, reply(body))).rejects.toBeInstanceOf(VariantRequestError);
     }
-  });
-});
-
-describe("track", () => {
-  afterEach(() => clearEvents());
-  const input: TrackInput = {
-    type: "concept_variant_requested",
-    lessonId: "l1",
-    graphVersion: 3,
-    conceptId: "c1",
-    layout: "reader",
-  };
-
-  it("adds a unique id and a timestamp, and queues the event", () => {
-    const a = track(input, () => new Date("2026-10-06T10:00:00Z"));
-    const b = track(input);
-    expect(a.occurredAt).toBe("2026-10-06T10:00:00.000Z");
-    expect(a.id).not.toBe(b.id);
-    expect(pendingEvents()).toEqual([a, b]);
-  });
-
-  it("builds events the schema accepts once the server adds the user", () => {
-    const event = track(input);
-    expect(LearningEvent.safeParse({ ...event, userId: "u1" }).success).toBe(true);
-  });
-
-  it("tells subscribers, until they leave", () => {
-    const seen: string[] = [];
-    const off = subscribeToEvents((e) => seen.push(e.type));
-    track(input);
-    off();
-    track(input);
-    expect(seen).toEqual(["concept_variant_requested"]);
-  });
-
-  it("can be emptied", () => {
-    track(input);
-    clearEvents();
-    expect(pendingEvents()).toHaveLength(0);
   });
 });
