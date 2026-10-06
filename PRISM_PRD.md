@@ -1146,12 +1146,15 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: Both `@langchain/anthropic` and `@langchain/openai` are installed, and `LLM_PROVIDER` selects between them. Reason: the production provider is an open question (9.3) and the PRD asks for a provider package behind one gateway. Affects 7.2, P0-03.
 - 2026-10-06: Latest stable majors at install time are used as-is: Next.js 16, React 19, Zod 4, Tailwind 4. Schemas keep the exact shapes in 5.2, 5.3, and 5.7; only the Zod API surface differs from older majors. Affects 0.2, 7.2.
 - 2026-10-06: `KnowledgeGraph` is the PRD 5.2 object plus a refinement for referential integrity (unique ids, section and concept references, prerequisite existence, no cycles, MCQ and true/false answer rules); the plain object is exported as `KnowledgeGraphBase`. Reason: P1-01 requires the schema itself to reject a dangling quiz reference, and P2-07 reuses the same checks. Affects 5.2, P1-01, P2-07.
+- 2026-10-06: Migrations and SQL tests run in-process on PGlite (real Postgres compiled to WASM) behind a shim of Supabase's roles, `auth` and `storage` schemas, `auth.uid()`, and default privileges (`src/tests/sql/harness.ts`). Reason: this machine has no Docker, so `supabase db reset` cannot run. Migrations are plain SQL applied in filename order, so they should behave the same under `supabase db reset`; that run is still owed once Docker or a hosted project is available (9.2). Affects P1-04 to P1-15.
+- 2026-10-06: Composite keys `(lesson_id, id)` on `concepts` and `quiz_items`, and `lesson_id` columns on `concept_variants` and `concept_sign_links`. Reason: concept and quiz ids are graph-local text ids, and row-level security needs the lesson to decide access. Affects 7.4.
 - 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
 
 ### 9.2 Blockers
 
 Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
 
+- 2026-10-06: P1-04 to P1-15, SQL is verified on PGlite, not by `supabase db reset` (see 9.1). Run `npx supabase db reset` once Docker is available and fix any difference.
 - 2026-10-06: P0-05, no Docker, WSL, or local Postgres on the development machine, so `supabase start` cannot run and a server component cannot be pointed at a live database yet. Implemented `src/lib/supabase/client.ts` and `server.ts` against the real `@supabase/ssr` API. Task left unchecked until a hosted Supabase project (or Docker) is available. Phase 1 SQL is verified in-process with PGlite instead; see 9.1.
 
 ### 9.3 Open questions and findings
