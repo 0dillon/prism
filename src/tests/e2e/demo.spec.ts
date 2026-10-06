@@ -107,13 +107,46 @@ test.describe("the demo page", () => {
     await expect(page.getByRole("heading", { level: 2, name: "Transpiration" })).toBeVisible();
   });
 
-  test("works with the network off after the first load", async ({ page, context }) => {
+  test("runs with the network off, even after a reload (P9-05)", async ({ page, context }) => {
+    // The page says when it has saved itself and every layout.
+    await expect(page.locator('[data-offline="ready"]')).toBeVisible({ timeout: 30_000 });
     await context.setOffline(true);
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { level: 1, name: /The Water Cycle, cards view/ }),
+    ).toBeVisible();
+
+    // Every learner and layout works, including the plainer wording that is built in.
+    for (const [name, layout] of [
+      ["Tunde", /conversation view/],
+      ["Leo", /reading view/],
+      ["Sofia", /visual view/],
+      ["Maya", /cards view/],
+    ] as const) {
+      await pickLearner(page, name);
+      await expect(page.getByRole("heading", { level: 1, name: layout })).toBeVisible();
+    }
+    await page.getByRole("button", { name: "Start", exact: true }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await expect(page.getByRole("heading", { level: 2, name: "Transpiration" })).toBeVisible();
     await pickLearner(page, "Leo");
     await page.getByRole("button", { name: "Start", exact: true }).click();
-    await expect(page.getByRole("heading", { level: 3, name: "Evaporation" })).toBeVisible();
-    // Leo's plainer wording is served from the page's own text.
     await expect(page.getByText(/The sun heats water in oceans, lakes, and rivers/)).toBeVisible();
+  });
+
+  test("never saves anything from the API for offline use", async ({ page }) => {
+    await expect(page.locator('[data-offline="ready"]')).toBeVisible({ timeout: 30_000 });
+    const saved = await page.evaluate(async () => {
+      const keys: string[] = [];
+      for (const name of await caches.keys()) {
+        for (const request of await (await caches.open(name)).keys())
+          keys.push(new URL(request.url).pathname);
+      }
+      return keys;
+    });
+    expect(saved.length).toBeGreaterThan(3);
+    expect(saved.filter((p) => p.startsWith("/api/"))).toEqual([]);
+    expect(saved).toContain("/demo");
   });
 });
 
