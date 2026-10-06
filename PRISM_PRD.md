@@ -937,7 +937,7 @@ Update this table when a phase completes.
 
 ### Phase 0: Project foundation
 
-- [ ] **P0-01** [MVP] Scaffold a Next.js App Router project with TypeScript strict, Tailwind, ESLint, and Prettier at the repo root. Done when: `npm run dev` serves a placeholder home page and `npm run lint` passes.
+- [x] **P0-01** [MVP] Scaffold a Next.js App Router project with TypeScript strict, Tailwind, ESLint, and Prettier at the repo root. Done when: `npm run dev` serves a placeholder home page and `npm run lint` passes.
 - [ ] **P0-02** [MVP] Create the directory structure from Section 7.3 with `.gitkeep` files. Done when: all listed folders exist.
 - [ ] **P0-03** [MVP] Install core dependencies: `zod`, `zustand`, `@supabase/supabase-js`, `@supabase/ssr`, `langchain` core packages plus the chosen provider package, `unpdf`, `ulid`, Radix primitives, and Motion. Done when: `package.json` lists them and the build passes.
 - [ ] **P0-04** [MVP] Add `.env.example` with every variable from Section 7.6 and a typed env loader. File: `src/lib/env.ts`. Done when: the app throws a clear error at startup if a required server variable is missing.
