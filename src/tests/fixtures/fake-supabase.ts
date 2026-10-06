@@ -24,6 +24,8 @@ export class FakeSupabase {
     unmet_needs: [],
     concepts: [],
     concept_mastery: [],
+    users_public: [],
+    learning_events: [],
   };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
