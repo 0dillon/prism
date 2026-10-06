@@ -16,6 +16,7 @@ export class FakeSupabase {
     concept_sign_links: [],
     concept_variants: [],
     render_profiles: [],
+    unmet_needs: [],
   };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
@@ -115,7 +116,8 @@ export class FakeSupabase {
     const from = (table: string) => {
       let op: "select" | "insert" | "update" | "delete" | "upsert" = "select";
       let conflictColumn = "id";
-      let payload: Row = {};
+      let payload: Row | Row[] = {};
+      const firstRow = (): Row => (Array.isArray(payload) ? payload[0] : payload);
       const filters: [string, unknown][] = [];
       let ordering: { column: string; ascending: boolean } | null = null;
       let limit: number | null = null;
@@ -126,48 +128,57 @@ export class FakeSupabase {
         if (injected) return { data: null, error: injected };
 
         if (op === "upsert") {
-          if (userId !== null && payload.user_id !== userId) {
+          if (userId !== null && firstRow().user_id !== userId) {
             return {
               data: null,
               error: { message: "new row violates row-level security policy" },
             };
           }
           const existing = this.tables[table].find(
-            (r) => r[conflictColumn] === payload[conflictColumn],
+            (r) => r[conflictColumn] === firstRow()[conflictColumn],
           );
-          if (existing) Object.assign(existing, payload, { updated_at: this.clock() });
-          else this.tables[table].push({ id: randomUUID(), created_at: this.clock(), ...payload });
+          if (existing) Object.assign(existing, firstRow(), { updated_at: this.clock() });
+          else
+            this.tables[table].push({ id: randomUUID(), created_at: this.clock(), ...firstRow() });
           return { data: null, error: null };
         }
 
         if (op === "insert") {
-          if (userId !== null) {
-            const allowed = table === "lessons" && payload.owner_id === userId;
-            if (!allowed) {
-              return {
-                data: null,
-                error: { message: "new row violates row-level security policy" },
-              };
+          // PostgREST accepts one row or an array of rows.
+          const incoming: Row[] = Array.isArray(payload)
+            ? (payload as unknown as Row[])
+            : [payload];
+          const inserted: Row[] = [];
+          for (const item of incoming) {
+            if (userId !== null) {
+              const allowed = table === "lessons" && item.owner_id === userId;
+              if (!allowed) {
+                return {
+                  data: null,
+                  error: { message: "new row violates row-level security policy" },
+                };
+              }
             }
-          }
-          if (table === "concept_variants") {
-            const key = (r: Row) =>
-              [r.lesson_id, r.concept_id, r.graph_version, r.reading_level].join("|");
-            if (this.tables.concept_variants.some((r) => key(r) === key(payload))) {
-              return {
-                data: null,
-                error: { message: "duplicate key value", code: "23505" } as { message: string },
-              };
+            if (table === "concept_variants") {
+              const key = (r: Row) =>
+                [r.lesson_id, r.concept_id, r.graph_version, r.reading_level].join("|");
+              if (this.tables.concept_variants.some((r) => key(r) === key(item))) {
+                return {
+                  data: null,
+                  error: { message: "duplicate key value", code: "23505" } as { message: string },
+                };
+              }
             }
+            const row = {
+              id: randomUUID(),
+              created_at: this.clock(),
+              updated_at: this.clock(),
+              ...item,
+            };
+            this.tables[table].push(row);
+            inserted.push(row);
           }
-          const row = {
-            id: randomUUID(),
-            created_at: this.clock(),
-            updated_at: this.clock(),
-            ...payload,
-          };
-          this.tables[table].push(row);
-          return { data: [row], error: null };
+          return { data: inserted, error: null };
         }
 
         let rows = this.visible(table, userId).filter((r) => filters.every(([c, v]) => r[c] === v));
@@ -178,7 +189,7 @@ export class FakeSupabase {
           }
           if (userId !== null && table === "lessons")
             rows = rows.filter((r) => r.owner_id === userId);
-          rows.forEach((r) => Object.assign(r, payload, { updated_at: this.clock() }));
+          rows.forEach((r) => Object.assign(r, firstRow(), { updated_at: this.clock() }));
           return { data: rows, error: null };
         }
         if (op === "delete") {
@@ -219,7 +230,7 @@ export class FakeSupabase {
           conflictColumn = options?.onConflict ?? "id";
           return builder;
         },
-        insert: (row: Row) => {
+        insert: (row: Row | Row[]) => {
           op = "insert";
           payload = row;
           return builder;
