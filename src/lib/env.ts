@@ -16,7 +16,7 @@ const serverSchema = z
     NEXT_PUBLIC_SUPABASE_ANON_KEY: nonEmpty,
     SUPABASE_SERVICE_ROLE_KEY: nonEmpty,
 
-    LLM_PROVIDER: z.enum(["anthropic", "openai"]),
+    LLM_PROVIDER: z.enum(["anthropic", "openai", "google"]),
     LLM_API_KEY: nonEmpty,
     LLM_MODEL_HEAVY: nonEmpty,
     LLM_MODEL_FAST: nonEmpty,
