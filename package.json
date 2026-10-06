@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "db:types": "tsx scripts/gen-db-types.ts",
     "db:types:supabase": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
-    "db:reset": "supabase db reset"
+    "db:reset": "supabase db reset",
+    "smoke:supabase": "node --env-file=.env.local scripts/smoke-supabase.mjs"
   },
   "dependencies": {
     "@langchain/anthropic": "^1.5.12",
