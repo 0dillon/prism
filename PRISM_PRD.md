@@ -1035,7 +1035,7 @@ Update this table when a phase completes.
 #### 4C. Conversation renderer
 
 - [ ] **P4-14** [MVP] Speech interfaces and browser providers: `SttProvider` (start, stop, onPartial, onFinal) and `TtsProvider` (speak, cancel, onBoundary, onEnd). Files: `src/lib/speech/stt.ts`, `src/lib/speech/tts.ts`, `src/lib/speech/providers/browser.ts`. Done when: a test page transcribes speech and speaks text in Chrome.
-- [ ] **P4-15** [MVP] Tutor turn endpoint: given the current concept, section, overview, and intent, stream the tutor's spoken reply. Uses only graph content. File: `src/lib/ai/tutor/turn.ts`, route `POST /api/tutor/turn`. Done when: a `question` outside the lesson gets a reply saying the lesson does not cover it.
+- [x] **P4-15** [MVP] Tutor turn endpoint: given the current concept, section, overview, and intent, stream the tutor's spoken reply. Uses only graph content. File: `src/lib/ai/tutor/turn.ts`, route `POST /api/tutor/turn`. Done when: a `question` outside the lesson gets a reply saying the lesson does not cover it.
 - [ ] **P4-16** [MVP] `ConversationRenderer` loop: speak concept summary, listen, resolve intent (local first, then LLM), dispatch the session action or tutor turn, repeat. File: `src/renderers/conversation/ConversationRenderer.tsx`. Done when: a learner completes a 3-concept fixture lesson by voice only. (CE-6)
 - [ ] **P4-17** [MVP] Barge-in: cancel speech on detected speech or any key press. Done when: speaking over the tutor stops audio within 200 ms in a manual test.
 - [ ] **P4-18** [MVP] Spoken quizzes: read prompt and lettered options, accept a letter or the option content, grade MCQ and true/false locally. Done when: saying "B" and saying the option text both register the same answer.
