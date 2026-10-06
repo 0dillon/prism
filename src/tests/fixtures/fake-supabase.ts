@@ -15,6 +15,7 @@ export class FakeSupabase {
     ingestion_jobs: [],
     concept_sign_links: [],
     concept_variants: [],
+    render_profiles: [],
   };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
@@ -87,6 +88,7 @@ export class FakeSupabase {
     if (table === "lessons") {
       return rows.filter((r) => r.owner_id === userId || r.status === "published");
     }
+    if (table === "render_profiles") return rows.filter((r) => r.user_id === userId);
     if (table === "concept_variants") {
       const readable = new Set(
         this.tables.lessons
@@ -111,7 +113,8 @@ export class FakeSupabase {
     };
 
     const from = (table: string) => {
-      let op: "select" | "insert" | "update" | "delete" = "select";
+      let op: "select" | "insert" | "update" | "delete" | "upsert" = "select";
+      let conflictColumn = "id";
       let payload: Row = {};
       const filters: [string, unknown][] = [];
       let ordering: { column: string; ascending: boolean } | null = null;
@@ -121,6 +124,21 @@ export class FakeSupabase {
       const run = (): Result => {
         const injected = fail(`${table}.${op}`);
         if (injected) return { data: null, error: injected };
+
+        if (op === "upsert") {
+          if (userId !== null && payload.user_id !== userId) {
+            return {
+              data: null,
+              error: { message: "new row violates row-level security policy" },
+            };
+          }
+          const existing = this.tables[table].find(
+            (r) => r[conflictColumn] === payload[conflictColumn],
+          );
+          if (existing) Object.assign(existing, payload, { updated_at: this.clock() });
+          else this.tables[table].push({ id: randomUUID(), created_at: this.clock(), ...payload });
+          return { data: null, error: null };
+        }
 
         if (op === "insert") {
           if (userId !== null) {
@@ -193,6 +211,12 @@ export class FakeSupabase {
       const builder = {
         select: () => {
           returning = true;
+          return builder;
+        },
+        upsert: (row: Row, options?: { onConflict?: string }) => {
+          op = "upsert";
+          payload = row;
+          conflictColumn = options?.onConflict ?? "id";
           return builder;
         },
         insert: (row: Row) => {
