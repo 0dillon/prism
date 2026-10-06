@@ -131,12 +131,13 @@ export default function ReaderRenderer({
     >
       <h1
         id="renderer-heading"
+        // One label, so the name reads "Title, view" without stray spaces. It starts with the visible title.
+        aria-label={`${graph.title}, reading view`}
         tabIndex={-1}
         {...{ [RENDERER_HEADING_ATTRIBUTE]: "" }}
         className="text-3xl font-bold"
       >
         {graph.title}
-        <span className="sr-only">, reading view</span>
       </h1>
 
       {feedback.progressBar && phase !== "intro" ? (

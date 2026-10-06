@@ -82,12 +82,13 @@ export default function CardsRenderer({ graph, session, profile, actions }: Rend
     >
       <h1
         id="renderer-heading"
+        // One label, so the name reads "Title, view" without stray spaces. It starts with the visible title.
+        aria-label={`${graph.title}, cards view`}
         tabIndex={-1}
         {...{ [RENDERER_HEADING_ATTRIBUTE]: "" }}
         className="text-2xl font-bold"
       >
         {graph.title}
-        <span className="sr-only">, cards view</span>
       </h1>
 
       {feedback.progressBar && phase !== "intro" ? (
