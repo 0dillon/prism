@@ -1150,6 +1150,9 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: Composite keys `(lesson_id, id)` on `concepts` and `quiz_items`, and `lesson_id` columns on `concept_variants` and `concept_sign_links`. Reason: concept and quiz ids are graph-local text ids, and row-level security needs the lesson to decide access. Affects 7.4.
 - 2026-10-06: `src/middleware.ts` is `src/proxy.ts`. Reason: Next.js 16 renamed Middleware to Proxy; behavior is the same. Affects 7.3, P1-11.
 - 2026-10-06: Projects are set up with "Automatically expose new tables" off, and `config.toml` sets `auto_expose_new_tables = false`. Every migration therefore grants API roles explicitly, `service_role` included (migration 20261006090600), and the PGlite harness no longer gives default table grants so a missing grant fails in tests. Reason: the live smoke test showed `service_role` was denied on every table. Affects 7.4, 6.4.
+- 2026-10-06: Schemas sent to the model carry no array `.max()` or string length limits. Gemini rejects bounded arrays of objects as too complex (found by a live call), so limits are enforced in code after the call (clamp titles and summaries, cap concepts per chunk, cap quiz items per concept). Zod still validates everything that is stored. Affects 0.2, P2-04, P2-06.
+- 2026-10-06: Quiz generation runs on the `heavy` tier, four concepts per call. Reason: a wrong quiz answer is costly and the teacher cannot easily spot it, and batching keeps call count low. The PRD lists no tier for this step. Affects 5.1 step 6, 6.2.
+- 2026-10-06: The demo and CI use Gemini (`gemini-3.5-flash` heavy, `gemini-3.5-flash-lite` fast) on a free API key. Production provider and models are still open (9.3). Affects 7.2.
 - 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
 
 ### 9.2 Blockers
