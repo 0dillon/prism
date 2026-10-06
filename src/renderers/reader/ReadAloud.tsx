@@ -93,9 +93,9 @@ export function ReadAloud({ script, rate, onRateChange, onActiveChange, tts }: R
       aria-labelledby={labelId}
       className="border-line flex flex-col gap-3 rounded-md border p-4"
     >
-      <h2 id={labelId} className="font-semibold">
+      <p id={labelId} className="font-semibold">
         Read aloud
-      </h2>
+      </p>
       <div className="flex flex-wrap items-center gap-3">
         <Button
           onClick={() => {
