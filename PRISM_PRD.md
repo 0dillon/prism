@@ -922,7 +922,7 @@ Update this table when a phase completes.
 
 | Phase | Name | Status |
 | --- | --- | --- |
-| 0 | Project foundation | Not started |
+| 0 | Project foundation | MVP tasks done. P0-05 awaits a live database check (9.2). P0-07 and P0-08 deferred |
 | 1 | Database and schema | Not started |
 | 2 | AI ingestion pipeline | Not started |
 | 3 | Profiles, intents, and dynamic rendering state | Not started |
