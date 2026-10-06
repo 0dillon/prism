@@ -2,7 +2,12 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ReviewEditor, SaveError, type SaveFn } from "@/app/teach/lessons/[id]/review/ReviewEditor";
+import {
+  ReviewEditor,
+  SaveError,
+  type PublishFn,
+  type SaveFn,
+} from "@/app/teach/lessons/[id]/review/ReviewEditor";
 import { announce, LiveRegions } from "@/lib/a11y/live-region";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import { expectNoAxeViolations } from "../a11y";
@@ -29,7 +34,9 @@ const okSave = (): SaveFn =>
     updatedAt: "2026-10-06T11:00:00.000Z",
   }));
 
-function setup(graph = reviewGraph(), save: SaveFn = okSave()) {
+const okPublish = (): PublishFn => vi.fn(async () => ({ version: 1, warnings: [] }));
+
+function setup(graph = reviewGraph(), save: SaveFn = okSave(), publish: PublishFn = okPublish()) {
   const user = userEvent.setup();
   const view = render(
     <>
@@ -38,11 +45,12 @@ function setup(graph = reviewGraph(), save: SaveFn = okSave()) {
         initialGraph={graph}
         initialUpdatedAt="2026-10-06T10:00:00.000Z"
         save={save}
+        publish={publish}
       />
       <LiveRegions />
     </>,
   );
-  return { user, save, ...view };
+  return { user, save, publish, ...view };
 }
 
 const conceptTitles = () =>
@@ -480,5 +488,76 @@ describe("ReviewEditor: keyboard", () => {
     saveButton.focus();
     await user.keyboard("{Enter}");
     await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+  });
+});
+
+describe("ReviewEditor: publishing", () => {
+  it("cannot publish while there are unsaved changes, and says why", async () => {
+    const { user } = setup();
+    expect(screen.getByRole("button", { name: "Publish lesson" })).toBeEnabled();
+    await user.type(screen.getAllByLabelText("Title")[0], "!");
+    expect(screen.getByRole("button", { name: "Publish lesson" })).toBeDisabled();
+    expect(screen.getByText("Save your changes before publishing.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await screen.findByText("All changes saved.");
+    expect(screen.getByRole("button", { name: "Publish lesson" })).toBeEnabled();
+  });
+
+  it("asks for confirmation, and cancelling does not publish", async () => {
+    const { user, publish } = setup();
+    await user.click(screen.getByRole("button", { name: "Publish lesson" }));
+    const dialog = await screen.findByRole("alertdialog", { name: "Publish this lesson?" });
+    expect(within(dialog).getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    expect(publish).not.toHaveBeenCalled();
+  });
+
+  it("publishes once confirmed, announces it and moves focus to the result", async () => {
+    const { user, publish } = setup();
+    await user.click(screen.getByRole("button", { name: "Publish lesson" }));
+    const dialog = await screen.findByRole("alertdialog");
+    await user.click(within(dialog).getByRole("button", { name: "Publish" }));
+
+    await screen.findByRole("heading", { name: "Your lesson is published" });
+    expect(publish).toHaveBeenCalledWith("lesson-1");
+    expect(lastAnnouncement()).toBe("Your lesson is published.");
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "Your lesson is published" }).parentElement,
+      ).toHaveFocus(),
+    );
+    // The editor is gone, so it cannot be edited into a different state than what was published.
+    expect(screen.queryByRole("button", { name: "Save changes" })).not.toBeInTheDocument();
+  });
+
+  it("reports a failed publish as an alert and keeps the editor", async () => {
+    const publish: PublishFn = vi.fn(async () => {
+      throw new SaveError("This lesson has a problem that must be fixed first.", "invalid_graph");
+    });
+    const { user } = setup(reviewGraph(), okSave(), publish);
+    await user.click(screen.getByRole("button", { name: "Publish lesson" }));
+    await user.click(
+      within(await screen.findByRole("alertdialog")).getByRole("button", { name: "Publish" }),
+    );
+    await waitFor(() => expect(editorAlert()).not.toBeNull());
+    expect(editorAlert()).toHaveTextContent(/must be fixed first/);
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Publish lesson" })).toBeEnabled();
+    expect(lastAnnouncement()).toMatch(/^Not published\./);
+  });
+
+  it("shows what is worth a look before publishing a thin lesson", () => {
+    const thin = reviewGraph();
+    thin.quizItems = thin.quizItems.filter((q) => q.conceptId !== "c_condensation");
+    setup(thin);
+    expect(screen.getByRole("heading", { name: "Worth a look" })).toBeInTheDocument();
+    expect(screen.getByText(/"Condensation" has 0 quiz item/)).toBeInTheDocument();
+  });
+
+  it("has no axe violations with the publish dialog open", async () => {
+    const { user } = setup();
+    await user.click(screen.getByRole("button", { name: "Publish lesson" }));
+    await screen.findByRole("alertdialog");
+    await expectNoAxeViolations(document.body, { rules: ["landmark-unique"] });
   });
 });

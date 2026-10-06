@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ulid } from "ulid";
 import { Button } from "@/components/Button";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { TextField } from "@/components/TextField";
 import {
   addConcept,
@@ -25,7 +27,7 @@ import {
   type Direction,
   type QuizItemPatch,
 } from "@/lib/ai/ingestion/review";
-import { validateGraph, type ValidationIssue } from "@/lib/ai/ingestion/validate";
+import { graphWarnings, validateGraph, type ValidationIssue } from "@/lib/ai/ingestion/validate";
 import { announce } from "@/lib/a11y/live-region";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import { ConceptEditor, conceptHeadingId, moveButtonId } from "./ConceptEditor";
@@ -37,7 +39,13 @@ export interface ReviewEditorProps {
   initialUpdatedAt: string;
   /** Override the save call. Used by tests. */
   save?: SaveFn;
+  /** Override the publish call. Used by tests. */
+  publish?: PublishFn;
 }
+
+export type PublishFn = (
+  lessonId: string,
+) => Promise<{ version: number; warnings: ValidationIssue[] }>;
 
 export type SaveFn = (
   lessonId: string,
@@ -73,6 +81,22 @@ const defaultSave: SaveFn = async (lessonId, body) => {
   return json as { graph: KnowledgeGraph; warnings: ValidationIssue[]; updatedAt: string };
 };
 
+const defaultPublish: PublishFn = async (lessonId) => {
+  const response = await fetch(`/api/lessons/${lessonId}/publish`, { method: "POST" });
+  const json = (await response.json().catch(() => null)) as
+    | { error?: { code?: string; message?: string } }
+    | { version: number; warnings: ValidationIssue[] }
+    | null;
+  if (!response.ok) {
+    const error = json && "error" in json ? json.error : undefined;
+    throw new SaveError(
+      error?.message ?? "We could not publish the lesson.",
+      error?.code ?? "unknown",
+    );
+  }
+  return json as { version: number; warnings: ValidationIssue[] };
+};
+
 type FocusTarget =
   { kind: "move"; id: string; direction: Direction } | { kind: "heading"; id: string } | null;
 
@@ -103,6 +127,7 @@ export function ReviewEditor({
   initialGraph,
   initialUpdatedAt,
   save = defaultSave,
+  publish = defaultPublish,
 }: ReviewEditorProps) {
   const [graph, setGraph] = useState(initialGraph);
   const [saved, setSaved] = useState(initialGraph);
@@ -110,7 +135,10 @@ export function ReviewEditor({
   const [saving, setSaving] = useState(false);
   const [problems, setProblems] = useState<string[]>([]);
   const [saveError, setSaveError] = useState<{ message: string; conflict: boolean } | null>(null);
-  const [warnings, setWarnings] = useState<ValidationIssue[]>([]);
+  const [warnings, setWarnings] = useState<ValidationIssue[]>(() => graphWarnings(initialGraph));
+  const [publishing, setPublishing] = useState(false);
+  const [publishedVersion, setPublishedVersion] = useState<number | null>(null);
+  const publishedRef = useRef<HTMLDivElement>(null);
 
   const dirty = useMemo(() => JSON.stringify(graph) !== JSON.stringify(saved), [graph, saved]);
   const concepts = useMemo(() => orderedConcepts(graph), [graph]);
@@ -211,6 +239,25 @@ export function ReviewEditor({
     }
   };
 
+  const onPublish = async () => {
+    setPublishing(true);
+    setSaveError(null);
+    setProblems([]);
+    try {
+      const result = await publish(lessonId);
+      setPublishedVersion(result.version);
+      announce("Your lesson is published.");
+      requestAnimationFrame(() => publishedRef.current?.focus());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "We could not publish the lesson.";
+      setSaveError({ message, conflict: false });
+      announce(`Not published. ${message}`, "assertive");
+      requestAnimationFrame(() => problemsRef.current?.focus());
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const renderConcept = (conceptId: string) => {
     const concept = graph.concepts.find((c) => c.id === conceptId);
     if (!concept) return null;
@@ -250,6 +297,23 @@ export function ReviewEditor({
   const sections = graph.sections;
   const questionCount = graph.quizItems.length;
 
+  if (publishedVersion !== null) {
+    return (
+      <div ref={publishedRef} tabIndex={-1} className="flex flex-col gap-4 outline-none">
+        <h2 className="text-2xl font-semibold">Your lesson is published</h2>
+        <p>
+          Learners can now open &ldquo;{graph.title}&rdquo;. Changes you make later create a new
+          version without erasing anyone&rsquo;s progress.
+        </p>
+        <p>
+          <Link href="/teach/upload" className="font-semibold underline">
+            Upload another lesson
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <div ref={summaryRef} tabIndex={-1} className="flex flex-col gap-3 outline-none">
@@ -271,6 +335,20 @@ export function ReviewEditor({
                 ? "You have unsaved changes."
                 : "All changes saved."}
           </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <ConfirmDialog
+            trigger={
+              <Button disabled={dirty || saving || publishing}>
+                {publishing ? "Publishing…" : "Publish lesson"}
+              </Button>
+            }
+            title="Publish this lesson?"
+            description="Learners will be able to open it as soon as you publish. You can still make changes afterwards."
+            confirmLabel="Publish"
+            onConfirm={() => void onPublish()}
+          />
+          {dirty ? <p className="text-muted">Save your changes before publishing.</p> : null}
         </div>
       </div>
 
