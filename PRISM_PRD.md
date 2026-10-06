@@ -1008,7 +1008,7 @@ Update this table when a phase completes.
 - [x] **P3-12** [MVP] Onboarding page: preset gallery with live preview on a sample concept, the NeedsBox, and Continue. No diagnosis questions. File: `src/app/onboarding/page.tsx`. Done when: the flow can be completed by keyboard alone and by screen reader. (CE-3)
 - [x] **P3-13** [MVP] Settings panel (dialog) exposing every Render Profile field with labelled controls, grouped by Content, Quiz, Text, Audio, Visual, and Feedback. File: `src/components/SettingsPanel.tsx`. Done when: every field in the schema is editable and changes apply live.
 - [x] **P3-14** [MVP] Local keyword matcher for session commands, returning a `SessionIntent` or null. File: `src/lib/ai/intents/local.ts`. Done when: unit tests map at least 3 phrasings for each of next, repeat, simplify, quiz_me, pause, and where_am_i.
-- [ ] **P3-15** [MVP] LLM session intent parser and `POST /api/session/intent` for utterances the local matcher misses. File: `src/lib/ai/intents/session.ts`. Done when: "can you go over that again but easier" returns `simplify`.
+- [x] **P3-15** [MVP] LLM session intent parser and `POST /api/session/intent` for utterances the local matcher misses. File: `src/lib/ai/intents/session.ts`. Done when: "can you go over that again but easier" returns `simplify`.
 - [ ] **P3-16** Anonymous profile support: a profile stored locally for signed-out users and migrated to `render_profiles` at sign-up. Done when: a profile set before sign-up is present after it. (B2C-3)
 
 ### Phase 4: Renderers
