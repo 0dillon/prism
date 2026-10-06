@@ -38,6 +38,8 @@ export interface ProfileActions {
   applyPreset(preset: Exclude<Preset, "custom">): void;
   /** Merges a partial change. Throws ProfilePatchError and keeps the profile if it is invalid. */
   applyPatch(patch: ProfilePatch, options?: { explanation?: string }): ProfileChange[];
+  /** Replaces the profile with one that was already merged and validated, such as a server result. */
+  applyProfile(next: RenderProfile, options?: { explanation?: string }): ProfileChange[];
   undo(): boolean;
   /** Replaces the profile without recording history, for loading one from the server. */
   setProfile(profile: RenderProfile): void;
@@ -127,6 +129,14 @@ export function createProfileStore(options: ProfileStoreOptions = {}): StoreApi<
             : merged;
         const changes = diffProfiles(current, next);
         change(next, changes, patchOptions?.explanation);
+        return changes;
+      },
+
+      applyProfile(next, profileOptions) {
+        const parsed = RenderProfile.parse(next);
+        const changes = diffProfiles(get().profile, parsed);
+        if (changes.length === 0) return [];
+        change(parsed, changes, profileOptions?.explanation);
         return changes;
       },
 
