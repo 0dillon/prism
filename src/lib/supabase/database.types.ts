@@ -496,6 +496,7 @@ export type Database = {
     Functions: {
       is_entitled: { Args: { p_user: string; p_lesson: string }; Returns: boolean };
       owns_lesson: { Args: { p_lesson: string }; Returns: boolean };
+      publish_lesson: { Args: { p_lesson_id: string; p_graph: Json }; Returns: number };
       try_uuid: { Args: { p_text: string }; Returns: string };
     };
     Enums: { [_ in never]: never };
