@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:types": "tsx scripts/gen-db-types.ts",
+    "demo:pdf": "tsx scripts/make-demo-pdf.ts",
     "db:types:supabase": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
     "db:reset": "supabase db reset",
     "smoke:supabase": "node --env-file=.env.local scripts/smoke-supabase.mjs",
