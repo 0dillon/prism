@@ -1030,7 +1030,7 @@ Update this table when a phase completes.
 - [x] **P4-10** [MVP] Read-aloud with browser `speechSynthesis`: play, pause, rate, and sentence highlighting using boundary events. File: `src/renderers/reader/ReadAloud.tsx`. Done when: the highlighted sentence tracks speech in Chrome.
 - [x] **P4-11** [MVP] "Simpler" button per concept that requests the next reading level from `/api/variants` and swaps the text in place. Done when: the variant displays and a `concept_variant_requested` event is queued.
 - [ ] **P4-12** Word-level highlighting using provider word timings, with fallback to sentence level. Done when: word highlight drift stays under 150 ms on the fixture.
-- [ ] **P4-13** Background tint themes (`cream`, `blue_tint`, `high_contrast`) meeting contrast requirements. Done when: axe reports no contrast violations in each theme.
+- [x] **P4-13** Background tint themes (`cream`, `blue_tint`, `high_contrast`) meeting contrast requirements. Done when: axe reports no contrast violations in each theme.
 
 #### 4C. Conversation renderer
 
