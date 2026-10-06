@@ -1,0 +1,272 @@
+{
+  "cognitive_ease": {
+    "audio": {
+      "earcons": false,
+      "rate": 1.0,
+      "readAloud": true,
+      "syncHighlight": "word",
+      "voiceInput": false
+    },
+    "content": {
+      "chunkSize": "section",
+      "readingLevel": "plain",
+      "showExamples": true
+    },
+    "feedback": {
+      "celebration": "subtle",
+      "haptics": false,
+      "progressBar": true,
+      "streaks": false
+    },
+    "layout": "reader",
+    "preset": "cognitive_ease",
+    "quiz": {
+      "cadence": 5,
+      "itemsPerCheck": 1,
+      "retryOnWrong": true
+    },
+    "schemaVersion": 1,
+    "typography": {
+      "font": "lexend",
+      "letterSpacing": 0.05,
+      "lineHeight": 1.8,
+      "maxLineLength": 60,
+      "sizeScale": 1.0,
+      "wordAnchors": false,
+      "wordSpacing": 0.16
+    },
+    "visual": {
+      "captions": true,
+      "conceptImages": false,
+      "reducedMotion": false,
+      "signClips": false,
+      "signLanguage": "ase",
+      "theme": "cream"
+    }
+  },
+  "custom": {
+    "audio": {
+      "earcons": false,
+      "rate": 1.0,
+      "readAloud": false,
+      "syncHighlight": "off",
+      "voiceInput": false
+    },
+    "content": {
+      "chunkSize": "section",
+      "readingLevel": "original",
+      "showExamples": true
+    },
+    "feedback": {
+      "celebration": "subtle",
+      "haptics": false,
+      "progressBar": true,
+      "streaks": false
+    },
+    "layout": "reader",
+    "preset": "custom",
+    "quiz": {
+      "cadence": 5,
+      "itemsPerCheck": 1,
+      "retryOnWrong": true
+    },
+    "schemaVersion": 1,
+    "typography": {
+      "font": "system",
+      "letterSpacing": 0.0,
+      "lineHeight": 1.5,
+      "maxLineLength": 70,
+      "sizeScale": 1.0,
+      "wordAnchors": false,
+      "wordSpacing": 0.0
+    },
+    "visual": {
+      "captions": true,
+      "conceptImages": false,
+      "reducedMotion": false,
+      "signClips": false,
+      "signLanguage": "ase",
+      "theme": "system"
+    }
+  },
+  "hyper_focus": {
+    "audio": {
+      "earcons": false,
+      "rate": 1.0,
+      "readAloud": false,
+      "syncHighlight": "off",
+      "voiceInput": false
+    },
+    "content": {
+      "chunkSize": "concept",
+      "readingLevel": "original",
+      "showExamples": true
+    },
+    "feedback": {
+      "celebration": "full",
+      "haptics": true,
+      "progressBar": true,
+      "streaks": true
+    },
+    "layout": "cards",
+    "preset": "hyper_focus",
+    "quiz": {
+      "cadence": 3,
+      "itemsPerCheck": 1,
+      "retryOnWrong": true
+    },
+    "schemaVersion": 1,
+    "typography": {
+      "font": "system",
+      "letterSpacing": 0.0,
+      "lineHeight": 1.5,
+      "maxLineLength": 70,
+      "sizeScale": 1.0,
+      "wordAnchors": false,
+      "wordSpacing": 0.0
+    },
+    "visual": {
+      "captions": true,
+      "conceptImages": false,
+      "reducedMotion": false,
+      "signClips": false,
+      "signLanguage": "ase",
+      "theme": "system"
+    }
+  },
+  "standard": {
+    "audio": {
+      "earcons": false,
+      "rate": 1.0,
+      "readAloud": false,
+      "syncHighlight": "off",
+      "voiceInput": false
+    },
+    "content": {
+      "chunkSize": "section",
+      "readingLevel": "original",
+      "showExamples": true
+    },
+    "feedback": {
+      "celebration": "subtle",
+      "haptics": false,
+      "progressBar": true,
+      "streaks": false
+    },
+    "layout": "reader",
+    "preset": "standard",
+    "quiz": {
+      "cadence": 5,
+      "itemsPerCheck": 1,
+      "retryOnWrong": true
+    },
+    "schemaVersion": 1,
+    "typography": {
+      "font": "system",
+      "letterSpacing": 0.0,
+      "lineHeight": 1.5,
+      "maxLineLength": 70,
+      "sizeScale": 1.0,
+      "wordAnchors": false,
+      "wordSpacing": 0.0
+    },
+    "visual": {
+      "captions": true,
+      "conceptImages": false,
+      "reducedMotion": false,
+      "signClips": false,
+      "signLanguage": "ase",
+      "theme": "system"
+    }
+  },
+  "visual_sign": {
+    "audio": {
+      "earcons": false,
+      "rate": 1.0,
+      "readAloud": false,
+      "syncHighlight": "off",
+      "voiceInput": false
+    },
+    "content": {
+      "chunkSize": "section",
+      "readingLevel": "plain",
+      "showExamples": true
+    },
+    "feedback": {
+      "celebration": "subtle",
+      "haptics": true,
+      "progressBar": true,
+      "streaks": false
+    },
+    "layout": "visual",
+    "preset": "visual_sign",
+    "quiz": {
+      "cadence": 5,
+      "itemsPerCheck": 1,
+      "retryOnWrong": true
+    },
+    "schemaVersion": 1,
+    "typography": {
+      "font": "system",
+      "letterSpacing": 0.0,
+      "lineHeight": 1.5,
+      "maxLineLength": 70,
+      "sizeScale": 1.0,
+      "wordAnchors": false,
+      "wordSpacing": 0.0
+    },
+    "visual": {
+      "captions": true,
+      "conceptImages": true,
+      "reducedMotion": false,
+      "signClips": true,
+      "signLanguage": "ase",
+      "theme": "system"
+    }
+  },
+  "voice_native": {
+    "audio": {
+      "earcons": true,
+      "rate": 1.0,
+      "readAloud": true,
+      "syncHighlight": "off",
+      "voiceInput": true
+    },
+    "content": {
+      "chunkSize": "concept",
+      "readingLevel": "original",
+      "showExamples": true
+    },
+    "feedback": {
+      "celebration": "subtle",
+      "haptics": false,
+      "progressBar": true,
+      "streaks": false
+    },
+    "layout": "conversation",
+    "preset": "voice_native",
+    "quiz": {
+      "cadence": 3,
+      "itemsPerCheck": 1,
+      "retryOnWrong": true
+    },
+    "schemaVersion": 1,
+    "typography": {
+      "font": "system",
+      "letterSpacing": 0.0,
+      "lineHeight": 1.5,
+      "maxLineLength": 70,
+      "sizeScale": 1.0,
+      "wordAnchors": false,
+      "wordSpacing": 0.0
+    },
+    "visual": {
+      "captions": true,
+      "conceptImages": false,
+      "reducedMotion": false,
+      "signClips": false,
+      "signLanguage": "ase",
+      "theme": "system"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "audio": {
+    "earcons": false,
+    "rate": 1.0,
+    "readAloud": false,
+    "syncHighlight": "off",
+    "voiceInput": false
+  },
+  "content": {
+    "chunkSize": "section",
+    "readingLevel": "original",
+    "showExamples": true
+  },
+  "feedback": {
+    "celebration": "subtle",
+    "haptics": false,
+    "progressBar": true,
+    "streaks": false
+  },
+  "layout": "reader",
+  "preset": "standard",
+  "quiz": {
+    "cadence": 5,
+    "itemsPerCheck": 1,
+    "retryOnWrong": true
+  },
+  "schemaVersion": 1,
+  "typography": {
+    "font": "system",
+    "letterSpacing": 0.0,
+    "lineHeight": 1.5,
+    "maxLineLength": 70,
+    "sizeScale": 1.0,
+    "wordAnchors": false,
+    "wordSpacing": 0.0
+  },
+  "visual": {
+    "captions": true,
+    "conceptImages": false,
+    "reducedMotion": false,
+    "signClips": false,
+    "signLanguage": "ase",
+    "theme": "system"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "additionalProperties": false,
+  "description": "A single thing a learner did, identical in shape across all renderers.",
+  "properties": {
+    "conceptId": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Conceptid"
+    },
+    "correct": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "quiz_answered only.",
+      "title": "Correct"
+    },
+    "durationMs": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Active time attributed to this event.",
+      "title": "Durationms"
+    },
+    "graphVersion": {
+      "minimum": 1,
+      "title": "Graphversion",
+      "type": "integer"
+    },
+    "id": {
+      "description": "Client-generated ULID. The idempotency key for this event.",
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "layout": {
+      "description": "Product analytics only. Never shown per learner.",
+      "enum": [
+        "reader",
+        "cards",
+        "conversation",
+        "visual"
+      ],
+      "title": "Layout",
+      "type": "string"
+    },
+    "lessonId": {
+      "title": "Lessonid",
+      "type": "string"
+    },
+    "occurredAt": {
+      "format": "date-time",
+      "title": "Occurredat",
+      "type": "string"
+    },
+    "quizItemId": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quizitemid"
+    },
+    "type": {
+      "enum": [
+        "lesson_started",
+        "concept_viewed",
+        "concept_variant_requested",
+        "quiz_presented",
+        "quiz_answered",
+        "question_asked",
+        "session_paused",
+        "session_resumed",
+        "lesson_completed",
+        "profile_changed"
+      ],
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "lessonId",
+    "graphVersion",
+    "type",
+    "layout",
+    "occurredAt"
+  ],
+  "title": "LearningEvent",
+  "type": "object"
+}

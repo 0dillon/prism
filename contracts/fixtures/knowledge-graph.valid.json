@@ -1,0 +1,115 @@
+{
+  "concepts": [
+    {
+      "body": "When water absorbs enough energy, molecules escape into the air.",
+      "definition": "The change from liquid water to water vapour.",
+      "examples": [
+        "A puddle drying in the sun."
+      ],
+      "flags": [],
+      "id": "c_01HZX0000000000000000001",
+      "keyTerm": "evaporation",
+      "order": 0,
+      "prerequisites": [],
+      "sectionId": "s_01HZX0000000000000000000A",
+      "source": {
+        "end": 1,
+        "excerpt": "Water evaporates when it is heated by the sun.",
+        "kind": "page",
+        "start": 1
+      },
+      "summary": "Liquid water becomes vapour when it gains enough energy.",
+      "title": "Evaporation",
+      "visualHint": "A puddle with arrows rising from it."
+    },
+    {
+      "body": "As vapour rises it cools, and droplets form around tiny particles.",
+      "definition": "The change from water vapour to liquid water.",
+      "examples": [
+        "Mist forming on a cold window."
+      ],
+      "flags": [
+        "low_confidence"
+      ],
+      "id": "c_01HZX0000000000000000002",
+      "keyTerm": "condensation",
+      "order": 0,
+      "prerequisites": [
+        "c_01HZX0000000000000000001"
+      ],
+      "sectionId": "s_01HZX0000000000000000000B",
+      "source": {
+        "end": null,
+        "excerpt": "As vapour rises and cools, it condenses into droplets.",
+        "kind": "page",
+        "start": 2
+      },
+      "summary": "Water vapour cools and becomes liquid droplets again.",
+      "title": "Condensation",
+      "visualHint": null
+    }
+  ],
+  "language": "en",
+  "lessonId": "lesson_01HZX000000000000000000000",
+  "overview": "How water moves between the ground, the air and the clouds.",
+  "quizItems": [
+    {
+      "acceptable": [],
+      "answer": "Energy",
+      "conceptId": "c_01HZX0000000000000000001",
+      "difficulty": "recall",
+      "explanation": "Molecules need energy to escape the liquid.",
+      "flags": [],
+      "id": "q_01HZX0000000000000000001",
+      "options": [
+        "Energy",
+        "Gravity",
+        "Pressure"
+      ],
+      "prompt": "What does water need in order to evaporate?",
+      "type": "mcq"
+    },
+    {
+      "acceptable": [],
+      "answer": "true",
+      "conceptId": "c_01HZX0000000000000000002",
+      "difficulty": "recall",
+      "explanation": "Cooling vapour forms liquid droplets.",
+      "flags": [],
+      "id": "q_01HZX0000000000000000002",
+      "options": null,
+      "prompt": "Condensation turns vapour back into liquid.",
+      "type": "true_false"
+    },
+    {
+      "acceptable": [
+        "vapour turning into water",
+        "gas becoming liquid"
+      ],
+      "answer": "Water vapour cooling into liquid droplets.",
+      "conceptId": "c_01HZX0000000000000000002",
+      "difficulty": "apply",
+      "explanation": "Either phrasing describes the same change of state.",
+      "flags": [],
+      "id": "q_01HZX0000000000000000003",
+      "options": null,
+      "prompt": "In your own words, what is condensation?",
+      "type": "short_answer"
+    }
+  ],
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "s_01HZX0000000000000000000A",
+      "order": 0,
+      "title": "Evaporation"
+    },
+    {
+      "id": "s_01HZX0000000000000000000B",
+      "order": 1,
+      "title": "Condensation"
+    }
+  ],
+  "title": "The Water Cycle",
+  "transcript": null
+}

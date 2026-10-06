@@ -1,0 +1,54 @@
+{
+  "carries-a-user-id": {
+    "events": [
+      {
+        "conceptId": null,
+        "correct": null,
+        "durationMs": null,
+        "graphVersion": 1,
+        "id": "01HZX3QK9J2W8V5N6M7P8Q9R0S",
+        "layout": "cards",
+        "lessonId": "lesson_01HZX000000000000000000000",
+        "occurredAt": "2026-10-06T10:00:00Z",
+        "quizItemId": null,
+        "type": "lesson_started",
+        "userId": "someone-else"
+      }
+    ]
+  },
+  "empty-batch": {
+    "events": []
+  },
+  "graph-version-zero": {
+    "events": [
+      {
+        "conceptId": null,
+        "correct": null,
+        "durationMs": null,
+        "graphVersion": 0,
+        "id": "01HZX3QK9J2W8V5N6M7P8Q9R0S",
+        "layout": "cards",
+        "lessonId": "lesson_01HZX000000000000000000000",
+        "occurredAt": "2026-10-06T10:00:00Z",
+        "quizItemId": null,
+        "type": "lesson_started"
+      }
+    ]
+  },
+  "unknown-event-type": {
+    "events": [
+      {
+        "conceptId": null,
+        "correct": null,
+        "durationMs": null,
+        "graphVersion": 1,
+        "id": "01HZX3QK9J2W8V5N6M7P8Q9R0S",
+        "layout": "cards",
+        "lessonId": "lesson_01HZX000000000000000000000",
+        "occurredAt": "2026-10-06T10:00:00Z",
+        "quizItemId": null,
+        "type": "learner_gave_up"
+      }
+    ]
+  }
+}
