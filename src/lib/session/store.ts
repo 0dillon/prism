@@ -36,6 +36,11 @@ const SessionSchema = z.object({
   afterQuiz: z.enum(["advance", "stay"]),
   correctCount: z.number().int().min(0),
   answeredCount: z.number().int().min(0),
+  // Added after the first release, so a session saved before then still loads.
+  streak: z.number().int().min(0).default(0),
+  bestStreak: z.number().int().min(0).default(0),
+  conceptRun: z.record(z.string(), z.number().int().min(0)).default({}),
+  activeMs: z.number().min(0).default(0),
 });
 
 export interface StorageLike {
@@ -133,6 +138,7 @@ export function restoreSession(
     sinceQuizConceptIds: s.sinceQuizConceptIds.filter((id) => known.has(id)),
     quizQueue: s.quizQueue.filter((id) => items.has(id)),
     askedItemIds: s.askedItemIds.filter((id) => items.has(id)),
+    conceptRun: Object.fromEntries(Object.entries(s.conceptRun).filter(([id]) => known.has(id))),
   };
   repaired.conceptsSinceQuiz = repaired.sinceQuizConceptIds.length;
 
@@ -153,7 +159,11 @@ export function restoreSession(
   return repaired;
 }
 
+/** The longest gap between two actions that still counts as active time. */
+export const MAX_ACTIVE_GAP_MS = 60_000;
+
 export function createSessionStore(options: SessionStoreOptions): StoreApi<SessionStore> {
+  let lastActionAt: number | null = null;
   const storage = options.storage === undefined ? browserStorage() : options.storage;
   const key = `${SESSION_STORAGE_PREFIX}${options.lessonId}`;
   const now = options.now ?? Date.now;
@@ -166,10 +176,19 @@ export function createSessionStore(options: SessionStoreOptions): StoreApi<Sessi
     hydrated: false,
 
     dispatch(action) {
+      const time = now();
       const withTime =
-        action.type === "start" || action.type === "restart" ? { ...action, now: now() } : action;
-      const next = reduceSession(get().session, withTime, context());
-      if (next !== get().session) set({ session: next });
+        action.type === "start" || action.type === "restart" ? { ...action, now: time } : action;
+      const reduced = reduceSession(get().session, withTime, context());
+      if (reduced === get().session) return;
+      // Time since the last thing the learner did counts as active, up to a cap, so a
+      // walk away from the screen does not count as study (PRD 5.7). A fresh lesson starts at zero.
+      const gap =
+        lastActionAt === null ? 0 : Math.min(Math.max(time - lastActionAt, 0), MAX_ACTIVE_GAP_MS);
+      lastActionAt = time;
+      set({
+        session: { ...reduced, activeMs: action.type === "restart" ? 0 : reduced.activeMs + gap },
+      });
     },
 
     start: () => get().dispatch({ type: "start" }),

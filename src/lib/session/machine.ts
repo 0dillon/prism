@@ -40,6 +40,16 @@ export interface LessonSession {
   /** How many questions have been answered correctly, for the completion summary. */
   correctCount: number;
   answeredCount: number;
+  /** Correct answers in a row right now, and the longest run this lesson. */
+  streak: number;
+  bestStreak: number;
+  /**
+   * Correct answers in a row on each concept's questions. Two in a row is mastered and a
+   * wrong answer starts the count again (PRD 5.7), so the summary agrees with the database.
+   */
+  conceptRun: Record<string, number>;
+  /** Active time in milliseconds. Kept by the store, which can see the clock; the reducer is pure. */
+  activeMs: number;
 }
 
 /** What the machine needs to know about the lesson and the learner's profile. */
@@ -85,7 +95,21 @@ export function createSession(options: {
     afterQuiz: "advance",
     correctCount: 0,
     answeredCount: 0,
+    streak: 0,
+    bestStreak: 0,
+    conceptRun: {},
+    activeMs: 0,
   };
+}
+
+/** Correct answers in a row on one concept that make it mastered (PRD 5.7). */
+export const MASTERY_RUN = 2;
+
+/** Concept ids the learner has mastered so far in this session. */
+export function masteredConceptIds(state: LessonSession): string[] {
+  return Object.entries(state.conceptRun)
+    .filter(([, run]) => run >= MASTERY_RUN)
+    .map(([id]) => id);
 }
 
 const unique = <T>(items: T[]) => [...new Set(items)];
@@ -237,12 +261,22 @@ export function reduceSession(
 
     case "answer": {
       if (state.phase !== "quiz" || state.activeQuizItemId !== action.quizItemId) return state;
+      const streak = action.correct ? state.streak + 1 : 0;
+      const conceptId = conceptOfItem(ctx, action.quizItemId);
       return {
         ...state,
         phase: "feedback",
         lastAnswer: { quizItemId: action.quizItemId, correct: action.correct },
         answeredCount: state.answeredCount + 1,
         correctCount: state.correctCount + (action.correct ? 1 : 0),
+        streak,
+        bestStreak: Math.max(state.bestStreak, streak),
+        conceptRun: conceptId
+          ? {
+              ...state.conceptRun,
+              [conceptId]: action.correct ? (state.conceptRun[conceptId] ?? 0) + 1 : 0,
+            }
+          : state.conceptRun,
       };
     }
 
