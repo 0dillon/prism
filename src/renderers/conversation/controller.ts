@@ -79,6 +79,9 @@ export interface ConversationController {
   interrupt(options?: { listen?: boolean }): void;
   togglePause(): void;
   setMuted(muted: boolean): void;
+  /** Stops speaking, listening and any reply on the way. The controller can be used again. */
+  stop(): void;
+  /** Stops everything for good and drops listeners. */
   dispose(): void;
 }
 
@@ -677,6 +680,14 @@ export function createConversationController(deps: ConversationDeps): Conversati
         abort?.abort();
       }
       set({ muted });
+    },
+
+    stop() {
+      turn++;
+      abort?.abort();
+      queue?.cancel();
+      stopListening();
+      refresh();
     },
 
     dispose() {
