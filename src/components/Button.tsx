@@ -1,8 +1,8 @@
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 type Variant = "primary" | "secondary";
 
-interface ButtonProps extends Omit<ComponentPropsWithoutRef<"button">, "className"> {
+interface ButtonProps extends Omit<ComponentPropsWithRef<"button">, "className"> {
   variant?: Variant;
 }
 
