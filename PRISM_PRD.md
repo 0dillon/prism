@@ -1167,6 +1167,7 @@ Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
 - 2026-10-06: P1-04 to P1-15, resolved. Migrations were applied to the hosted Supabase project with `supabase db push` and `npm run smoke:supabase` passes 18 live checks (RLS, mastery trigger, signed storage URLs). PGlite stays as the fast in-process test layer.
 - 2026-10-06: P0-05, resolved. A server component queried the hosted database through `src/lib/supabase/server.ts`. There is still no Docker locally, so `supabase start` and `supabase db reset` have not been run; the hosted project is the integration target.
 - 2026-10-06: P4-14 and P4-23, manual checks owed. Text to speech and key barge-in (under 1 ms to stop the voice) were verified in a real Chromium; speech to text was verified only against a fake recognizer because there was no microphone, and "read once by NVDA or VoiceOver with Prism's voice off" needs a screen reader. The transcript is an ARIA log so each reply is added once. Someone with a microphone and a screen reader should run both before a school pilot.
+- 2026-10-06: P4-25, partly blocked. Real ASL clips must be recorded by or licensed from a fluent Deaf signer, which cannot be done from code. Stubbed: every demo key term is fingerspelled (listed in 9.3) and the whole clip path works against fixtures. P4-28 is met in text alternatives; the handshape artwork waits on the same review.
 
 ### 9.3 Open questions and findings
 
@@ -1175,4 +1176,5 @@ Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
 - Legal review for FERPA, COPPA, GDPR, and NDPA before any school pilot (P9-08).
 - Platform fee percentage. `PLATFORM_FEE_BPS=1500` is a placeholder.
 - Whether short-answer grading by LLM is acceptable for graded school assessments or should be limited to practice quizzes.
-- Demo lesson key terms with no ASL clip (to be fingerspelled): list here during P4-25.
+- Demo lesson key terms with no ASL clip, shown fingerspelled until clips are recorded: evaporation, transpiration, condensation, precipitation, collection (all five). The clip pipeline (upload, verify, signed URL, "See it signed") is built and tested with fixtures.
+- Fingerspelling handshape pictures: none bundled. They need a licensed set checked by a fluent signer, so `handshapeUrl` in `src/renderers/visual/Fingerspell.tsx` returns null and tiles show the letter with a text alternative. Do not draw handshapes without that review.
