@@ -81,9 +81,7 @@ test.beforeEach(async ({ context }) => {
 
 const open = async (page: import("@playwright/test").Page) => {
   await page.goto(`/teach/lessons/${lessonId}/review`);
-  await expect(
-    page.getByRole("heading", { level: 1, name: /^Review: / }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /^Review: / })).toBeVisible();
 };
 
 const storedGraph = async () => {
