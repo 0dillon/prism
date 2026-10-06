@@ -1,0 +1,57 @@
+[
+  {
+    "intent": {
+      "type": "next"
+    }
+  },
+  {
+    "intent": {
+      "type": "repeat"
+    }
+  },
+  {
+    "intent": {
+      "type": "simplify"
+    }
+  },
+  {
+    "intent": {
+      "type": "quiz_me"
+    }
+  },
+  {
+    "intent": {
+      "type": "answer",
+      "value": "Energy"
+    }
+  },
+  {
+    "intent": {
+      "target": "Condensation",
+      "type": "go_to"
+    }
+  },
+  {
+    "intent": {
+      "direction": "slower",
+      "type": "set_rate"
+    }
+  },
+  {
+    "intent": {
+      "request": "one idea at a time",
+      "type": "change_profile"
+    }
+  },
+  {
+    "intent": {
+      "text": "Why does it rain?",
+      "type": "question"
+    }
+  },
+  {
+    "intent": {
+      "type": "unknown"
+    }
+  }
+]

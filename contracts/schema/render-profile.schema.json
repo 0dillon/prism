@@ -1,0 +1,298 @@
+{
+  "$defs": {
+    "AudioSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "earcons": {
+          "default": false,
+          "description": "Short non-speech audio cues.",
+          "title": "Earcons",
+          "type": "boolean"
+        },
+        "rate": {
+          "default": 1.0,
+          "maximum": 3.0,
+          "minimum": 0.5,
+          "title": "Rate",
+          "type": "number"
+        },
+        "readAloud": {
+          "default": false,
+          "title": "Readaloud",
+          "type": "boolean"
+        },
+        "syncHighlight": {
+          "default": "off",
+          "enum": [
+            "off",
+            "sentence",
+            "word"
+          ],
+          "title": "Synchighlight",
+          "type": "string"
+        },
+        "voiceInput": {
+          "default": false,
+          "title": "Voiceinput",
+          "type": "boolean"
+        }
+      },
+      "title": "AudioSettings",
+      "type": "object"
+    },
+    "ContentSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "chunkSize": {
+          "default": "section",
+          "enum": [
+            "concept",
+            "section",
+            "full"
+          ],
+          "title": "Chunksize",
+          "type": "string"
+        },
+        "readingLevel": {
+          "default": "original",
+          "enum": [
+            "original",
+            "plain",
+            "simple"
+          ],
+          "title": "Readinglevel",
+          "type": "string"
+        },
+        "showExamples": {
+          "default": true,
+          "title": "Showexamples",
+          "type": "boolean"
+        }
+      },
+      "title": "ContentSettings",
+      "type": "object"
+    },
+    "FeedbackSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "celebration": {
+          "default": "subtle",
+          "enum": [
+            "none",
+            "subtle",
+            "full"
+          ],
+          "title": "Celebration",
+          "type": "string"
+        },
+        "haptics": {
+          "default": false,
+          "title": "Haptics",
+          "type": "boolean"
+        },
+        "progressBar": {
+          "default": true,
+          "title": "Progressbar",
+          "type": "boolean"
+        },
+        "streaks": {
+          "default": false,
+          "title": "Streaks",
+          "type": "boolean"
+        }
+      },
+      "title": "FeedbackSettings",
+      "type": "object"
+    },
+    "QuizSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "cadence": {
+          "default": 5,
+          "description": "Quiz after every N concepts.",
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Cadence",
+          "type": "integer"
+        },
+        "itemsPerCheck": {
+          "default": 1,
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Itemspercheck",
+          "type": "integer"
+        },
+        "retryOnWrong": {
+          "default": true,
+          "title": "Retryonwrong",
+          "type": "boolean"
+        }
+      },
+      "title": "QuizSettings",
+      "type": "object"
+    },
+    "TypographySettings": {
+      "additionalProperties": false,
+      "properties": {
+        "font": {
+          "default": "system",
+          "enum": [
+            "system",
+            "atkinson",
+            "lexend",
+            "opendyslexic"
+          ],
+          "title": "Font",
+          "type": "string"
+        },
+        "letterSpacing": {
+          "default": 0.0,
+          "description": "em",
+          "maximum": 0.3,
+          "minimum": 0.0,
+          "title": "Letterspacing",
+          "type": "number"
+        },
+        "lineHeight": {
+          "default": 1.5,
+          "maximum": 2.4,
+          "minimum": 1.2,
+          "title": "Lineheight",
+          "type": "number"
+        },
+        "maxLineLength": {
+          "default": 70,
+          "description": "characters",
+          "maximum": 90,
+          "minimum": 30,
+          "title": "Maxlinelength",
+          "type": "integer"
+        },
+        "sizeScale": {
+          "default": 1.0,
+          "maximum": 2.5,
+          "minimum": 0.8,
+          "title": "Sizescale",
+          "type": "number"
+        },
+        "wordAnchors": {
+          "default": false,
+          "description": "Bold the leading letters of each word. Off in every preset: research support is limited, so it is offered as a user toggle only (PRD 5.3 and decision log).",
+          "title": "Wordanchors",
+          "type": "boolean"
+        },
+        "wordSpacing": {
+          "default": 0.0,
+          "description": "em",
+          "maximum": 0.6,
+          "minimum": 0.0,
+          "title": "Wordspacing",
+          "type": "number"
+        }
+      },
+      "title": "TypographySettings",
+      "type": "object"
+    },
+    "VisualSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "captions": {
+          "default": true,
+          "title": "Captions",
+          "type": "boolean"
+        },
+        "conceptImages": {
+          "default": false,
+          "title": "Conceptimages",
+          "type": "boolean"
+        },
+        "reducedMotion": {
+          "default": false,
+          "title": "Reducedmotion",
+          "type": "boolean"
+        },
+        "signClips": {
+          "default": false,
+          "title": "Signclips",
+          "type": "boolean"
+        },
+        "signLanguage": {
+          "const": "ase",
+          "default": "ase",
+          "description": "ISO 639-3. ASL only in v1 (PRD 2.4).",
+          "title": "Signlanguage",
+          "type": "string"
+        },
+        "theme": {
+          "default": "system",
+          "enum": [
+            "system",
+            "light",
+            "dark",
+            "high_contrast",
+            "cream",
+            "blue_tint"
+          ],
+          "title": "Theme",
+          "type": "string"
+        }
+      },
+      "title": "VisualSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The complete learner presentation profile.\n\nEvery field has a default, so `RenderProfile()` is a valid standard profile and a partial\nstored profile upgrades cleanly when new settings are added.",
+  "properties": {
+    "audio": {
+      "$ref": "#/$defs/AudioSettings"
+    },
+    "content": {
+      "$ref": "#/$defs/ContentSettings"
+    },
+    "feedback": {
+      "$ref": "#/$defs/FeedbackSettings"
+    },
+    "layout": {
+      "default": "reader",
+      "enum": [
+        "reader",
+        "cards",
+        "conversation",
+        "visual"
+      ],
+      "title": "Layout",
+      "type": "string"
+    },
+    "preset": {
+      "default": "standard",
+      "enum": [
+        "standard",
+        "voice_native",
+        "hyper_focus",
+        "cognitive_ease",
+        "visual_sign",
+        "custom"
+      ],
+      "title": "Preset",
+      "type": "string"
+    },
+    "quiz": {
+      "$ref": "#/$defs/QuizSettings"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "default": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "typography": {
+      "$ref": "#/$defs/TypographySettings"
+    },
+    "visual": {
+      "$ref": "#/$defs/VisualSettings"
+    }
+  },
+  "title": "RenderProfile",
+  "type": "object"
+}

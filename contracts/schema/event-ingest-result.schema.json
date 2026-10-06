@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "description": "What the server did with a batch.\n\n`duplicates` lets a client confirm that a retry was recognised as a retry rather than\nsilently creating a second row.",
+  "properties": {
+    "duplicates": {
+      "title": "Duplicates",
+      "type": "integer"
+    },
+    "inserted": {
+      "title": "Inserted",
+      "type": "integer"
+    },
+    "received": {
+      "title": "Received",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "received",
+    "inserted",
+    "duplicates"
+  ],
+  "title": "EventIngestResult",
+  "type": "object"
+}

@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "AnswerIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "answer",
+          "default": "answer",
+          "title": "Type",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "AnswerIntent",
+      "type": "object"
+    },
+    "ChangeProfileIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "request": {
+          "description": "Forwarded to the needs-to-profile parser.",
+          "title": "Request",
+          "type": "string"
+        },
+        "type": {
+          "const": "change_profile",
+          "default": "change_profile",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request"
+      ],
+      "title": "ChangeProfileIntent",
+      "type": "object"
+    },
+    "ElaborateIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "elaborate",
+          "default": "elaborate",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "ElaborateIntent",
+      "type": "object"
+    },
+    "ExampleIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "example",
+          "default": "example",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "ExampleIntent",
+      "type": "object"
+    },
+    "GoToIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "description": "Section or concept title.",
+          "title": "Target",
+          "type": "string"
+        },
+        "type": {
+          "const": "go_to",
+          "default": "go_to",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "title": "GoToIntent",
+      "type": "object"
+    },
+    "NextIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "next",
+          "default": "next",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "NextIntent",
+      "type": "object"
+    },
+    "PauseIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "pause",
+          "default": "pause",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "PauseIntent",
+      "type": "object"
+    },
+    "PreviousIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "previous",
+          "default": "previous",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "PreviousIntent",
+      "type": "object"
+    },
+    "QuestionIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "description": "A free question about the lesson.",
+          "title": "Text",
+          "type": "string"
+        },
+        "type": {
+          "const": "question",
+          "default": "question",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "QuestionIntent",
+      "type": "object"
+    },
+    "QuizMeIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "quiz_me",
+          "default": "quiz_me",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "QuizMeIntent",
+      "type": "object"
+    },
+    "RepeatIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "repeat",
+          "default": "repeat",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "RepeatIntent",
+      "type": "object"
+    },
+    "ResumeIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "resume",
+          "default": "resume",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "ResumeIntent",
+      "type": "object"
+    },
+    "SetRateIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "enum": [
+            "slower",
+            "faster"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "type": {
+          "const": "set_rate",
+          "default": "set_rate",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "direction"
+      ],
+      "title": "SetRateIntent",
+      "type": "object"
+    },
+    "SimplifyIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "simplify",
+          "default": "simplify",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "SimplifyIntent",
+      "type": "object"
+    },
+    "UnknownIntent": {
+      "additionalProperties": false,
+      "description": "Nothing matched. The renderer asks the learner to rephrase.\n\nAn explicit member rather than a null: \"I did not understand\" is a real outcome the\nconversation renderer must speak, not an error to swallow.",
+      "properties": {
+        "type": {
+          "const": "unknown",
+          "default": "unknown",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "UnknownIntent",
+      "type": "object"
+    },
+    "WhereAmIIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "where_am_i",
+          "default": "where_am_i",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "WhereAmIIntent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Wrapper used where a bare union cannot be the top-level schema.\n\nNeeded in two places: OpenAPI response models, and strict LLM structured output, whose\nJSON Schema root must be an object rather than a union.",
+  "properties": {
+    "intent": {
+      "discriminator": {
+        "mapping": {
+          "answer": "#/$defs/AnswerIntent",
+          "change_profile": "#/$defs/ChangeProfileIntent",
+          "elaborate": "#/$defs/ElaborateIntent",
+          "example": "#/$defs/ExampleIntent",
+          "go_to": "#/$defs/GoToIntent",
+          "next": "#/$defs/NextIntent",
+          "pause": "#/$defs/PauseIntent",
+          "previous": "#/$defs/PreviousIntent",
+          "question": "#/$defs/QuestionIntent",
+          "quiz_me": "#/$defs/QuizMeIntent",
+          "repeat": "#/$defs/RepeatIntent",
+          "resume": "#/$defs/ResumeIntent",
+          "set_rate": "#/$defs/SetRateIntent",
+          "simplify": "#/$defs/SimplifyIntent",
+          "unknown": "#/$defs/UnknownIntent",
+          "where_am_i": "#/$defs/WhereAmIIntent"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/NextIntent"
+        },
+        {
+          "$ref": "#/$defs/PreviousIntent"
+        },
+        {
+          "$ref": "#/$defs/RepeatIntent"
+        },
+        {
+          "$ref": "#/$defs/SimplifyIntent"
+        },
+        {
+          "$ref": "#/$defs/ElaborateIntent"
+        },
+        {
+          "$ref": "#/$defs/ExampleIntent"
+        },
+        {
+          "$ref": "#/$defs/QuizMeIntent"
+        },
+        {
+          "$ref": "#/$defs/AnswerIntent"
+        },
+        {
+          "$ref": "#/$defs/PauseIntent"
+        },
+        {
+          "$ref": "#/$defs/ResumeIntent"
+        },
+        {
+          "$ref": "#/$defs/WhereAmIIntent"
+        },
+        {
+          "$ref": "#/$defs/GoToIntent"
+        },
+        {
+          "$ref": "#/$defs/SetRateIntent"
+        },
+        {
+          "$ref": "#/$defs/ChangeProfileIntent"
+        },
+        {
+          "$ref": "#/$defs/QuestionIntent"
+        },
+        {
+          "$ref": "#/$defs/UnknownIntent"
+        }
+      ],
+      "title": "Intent"
+    }
+  },
+  "required": [
+    "intent"
+  ],
+  "title": "SessionIntentEnvelope",
+  "type": "object"
+}

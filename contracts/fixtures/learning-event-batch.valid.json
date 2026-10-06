@@ -1,0 +1,28 @@
+{
+  "events": [
+    {
+      "conceptId": null,
+      "correct": null,
+      "durationMs": null,
+      "graphVersion": 1,
+      "id": "01HZX3QK9J2W8V5N6M7P8Q9R0S",
+      "layout": "cards",
+      "lessonId": "lesson_01HZX000000000000000000000",
+      "occurredAt": "2026-10-06T10:00:00Z",
+      "quizItemId": null,
+      "type": "lesson_started"
+    },
+    {
+      "conceptId": "c_01HZX0000000000000000001",
+      "correct": true,
+      "durationMs": 4200,
+      "graphVersion": 1,
+      "id": "01HZX3QK9J2W8V5N6M7P8Q9R0T",
+      "layout": "cards",
+      "lessonId": "lesson_01HZX000000000000000000000",
+      "occurredAt": "2026-10-06T10:00:30Z",
+      "quizItemId": "q_01HZX0000000000000000001",
+      "type": "quiz_answered"
+    }
+  ]
+}

@@ -1,0 +1,376 @@
+{
+  "$defs": {
+    "Concept": {
+      "additionalProperties": false,
+      "description": "The smallest teachable unit. Everything else keys off `id`.",
+      "properties": {
+        "body": {
+          "description": "Full explanation in plain Markdown.",
+          "title": "Body",
+          "type": "string"
+        },
+        "definition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Definition"
+        },
+        "examples": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "flags": {
+          "items": {
+            "enum": [
+              "ungrounded",
+              "low_confidence",
+              "edited"
+            ],
+            "type": "string"
+          },
+          "title": "Flags",
+          "type": "array"
+        },
+        "id": {
+          "description": "Stable across graph versions, e.g. c_01HZX... (ULID).",
+          "title": "Id",
+          "type": "string"
+        },
+        "keyTerm": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Keyterm"
+        },
+        "order": {
+          "title": "Order",
+          "type": "integer"
+        },
+        "prerequisites": {
+          "description": "Concept ids that should be understood first.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Prerequisites",
+          "type": "array"
+        },
+        "sectionId": {
+          "title": "Sectionid",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/SourceLocator"
+        },
+        "summary": {
+          "description": "One or two sentences. Used by the cards and conversation renderers.",
+          "maxLength": 240,
+          "title": "Summary",
+          "type": "string"
+        },
+        "title": {
+          "description": "Short; one idea.",
+          "maxLength": 80,
+          "title": "Title",
+          "type": "string"
+        },
+        "visualHint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Description of a helpful diagram or image.",
+          "title": "Visualhint"
+        }
+      },
+      "required": [
+        "id",
+        "sectionId",
+        "order",
+        "title",
+        "summary",
+        "body",
+        "source"
+      ],
+      "title": "Concept",
+      "type": "object"
+    },
+    "QuizItem": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptable": {
+          "description": "Alternative correct phrasings.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Acceptable",
+          "type": "array"
+        },
+        "answer": {
+          "description": "Correct option text, 'true'/'false', or the model answer for short answer.",
+          "title": "Answer",
+          "type": "string"
+        },
+        "conceptId": {
+          "title": "Conceptid",
+          "type": "string"
+        },
+        "difficulty": {
+          "enum": [
+            "recall",
+            "apply"
+          ],
+          "title": "Difficulty",
+          "type": "string"
+        },
+        "explanation": {
+          "description": "Shown or spoken after answering.",
+          "title": "Explanation",
+          "type": "string"
+        },
+        "flags": {
+          "items": {
+            "enum": [
+              "ungrounded",
+              "low_confidence",
+              "edited"
+            ],
+            "type": "string"
+          },
+          "title": "Flags",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "options": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "MCQ only; 3 to 4 options.",
+          "title": "Options"
+        },
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "mcq",
+            "true_false",
+            "short_answer"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "conceptId",
+        "type",
+        "prompt",
+        "answer",
+        "explanation",
+        "difficulty"
+      ],
+      "title": "QuizItem",
+      "type": "object"
+    },
+    "Section": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "order": {
+          "title": "Order",
+          "type": "integer"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "order"
+      ],
+      "title": "Section",
+      "type": "object"
+    },
+    "SourceLocator": {
+      "additionalProperties": false,
+      "description": "Where in the uploaded source this concept came from.\n\nEvery concept carries one. PRD CE-1 requires that every concept link back to its location\nin the source, and the review UI shows `excerpt` beside the concept so a teacher can check\nthe extraction against the original (CE-2).",
+      "properties": {
+        "end": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "excerpt": {
+          "description": "Verbatim source text supporting the concept. Checked against the source.",
+          "maxLength": 1200,
+          "title": "Excerpt",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "page",
+            "time",
+            "offset"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "start": {
+          "description": "Page number, seconds into the audio, or character offset.",
+          "title": "Start",
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "start",
+        "excerpt"
+      ],
+      "title": "SourceLocator",
+      "type": "object"
+    },
+    "TranscriptSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "title": "End",
+          "type": "number"
+        },
+        "start": {
+          "title": "Start",
+          "type": "number"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "text"
+      ],
+      "title": "TranscriptSegment",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A graph that is safe to publish and safe for a renderer to consume.\n\nParsing enforces the structural invariants in PRD task P1-01 and P2-07. These are checked\nhere, in code, rather than being left to the extraction prompt: an LLM may propose content,\nbut it never decides whether that content is valid.",
+  "properties": {
+    "concepts": {
+      "items": {
+        "$ref": "#/$defs/Concept"
+      },
+      "minItems": 1,
+      "title": "Concepts",
+      "type": "array"
+    },
+    "language": {
+      "default": "en",
+      "title": "Language",
+      "type": "string"
+    },
+    "lessonId": {
+      "title": "Lessonid",
+      "type": "string"
+    },
+    "overview": {
+      "maxLength": 600,
+      "title": "Overview",
+      "type": "string"
+    },
+    "quizItems": {
+      "items": {
+        "$ref": "#/$defs/QuizItem"
+      },
+      "title": "Quizitems",
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "default": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/Section"
+      },
+      "title": "Sections",
+      "type": "array"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "transcript": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/TranscriptSegment"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Present for audio sources.",
+      "title": "Transcript"
+    }
+  },
+  "required": [
+    "lessonId",
+    "title",
+    "overview",
+    "concepts"
+  ],
+  "title": "KnowledgeGraph",
+  "type": "object"
+}

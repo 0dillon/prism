@@ -1,0 +1,18 @@
+{
+  "answer-without-value": {
+    "intent": {
+      "type": "answer"
+    }
+  },
+  "bad-rate-direction": {
+    "intent": {
+      "direction": "sideways",
+      "type": "set_rate"
+    }
+  },
+  "unknown-type": {
+    "intent": {
+      "type": "order_pizza"
+    }
+  }
+}
