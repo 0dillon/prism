@@ -926,7 +926,7 @@ Update this table when a phase completes.
 | 1 | Database and schema | MVP tasks done. P1-12 to P1-15 deferred. SQL verified on PGlite, not `supabase db reset` (9.2) |
 | 2 | AI ingestion pipeline | MVP tasks done and verified live. P2-08 and P2-18 to P2-23 deferred |
 | 3 | Profiles, intents, and dynamic rendering state | MVP tasks done. P3-16 deferred |
-| 4 | Renderers | Not started |
+| 4 | Renderers | MVP tasks done. Cards, reader, conversation and visual renderers built and checked in a real browser. P4-06, P4-12, P4-23, P4-24, P4-30 deferred. Sign clips and handshape art are stubbed, and two manual checks are owed (9.2) |
 | 5 | Learning events and progress | Not started |
 | 6 | B2B school portal and dashboards | Not started |
 | 7 | B2C creator marketplace | Not started |
