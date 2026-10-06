@@ -45,6 +45,9 @@ export function guessIntent(utterance: string): SessionIntent {
   return { type: "unknown" };
 }
 
+/** How long to wait for the model to name a command before guessing, so a slow reply never stalls the conversation. */
+export const INTENT_TIMEOUT_MS = 8000;
+
 export const networkServices: ConversationServices = {
   async resolveIntent(utterance, context) {
     const local = matchSessionIntent(utterance);
@@ -55,6 +58,7 @@ export const networkServices: ConversationServices = {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ utterance, lessonId, context: rest }),
+        signal: AbortSignal.timeout(INTENT_TIMEOUT_MS),
       });
       if (!response.ok) return guessIntent(utterance);
       return ((await response.json()) as SessionIntentResult).intent;
