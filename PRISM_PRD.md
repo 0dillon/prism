@@ -1143,12 +1143,15 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-05: Word anchors (leading-letter bolding) are an opt-in toggle, off in all presets. Reason: limited research support. Affects 5.3, 5.6.2.
 - 2026-10-05: Teachers and principals do not see individual Render Profiles without opt-in, and layout usage is shown only in suppressed aggregates. Reason: the interface a student uses can reveal a disability. Affects 4.2, 5.8, 6.4.
 - 2026-10-05: A Deaf student persona was added to the six requested personas. Reason: the demo includes a Deaf learner with ASL support.
+- 2026-10-06: Both `@langchain/anthropic` and `@langchain/openai` are installed, and `LLM_PROVIDER` selects between them. Reason: the production provider is an open question (9.3) and the PRD asks for a provider package behind one gateway. Affects 7.2, P0-03.
+- 2026-10-06: Latest stable majors at install time are used as-is: Next.js 16, React 19, Zod 4, Tailwind 4. Schemas keep the exact shapes in 5.2, 5.3, and 5.7; only the Zod API surface differs from older majors. Affects 0.2, 7.2.
+- 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
 
 ### 9.2 Blockers
 
 Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
 
-- None yet.
+- 2026-10-06: P0-05, no Docker, WSL, or local Postgres on the development machine, so `supabase start` cannot run and a server component cannot be pointed at a live database yet. Implemented `src/lib/supabase/client.ts` and `server.ts` against the real `@supabase/ssr` API. Task left unchecked until a hosted Supabase project (or Docker) is available. Phase 1 SQL is verified in-process with PGlite instead; see 9.1.
 
 ### 9.3 Open questions and findings
 
