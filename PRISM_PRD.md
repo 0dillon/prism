@@ -994,7 +994,7 @@ Update this table when a phase completes.
 
 ### Phase 3: Profiles, intents, and dynamic rendering state
 
-- [ ] **P3-01** [MVP] Presets from the table in Section 5.3 and a `deepMergeProfile(base, patch)` function that validates its result. Files: `src/lib/profile/presets.ts`, `src/lib/profile/merge.ts`. Done when: every preset parses and an invalid patch throws.
+- [x] **P3-01** [MVP] Presets from the table in Section 5.3 and a `deepMergeProfile(base, patch)` function that validates its result. Files: `src/lib/profile/presets.ts`, `src/lib/profile/merge.ts`. Done when: every preset parses and an invalid patch throws.
 - [ ] **P3-02** [MVP] `profileStore` (Zustand): current profile, `applyPreset`, `applyPatch`, `undo`, local persistence, and debounced server save through `PUT /api/profile`. File: `src/lib/profile/store.ts`. Done when: a reload restores the profile and undo reverts the last change.
 - [ ] **P3-03** [MVP] Session state machine as a pure reducer implementing Section 5.5. File: `src/lib/session/machine.ts`. Done when: unit tests cover every transition, including quiz cadence and retry on wrong.
 - [ ] **P3-04** [MVP] `sessionStore` wrapping the reducer with actions (`start`, `next`, `previous`, `requestQuiz`, `answer`, `continue`) and per-lesson local persistence. File: `src/lib/session/store.ts`. Done when: reloading mid-lesson restores the same concept and phase.
