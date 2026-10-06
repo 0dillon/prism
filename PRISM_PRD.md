@@ -1159,6 +1159,7 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: The conversation tutor listens only between its own turns. Voice barge-in (speaking over the tutor) is not attempted with the browser recognizer because it would hear the tutor's own voice; the key press, the Stop talking button and the microphone button cut speech instead. True voice barge-in needs the streaming speech providers (P4-24). Affects 5.6.3, P4-17.
 - 2026-10-06: The public demo lesson may use the tutor, grading and intent endpoints without an account, limited by address. Reason: the demo must work signed out. Every other lesson needs sign-in and goes through row-level security. Affects 7.5, P9-03.
 - 2026-10-06: Dragging a settings slider is one undo step: changes sharing a key within 800 ms replace each other in the undo history. Reason: undoing a drag one pixel at a time is unusable. Affects 5.6, P3-13.
+- 2026-10-06: The demo seed publishes the hand-written sample lesson (`src/lib/demo/sample-lesson.ts`) through `publish_lesson`, not the output of an ingestion run on the demo PDF, so the demo does not depend on a model call or its rate limits. The ingestion path is separately verified live (`npm run smoke:ingest`). Verified sign links are not seeded because there are no clips yet (9.2, 9.3). `npm run seed:demo` reads the password from `DEMO_PASSWORD`, uses `*.test` addresses, and `-- --teardown` removes everything. Affects P9-02.
 
 ### 9.2 Blockers
 
