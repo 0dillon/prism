@@ -13,7 +13,7 @@ import { createSessionStore, useSession, type SessionStore } from "@/lib/session
 import CardsRenderer from "@/renderers/cards/CardsRenderer";
 import { ConceptCard } from "@/renderers/cards/ConceptCard";
 import { Feedback } from "@/renderers/cards/Feedback";
-import { SummaryCard } from "@/renderers/cards/SummaryCard";
+import { SummaryCard } from "@/renderers/shared/SummaryCard";
 import type { SessionActions } from "@/renderers/types";
 import { expectNoAxeViolations } from "../a11y";
 import { makeGraph } from "../fixtures/graph";
@@ -48,7 +48,15 @@ function Harness({
       restart: s.restart,
     };
   }, [sessionStore]);
-  return <CardsRenderer graph={graph} session={session} profile={profile} actions={actions} />;
+  return (
+    <CardsRenderer
+      graph={graph}
+      session={session}
+      profile={profile}
+      actions={actions}
+      updateProfile={() => {}}
+    />
+  );
 }
 
 function setup(patch: Parameters<ProfileStore["applyPatch"]>[0] = {}) {

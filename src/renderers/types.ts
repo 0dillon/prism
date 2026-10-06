@@ -1,3 +1,4 @@
+import type { ProfilePatch } from "@/lib/profile/merge";
 import type { LessonSession } from "@/lib/session/machine";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import type { RenderProfile } from "@/lib/schemas/render-profile";
@@ -26,6 +27,12 @@ export interface RendererProps {
   session: LessonSession;
   profile: RenderProfile;
   actions: SessionActions;
+  /**
+   * Changes a setting from inside the lesson, such as the read-aloud speed. The profile
+   * stays the one source of truth: the renderer asks, and receives the result as a new
+   * `profile` prop.
+   */
+  updateProfile: (patch: ProfilePatch) => void;
 }
 
 export const RENDERER_HEADING_ATTRIBUTE = "data-renderer-heading";

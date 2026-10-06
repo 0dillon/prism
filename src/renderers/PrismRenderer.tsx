@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StoreApi } from "zustand/vanilla";
 import { announce } from "@/lib/a11y/live-region";
+import type { ProfilePatch } from "@/lib/profile/merge";
 import {
   getProfileStore,
   useProfile,
@@ -64,6 +65,19 @@ export function PrismRenderer({
     };
   }, [sessionStore]);
 
+  const updateProfile = useCallback(
+    (patch: ProfilePatch) => {
+      try {
+        profileStore
+          .getState()
+          .applyPatch(patch, { coalesceKey: `renderer:${Object.keys(patch)}` });
+      } catch {
+        // A renderer only offers valid values, so a refused change leaves the profile as it was.
+      }
+    },
+    [profileStore],
+  );
+
   const rootRef = useRef<HTMLDivElement>(null);
   // Prefetch the other renderers once the page has painted, off the critical path.
   useEffect(() => {
@@ -103,6 +117,7 @@ export function PrismRenderer({
           session={session}
           profile={profile}
           actions={actions}
+          updateProfile={updateProfile}
         />
         <Ready key={`ready-${profile.layout}`} active={switchPending} onReady={onRendererReady} />
       </Suspense>

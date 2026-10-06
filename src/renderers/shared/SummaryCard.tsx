@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/Button";
-import { countOf, formatActiveTime } from "../shared/lesson";
+import { countOf, formatActiveTime } from "./lesson";
 
 interface SummaryCardProps {
   totalConcepts: number;

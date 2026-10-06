@@ -16,7 +16,7 @@ import {
 import { RENDERER_HEADING_ATTRIBUTE, type RendererProps } from "../types";
 import { ConceptCard } from "./ConceptCard";
 import { Feedback } from "./Feedback";
-import { SummaryCard } from "./SummaryCard";
+import { SummaryCard } from "../shared/SummaryCard";
 import { useCardInput } from "./useCardInput";
 
 /**
