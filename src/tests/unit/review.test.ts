@@ -4,14 +4,17 @@ import {
   addQuizItem,
   applyEditedFlags,
   canMove,
+  convertQuizType,
   deleteConcept,
   deleteQuizItem,
   describeLocator,
   flaggedConceptIds,
+  hasProblems,
   markChecked,
   mergeIntoPrevious,
   moveConcept,
   orderedConcepts,
+  quizItemProblems,
   quizItemsFor,
   updateConcept,
   updateQuizItem,
@@ -353,5 +356,117 @@ describe("describeLocator", () => {
     expect(describeLocator({ kind: "page", start: 3 })).toBe("Page 3");
     expect(describeLocator({ kind: "time", start: 125 })).toBe("2:05 in the recording");
     expect(describeLocator({ kind: "offset", start: 500 })).toBe("Your text");
+  });
+});
+
+describe("convertQuizType", () => {
+  const mcq = () => makeGraph().quizItems[0];
+  const tf = () => makeGraph().quizItems[1];
+  const short = () => makeGraph().quizItems[3];
+
+  it("returns nothing when the type is unchanged", () => {
+    expect(convertQuizType(mcq(), "mcq")).toEqual({});
+  });
+
+  it("makes true/false from multiple choice, dropping options", () => {
+    const graph = updateQuizItem(makeGraph(), mcq().id, convertQuizType(mcq(), "true_false"));
+    expect(graph.quizItems[0]).toMatchObject({
+      type: "true_false",
+      answer: "true",
+      acceptable: [],
+    });
+    expect(graph.quizItems[0].options).toBeUndefined();
+    expect(validateGraph(graph).ok).toBe(true);
+  });
+
+  it("makes multiple choice from true/false with a valid starter set of options", () => {
+    const graph = updateQuizItem(makeGraph(), tf().id, convertQuizType(tf(), "mcq"));
+    expect(graph.quizItems[1].options).toHaveLength(3);
+    expect(validateGraph(graph).ok).toBe(true);
+  });
+
+  it("uses a short answer's text as the correct option when it becomes multiple choice", () => {
+    const patch = convertQuizType(short(), "mcq");
+    expect(patch.options).toContain("condensation");
+    expect(patch.answer).toBe("condensation");
+  });
+
+  it("keeps existing options when converting to multiple choice and back", () => {
+    const toShort = convertQuizType(mcq(), "short_answer");
+    expect(toShort).toMatchObject({ type: "short_answer", answer: mcq().answer });
+    expect(toShort.options).toBeUndefined();
+  });
+
+  it("clears the answer when a true/false item becomes short answer", () => {
+    expect(convertQuizType(tf(), "short_answer").answer).toBe("");
+  });
+
+  it("every conversion between every pair of types produces a valid item once a short answer is filled in", () => {
+    const types = ["mcq", "true_false", "short_answer"] as const;
+    for (const from of types) {
+      for (const to of types) {
+        const start = makeGraph().quizItems.find((q) => q.type === from)!;
+        const patch = convertQuizType(start, to);
+        const graph = updateQuizItem(
+          makeGraph(),
+          start.id,
+          patch.answer === "" ? { ...patch, answer: "water" } : patch,
+        );
+        expect(validateGraph(graph).ok, `${from} -> ${to}`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("quizItemProblems", () => {
+  const item = () => ({
+    ...makeGraph().quizItems[0],
+    options: [...makeGraph().quizItems[0].options!],
+  });
+
+  it("reports nothing for a good item", () => {
+    expect(quizItemProblems(item())).toEqual({});
+    expect(hasProblems(quizItemProblems(item()))).toBe(false);
+  });
+
+  it("flags a blank question and explanation", () => {
+    expect(quizItemProblems({ ...item(), prompt: " ", explanation: "" })).toMatchObject({
+      prompt: expect.any(String),
+      explanation: expect.any(String),
+    });
+  });
+
+  it("flags blank and repeated options individually", () => {
+    const problems = quizItemProblems({ ...item(), options: ["A", "", "a", "D"], answer: "A" });
+    expect(problems.options?.[0]).toBeUndefined();
+    expect(problems.options?.[1]).toMatch(/Write this option/);
+    expect(problems.options?.[2]).toMatch(/repeats/);
+    expect(problems.options?.[3]).toBeUndefined();
+  });
+
+  it("flags too few or too many options", () => {
+    expect(quizItemProblems({ ...item(), options: ["A", "B"], answer: "A" }).optionSet).toMatch(
+      /at least 3/,
+    );
+    expect(
+      quizItemProblems({ ...item(), options: ["A", "B", "C", "D", "E"], answer: "A" }).optionSet,
+    ).toMatch(/at most 4/);
+  });
+
+  it("flags a missing correct option", () => {
+    expect(quizItemProblems({ ...item(), answer: "Nothing like this" }).answer).toMatch(
+      /Choose which option/,
+    );
+  });
+
+  it("checks true/false and short answer answers", () => {
+    const base = makeGraph().quizItems;
+    expect(quizItemProblems({ ...base[1], answer: "maybe" }).answer).toMatch(/true or false/);
+    expect(quizItemProblems({ ...base[3], answer: "  " }).answer).toMatch(/model answer/);
+    expect(hasProblems(quizItemProblems(base[1]))).toBe(false);
+  });
+
+  it("agrees with the schema: an item with no problems passes validation", () => {
+    for (const q of makeGraph().quizItems) expect(hasProblems(quizItemProblems(q))).toBe(false);
   });
 });

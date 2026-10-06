@@ -312,3 +312,79 @@ export function describeLocator(locator: Pick<SourceLocator, "kind" | "start" | 
       return "Your text";
   }
 }
+
+/**
+ * The fields to change when a quiz item switches type, so it stays well formed.
+ * Multiple choice needs 3 to 4 options with the answer among them, true/false needs
+ * "true" or "false", and short answer keeps the model answer text.
+ */
+export function convertQuizType(item: QuizItem, type: QuizItem["type"]): QuizItemPatch {
+  if (type === item.type) return {};
+  if (type === "mcq") {
+    const existing = (item.options ?? []).filter((option) => option.trim());
+    const answer =
+      item.type === "short_answer" && item.answer.trim() ? item.answer.trim() : "Correct answer";
+    const options =
+      existing.length >= 3
+        ? existing.slice(0, 4)
+        : [answer, "Wrong answer", "Another wrong answer"];
+    return {
+      type,
+      options,
+      answer: options.includes(item.answer) ? item.answer : options[0],
+      acceptable: [],
+    };
+  }
+  if (type === "true_false") {
+    return { type, options: undefined, answer: "true", acceptable: [] };
+  }
+  return {
+    type,
+    options: undefined,
+    answer: item.type === "true_false" ? "" : item.answer,
+  };
+}
+
+export interface QuizItemProblems {
+  prompt?: string;
+  explanation?: string;
+  answer?: string;
+  /** One entry per option, in order; undefined where the option is fine. */
+  options?: (string | undefined)[];
+  /** A problem with the options as a set, such as too few. */
+  optionSet?: string;
+}
+
+/** Field-level problems a teacher can fix. An empty object means the item is fine. */
+export function quizItemProblems(item: QuizItem): QuizItemProblems {
+  const problems: QuizItemProblems = {};
+  if (!item.prompt.trim()) problems.prompt = "Write the question.";
+  if (!item.explanation.trim()) problems.explanation = "Explain why the answer is right.";
+
+  if (item.type === "mcq") {
+    const options = item.options ?? [];
+    const normalized = options.map((option) => option.trim().toLowerCase());
+    const perOption = options.map((option, index) => {
+      if (!option.trim()) return "Write this option or remove it.";
+      return normalized.indexOf(normalized[index]) !== index
+        ? "This option repeats another one."
+        : undefined;
+    });
+    if (perOption.some(Boolean)) problems.options = perOption;
+    if (options.length < 3) problems.optionSet = "Add at least 3 options.";
+    else if (options.length > 4) problems.optionSet = "Use at most 4 options.";
+    if (!options.includes(item.answer)) problems.answer = "Choose which option is correct.";
+  } else if (item.type === "true_false") {
+    if (item.answer !== "true" && item.answer !== "false")
+      problems.answer = "Choose true or false.";
+  } else if (!item.answer.trim()) {
+    problems.answer = "Write the model answer.";
+  }
+  return problems;
+}
+
+export function hasProblems(problems: QuizItemProblems): boolean {
+  return Object.values(problems).some((value) =>
+    Array.isArray(value) ? value.some(Boolean) : Boolean(value),
+  );
+}
