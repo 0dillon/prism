@@ -1156,6 +1156,8 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: `experimental.authInterrupts` is enabled in `next.config.ts` so a lesson page can return a real 403 with `forbidden()` (P3-07). Reason: the PRD asks for a 403 page for non-entitled users and Next 16 only offers it behind this flag. A lesson that does not exist and one the user may not see return the same 403, so the response reveals nothing. Affects P3-07.
 - 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
 - 2026-10-06: Session commands match locally only when the whole utterance is one command, so "go over that again but easier" goes to the model and comes back as `simplify` rather than being guessed as `repeat`. The model sees a flat object schema (a `type` plus optional fields) instead of the union, for the same Gemini reason as above, and `toSessionIntent` rebuilds a validated `SessionIntent`. An `answer` is accepted only when a question is waiting. "continue", "keep going" and "carry on" map to `resume`; the session should treat `resume` as `next` when nothing is paused. Measured on the free Gemini tier, the model path takes about 1 second against the 800 ms target in 6.1, to be re-measured on a paid key (P8-06). Affects 5.4 B, 6.1.
+- 2026-10-06: The conversation tutor listens only between its own turns. Voice barge-in (speaking over the tutor) is not attempted with the browser recognizer because it would hear the tutor's own voice; the key press, the Stop talking button and the microphone button cut speech instead. True voice barge-in needs the streaming speech providers (P4-24). Affects 5.6.3, P4-17.
+- 2026-10-06: The public demo lesson may use the tutor, grading and intent endpoints without an account, limited by address. Reason: the demo must work signed out. Every other lesson needs sign-in and goes through row-level security. Affects 7.5, P9-03.
 - 2026-10-06: Dragging a settings slider is one undo step: changes sharing a key within 800 ms replace each other in the undo history. Reason: undoing a drag one pixel at a time is unusable. Affects 5.6, P3-13.
 
 ### 9.2 Blockers
@@ -1164,6 +1166,7 @@ Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
 
 - 2026-10-06: P1-04 to P1-15, resolved. Migrations were applied to the hosted Supabase project with `supabase db push` and `npm run smoke:supabase` passes 18 live checks (RLS, mastery trigger, signed storage URLs). PGlite stays as the fast in-process test layer.
 - 2026-10-06: P0-05, resolved. A server component queried the hosted database through `src/lib/supabase/server.ts`. There is still no Docker locally, so `supabase start` and `supabase db reset` have not been run; the hosted project is the integration target.
+- 2026-10-06: P4-14 and P4-23, manual checks owed. Text to speech and key barge-in (under 1 ms to stop the voice) were verified in a real Chromium; speech to text was verified only against a fake recognizer because there was no microphone, and "read once by NVDA or VoiceOver with Prism's voice off" needs a screen reader. The transcript is an ARIA log so each reply is added once. Someone with a microphone and a screen reader should run both before a school pilot.
 
 ### 9.3 Open questions and findings
 
