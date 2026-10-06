@@ -41,6 +41,10 @@ describe("parseServerEnv", () => {
     );
   });
 
+  it.each(["anthropic", "openai", "google"])("accepts the %s LLM provider", (provider) => {
+    expect(parseServerEnv({ ...valid, LLM_PROVIDER: provider }).LLM_PROVIDER).toBe(provider);
+  });
+
   it("rejects an unknown LLM provider", () => {
     expect(() => parseServerEnv({ ...valid, LLM_PROVIDER: "nope" })).toThrow(EnvError);
   });
