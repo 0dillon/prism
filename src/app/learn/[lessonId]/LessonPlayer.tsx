@@ -6,11 +6,14 @@ import { getProfileStore } from "@/lib/profile/store";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import { createSessionStore } from "@/lib/session/store";
 import { PrismRenderer } from "@/renderers/PrismRenderer";
+import { SignClipsContext, type SignClipMap } from "@/renderers/visual/signs";
 
 interface LessonPlayerProps {
   lessonId: string;
   graphVersion: number;
   graph: KnowledgeGraph;
+  /** Verified sign clips for this lesson, by concept. Empty if there are none. */
+  signClips?: SignClipMap;
 }
 
 /**
@@ -18,7 +21,7 @@ interface LessonPlayerProps {
  * reads the quiz cadence from the profile each time, so changing it takes effect at once.
  * The settings button sits above the lesson, so every setting is reachable in every layout.
  */
-export function LessonPlayer({ lessonId, graphVersion, graph }: LessonPlayerProps) {
+export function LessonPlayer({ lessonId, graphVersion, graph, signClips = {} }: LessonPlayerProps) {
   const [sessionStore] = useState(() => {
     const profileStore = getProfileStore();
     return createSessionStore({
@@ -37,11 +40,11 @@ export function LessonPlayer({ lessonId, graphVersion, graph }: LessonPlayerProp
   });
 
   return (
-    <>
+    <SignClipsContext.Provider value={signClips}>
       <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4">
         <SettingsPanel />
       </div>
       <PrismRenderer graph={graph} sessionStore={sessionStore} />
-    </>
+    </SignClipsContext.Provider>
   );
 }

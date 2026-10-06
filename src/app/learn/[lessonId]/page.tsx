@@ -3,6 +3,7 @@ import { forbidden, notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { ServiceError } from "@/lib/api/http";
 import { getPublishedLesson } from "@/lib/lessons/publish-service";
+import { loadLearnerSignClips, toClipMap } from "@/lib/lessons/sign-clips-service";
 import { createClient } from "@/lib/supabase/server";
 import { LessonPlayer } from "./LessonPlayer";
 
@@ -29,11 +30,14 @@ export default async function LessonPage({ params }: PageProps<"/learn/[lessonId
     throw error;
   }
 
+  const signClips = toClipMap(await loadLearnerSignClips(supabase, lessonId));
+
   return (
     <LessonPlayer
       lessonId={lesson.lessonId}
       graphVersion={lesson.graphVersion}
       graph={lesson.graph}
+      signClips={signClips}
     />
   );
 }
