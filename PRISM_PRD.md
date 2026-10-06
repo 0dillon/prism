@@ -1145,6 +1145,7 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-05: A Deaf student persona was added to the six requested personas. Reason: the demo includes a Deaf learner with ASL support.
 - 2026-10-06: Both `@langchain/anthropic` and `@langchain/openai` are installed, and `LLM_PROVIDER` selects between them. Reason: the production provider is an open question (9.3) and the PRD asks for a provider package behind one gateway. Affects 7.2, P0-03.
 - 2026-10-06: Latest stable majors at install time are used as-is: Next.js 16, React 19, Zod 4, Tailwind 4. Schemas keep the exact shapes in 5.2, 5.3, and 5.7; only the Zod API surface differs from older majors. Affects 0.2, 7.2.
+- 2026-10-06: `KnowledgeGraph` is the PRD 5.2 object plus a refinement for referential integrity (unique ids, section and concept references, prerequisite existence, no cycles, MCQ and true/false answer rules); the plain object is exported as `KnowledgeGraphBase`. Reason: P1-01 requires the schema itself to reject a dangling quiz reference, and P2-07 reuses the same checks. Affects 5.2, P1-01, P2-07.
 - 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
 
 ### 9.2 Blockers
