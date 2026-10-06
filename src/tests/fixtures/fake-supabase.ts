@@ -12,6 +12,28 @@ type Result = { data: unknown; error: { message: string } | null };
 export class FakeSupabase {
   tables: Record<string, Row[]> = { lessons: [], ingestion_jobs: [] };
   uploadUrls: { bucket: string; path: string }[] = [];
+  /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
+  rpcHandlers: Record<
+    string,
+    (
+      args: Record<string, unknown>,
+      userId: string | null,
+    ) => { data: unknown; error: { message: string; code: string } | null }
+  > = {
+    publish_lesson: (args, userId) => {
+      const lesson = this.tables.lessons.find((l) => l.id === args.p_lesson_id);
+      if (!lesson || userId === null || lesson.owner_id !== userId) {
+        return { data: null, error: { message: "lesson not found", code: "P0002" } };
+      }
+      if (lesson.status !== "needs_review") {
+        return { data: null, error: { message: "lesson is not ready to publish", code: "P0001" } };
+      }
+      const version = (lesson.graph_version as number) + 1;
+      Object.assign(lesson, { graph: args.p_graph, graph_version: version, status: "published" });
+      return { data: version, error: null };
+    },
+  };
+
   /** Make the next operation on a table fail: key is `${table}.${op}`. */
   failures = new Set<string>();
   clock = () => new Date().toISOString();
@@ -184,6 +206,15 @@ export class FakeSupabase {
       return builder;
     };
 
+    const rpc = async (name: string, args: Record<string, unknown>) => {
+      const injected = fail(`rpc.${name}`);
+      if (injected) return { data: null, error: { ...injected, code: "XX000" } };
+      const handler = this.rpcHandlers[name];
+      if (!handler)
+        return { data: null, error: { message: `unknown function ${name}`, code: "42883" } };
+      return handler(args, userId);
+    };
+
     const storage = {
       from: (bucket: string) => ({
         createSignedUploadUrl: async (path: string) => {
@@ -202,6 +233,6 @@ export class FakeSupabase {
       }),
     };
 
-    return { from, storage } as unknown as UserClient;
+    return { from, storage, rpc } as unknown as UserClient;
   }
 }
