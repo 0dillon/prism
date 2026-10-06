@@ -953,7 +953,7 @@ Update this table when a phase completes.
 - [x] **P1-01** [MVP] Write Zod schemas for the Knowledge Graph exactly as in Section 5.2. File: `src/lib/schemas/knowledge-graph.ts`. Done when: unit tests accept a valid fixture and reject a graph whose quiz item references a missing concept.
 - [x] **P1-02** [MVP] Write the Render Profile schema exactly as in Section 5.3. File: `src/lib/schemas/render-profile.ts`. Done when: `RenderProfile.parse({ ...minimal })` fills all defaults.
 - [x] **P1-03** [MVP] Write the Learning Event and Session Intent schemas from Sections 5.7 and 5.4. Files: `src/lib/schemas/events.ts`, `src/lib/schemas/intents.ts`. Done when: unit tests cover one valid and one invalid case for each.
-- [ ] **P1-04** [MVP] Migration: `users_public`, `lessons`, `ingestion_jobs`, `concepts`, `quiz_items`, `concept_variants`. Done when: `supabase db reset` applies cleanly.
+- [x] **P1-04** [MVP] Migration: `users_public`, `lessons`, `ingestion_jobs`, `concepts`, `quiz_items`, `concept_variants`. Done when: `supabase db reset` applies cleanly.
 - [ ] **P1-05** [MVP] Migration: `render_profiles`, `learning_events`, `concept_mastery`, `unmet_needs`. Done when: migration applies cleanly.
 - [ ] **P1-06** [MVP] Migration: `sign_clips`, `concept_sign_links`, and a storage bucket `sign-clips`. Done when: migration applies cleanly.
 - [ ] **P1-07** [MVP] Row-level security for the tables in P1-04 to P1-06: owners manage their lessons, learners read published lessons they are entitled to, users read and write only their own profile, events, and mastery. Done when: a SQL test proves user A cannot read user B's `render_profiles` row.
