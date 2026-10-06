@@ -207,6 +207,40 @@ body {
   outline: none;
 }
 
+/*
+ * Celebration after a correct answer (cards). Each plays once and moves, never flashes:
+ * nothing here changes brightness, so it stays well under three flashes a second.
+ */
+@keyframes prism-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes prism-burst {
+  from {
+    transform: rotate(var(--angle)) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(var(--angle)) translateY(-3.5rem);
+    opacity: 0;
+  }
+}
+
+.prism-pop {
+  animation: prism-pop 350ms ease-out 1 both;
+}
+
+.prism-burst {
+  animation: prism-burst 800ms ease-out 1 both;
+}
+
 /* Reduced motion: honor the OS setting and the profile's explicit override. */
 @media (prefers-reduced-motion: reduce) {
   *,
