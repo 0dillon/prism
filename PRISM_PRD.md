@@ -931,7 +931,7 @@ Update this table when a phase completes.
 | 6 | B2B school portal and dashboards | Not started |
 | 7 | B2C creator marketplace | Not started |
 | 8 | Hardening | Not started |
-| 9 | Demo and launch | Not started |
+| 9 | Demo and launch | MVP tasks done except P9-06 (deploy), which needs the owner's Vercel account. Demo page, seed, source reading, script and offline mode are built; the script timing needs one rehearsal |
 
 ---
 
