@@ -1,0 +1,9 @@
+-- Local seed data for `supabase db reset`.
+--
+-- Demo accounts cannot be created in plain SQL: they need Supabase Auth to hash the
+-- password and issue the user, and the demo lesson is published through the same function
+-- the app uses. Run the seed script after a reset instead:
+--
+--   DEMO_PASSWORD=<8+ characters> npm run seed:demo
+--
+-- It creates the demo teacher, three demo learners, and the demo lesson, published.
