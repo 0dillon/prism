@@ -950,7 +950,7 @@ Update this table when a phase completes.
 
 ### Phase 1: Database and schema
 
-- [ ] **P1-01** [MVP] Write Zod schemas for the Knowledge Graph exactly as in Section 5.2. File: `src/lib/schemas/knowledge-graph.ts`. Done when: unit tests accept a valid fixture and reject a graph whose quiz item references a missing concept.
+- [x] **P1-01** [MVP] Write Zod schemas for the Knowledge Graph exactly as in Section 5.2. File: `src/lib/schemas/knowledge-graph.ts`. Done when: unit tests accept a valid fixture and reject a graph whose quiz item references a missing concept.
 - [ ] **P1-02** [MVP] Write the Render Profile schema exactly as in Section 5.3. File: `src/lib/schemas/render-profile.ts`. Done when: `RenderProfile.parse({ ...minimal })` fills all defaults.
 - [ ] **P1-03** [MVP] Write the Learning Event and Session Intent schemas from Sections 5.7 and 5.4. Files: `src/lib/schemas/events.ts`, `src/lib/schemas/intents.ts`. Done when: unit tests cover one valid and one invalid case for each.
 - [ ] **P1-04** [MVP] Migration: `users_public`, `lessons`, `ingestion_jobs`, `concepts`, `quiz_items`, `concept_variants`. Done when: `supabase db reset` applies cleanly.
