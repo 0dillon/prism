@@ -21,10 +21,14 @@ export interface QuizBlockProps {
   gradeShortAnswer?: (value: string) => Promise<ShortAnswerGrade>;
   /** Shown above the question, so a renderer can say "Question 1 of 2". */
   label?: string;
+  /** Bigger text and targets, for touch layouts such as cards. */
+  large?: boolean;
 }
 
 const optionClass =
   "border-line bg-background text-foreground min-h-11 w-full cursor-pointer rounded-md border px-4 py-3 text-start font-medium disabled:cursor-default";
+// Large targets for touch: at least 56px tall, over the 44px minimum.
+const largeOptionClass = `${optionClass} min-h-14 text-lg`;
 
 /**
  * One quiz question, for every renderer (PRD 5.6). Multiple choice and true/false are graded
@@ -40,6 +44,7 @@ export function QuizBlock({
   onContinue,
   gradeShortAnswer,
   label,
+  large = false,
 }: QuizBlockProps) {
   const questionId = useId();
   const inputId = useId();
@@ -117,7 +122,7 @@ export function QuizBlock({
                 <li key={option}>
                   <button
                     type="button"
-                    className={optionClass}
+                    className={large ? largeOptionClass : optionClass}
                     disabled={answered}
                     aria-pressed={answered ? wasChosen : undefined}
                     onClick={() => choose(option)}
