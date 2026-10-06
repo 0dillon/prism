@@ -130,6 +130,28 @@ try {
     "cannot forge an event for another user",
     Boolean((await b.db.from("learning_events").insert(event(9, true, a.id))).error),
   );
+  // Replaying a batch, the way /api/events does, must store nothing new and must not
+  // count an answer twice towards mastery.
+  const attemptsBefore = (
+    await b.db.from("concept_mastery").select("attempts").eq("concept_id", "c_1")
+  ).data?.[0]?.attempts;
+  const replay = await b.db
+    .from("learning_events")
+    .upsert([event(1, true), event(2, true), event(3, false)], {
+      onConflict: "id",
+      ignoreDuplicates: true,
+    });
+  check("replaying events is accepted", !replay.error, replay.error?.message);
+  const stored = await b.db.from("learning_events").select("id").like("id", `SMOKE${tag}%`);
+  check("replaying events stores nothing new", stored.data?.length === 3, String(stored.data?.length));
+  const attemptsAfter = (
+    await b.db.from("concept_mastery").select("attempts").eq("concept_id", "c_1")
+  ).data?.[0]?.attempts;
+  check(
+    "replaying events does not count an answer twice",
+    attemptsBefore === attemptsAfter,
+    `${attemptsBefore} -> ${attemptsAfter}`,
+  );
   check(
     "other users cannot read this learner's events or mastery",
     (await a.db.from("concept_mastery").select("id")).data?.length === 0 &&
