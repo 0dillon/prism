@@ -1052,7 +1052,7 @@ Update this table when a phase completes.
 - [x] **P4-26** [MVP] `SignClip` component: short looping muted video with play, pause, and speed controls, a text label of the gloss, and a note that it shows the sign for the key term. File: `src/renderers/visual/SignClip.tsx`. Done when: the clip is keyboard operable and does not autoplay under reduced motion.
 - [x] **P4-27** [MVP] `VisualRenderer`: plain-language concept cards (uses the `plain` variant), image when available, "See it signed" button for verified links, and the "not a full translation" notice. File: `src/renderers/visual/VisualRenderer.tsx`. Done when: a concept with a verified link shows the button and one without does not. (CE-9)
 - [x] **P4-28** [MVP] Fingerspelling fallback: for a key term with no clip, show the term spelled with ASL handshape images, labelled "Fingerspelled". File: `src/renderers/visual/Fingerspell.tsx`. Done when: any A to Z term renders with alt text per letter.
-- [ ] **P4-29** [MVP] Visual-only feedback for quizzes (icon, text, color, optional haptic) and a test asserting no audio element or speech call is used in this renderer. Done when: the test passes.
+- [x] **P4-29** [MVP] Visual-only feedback for quizzes (icon, text, color, optional haptic) and a test asserting no audio element or speech call is used in this renderer. Done when: the test passes.
 - [ ] **P4-30** Transcript panel for audio sources with timestamps, synchronized highlighting during optional playback, and click-to-seek. File: `src/renderers/visual/TranscriptPanel.tsx`. Done when: clicking a line seeks the audio and the active line is highlighted.
 
 ### Phase 5: Learning events and progress
