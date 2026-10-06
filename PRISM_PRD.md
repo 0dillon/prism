@@ -1149,14 +1149,15 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: Migrations and SQL tests run in-process on PGlite (real Postgres compiled to WASM) behind a shim of Supabase's roles, `auth` and `storage` schemas, `auth.uid()`, and default privileges (`src/tests/sql/harness.ts`). Reason: this machine has no Docker, so `supabase db reset` cannot run. Migrations are plain SQL applied in filename order, so they should behave the same under `supabase db reset`; that run is still owed once Docker or a hosted project is available (9.2). Affects P1-04 to P1-15.
 - 2026-10-06: Composite keys `(lesson_id, id)` on `concepts` and `quiz_items`, and `lesson_id` columns on `concept_variants` and `concept_sign_links`. Reason: concept and quiz ids are graph-local text ids, and row-level security needs the lesson to decide access. Affects 7.4.
 - 2026-10-06: `src/middleware.ts` is `src/proxy.ts`. Reason: Next.js 16 renamed Middleware to Proxy; behavior is the same. Affects 7.3, P1-11.
+- 2026-10-06: Projects are set up with "Automatically expose new tables" off, and `config.toml` sets `auto_expose_new_tables = false`. Every migration therefore grants API roles explicitly, `service_role` included (migration 20261006090600), and the PGlite harness no longer gives default table grants so a missing grant fails in tests. Reason: the live smoke test showed `service_role` was denied on every table. Affects 7.4, 6.4.
 - 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
 
 ### 9.2 Blockers
 
 Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
 
-- 2026-10-06: P1-04 to P1-15, SQL is verified on PGlite, not by `supabase db reset` (see 9.1). Run `npx supabase db reset` once Docker is available and fix any difference.
-- 2026-10-06: P0-05, no Docker, WSL, or local Postgres on the development machine, so `supabase start` cannot run and a server component cannot be pointed at a live database yet. Implemented `src/lib/supabase/client.ts` and `server.ts` against the real `@supabase/ssr` API. Task left unchecked until a hosted Supabase project (or Docker) is available. Phase 1 SQL is verified in-process with PGlite instead; see 9.1.
+- 2026-10-06: P1-04 to P1-15, resolved. Migrations were applied to the hosted Supabase project with `supabase db push` and `npm run smoke:supabase` passes 18 live checks (RLS, mastery trigger, signed storage URLs). PGlite stays as the fast in-process test layer.
+- 2026-10-06: P0-05, resolved. A server component queried the hosted database through `src/lib/supabase/server.ts`. There is still no Docker locally, so `supabase start` and `supabase db reset` have not been run; the hosted project is the integration target.
 
 ### 9.3 Open questions and findings
 
