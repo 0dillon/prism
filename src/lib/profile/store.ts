@@ -21,6 +21,7 @@ import { DEFAULT_PROFILE, presetProfile } from "./presets";
 
 export const STORAGE_KEY = "prism.profile.v1";
 const MAX_HISTORY = 20;
+const COALESCE_WINDOW_MS = 800;
 const DEFAULT_DEBOUNCE_MS = 800;
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -37,8 +38,15 @@ export interface ProfileState {
 
 export interface ProfileActions {
   applyPreset(preset: Exclude<Preset, "custom">): void;
-  /** Merges a partial change. Throws ProfilePatchError and keeps the profile if it is invalid. */
-  applyPatch(patch: ProfilePatch, options?: { explanation?: string }): ProfileChange[];
+  /**
+   * Merges a partial change. Throws ProfilePatchError and keeps the profile if it is invalid.
+   * Changes that share a `coalesceKey` within a short window become one undo step, so
+   * dragging a slider is undone in one go.
+   */
+  applyPatch(
+    patch: ProfilePatch,
+    options?: { explanation?: string; coalesceKey?: string },
+  ): ProfileChange[];
   /** Replaces the profile with one that was already merged and validated, such as a server result. */
   applyProfile(next: RenderProfile, options?: { explanation?: string }): ProfileChange[];
   undo(): boolean;
@@ -93,13 +101,27 @@ export function createProfileStore(options: ProfileStoreOptions = {}): StoreApi<
   const storage = options.storage === undefined ? safeBrowserStorage() : options.storage;
   const debounceMs = options.debounceMs ?? DEFAULT_DEBOUNCE_MS;
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let lastCoalesce: { key: string; at: number } | null = null;
 
   const store = createStore<ProfileStore>((set, get) => {
-    const change = (next: RenderProfile, changes: ProfileChange[], explanation?: string) => {
+    const change = (
+      next: RenderProfile,
+      changes: ProfileChange[],
+      explanation?: string,
+      coalesceKey?: string,
+    ) => {
       const { profile, history } = get();
+      const time = Date.now();
+      // A run of changes to the same control is one step to undo.
+      const continuing =
+        coalesceKey !== undefined &&
+        lastCoalesce?.key === coalesceKey &&
+        time - lastCoalesce.at < COALESCE_WINDOW_MS &&
+        history.length > 0;
+      lastCoalesce = coalesceKey === undefined ? null : { key: coalesceKey, at: time };
       set({
         profile: next,
-        history: [...history, profile].slice(-MAX_HISTORY),
+        history: continuing ? history : [...history, profile].slice(-MAX_HISTORY),
         lastChange: { changes, explanation },
       });
     };
@@ -129,7 +151,7 @@ export function createProfileStore(options: ProfileStoreOptions = {}): StoreApi<
             ? { ...merged, preset: "custom" as const }
             : merged;
         const changes = diffProfiles(current, next);
-        change(next, changes, patchOptions?.explanation);
+        change(next, changes, patchOptions?.explanation, patchOptions?.coalesceKey);
         return changes;
       },
 
@@ -145,11 +167,13 @@ export function createProfileStore(options: ProfileStoreOptions = {}): StoreApi<
         const { history } = get();
         if (history.length === 0) return false;
         const previous = history[history.length - 1];
+        lastCoalesce = null;
         set({ profile: previous, history: history.slice(0, -1), lastChange: null });
         return true;
       },
 
       setProfile(profile) {
+        lastCoalesce = null;
         set({ profile, history: [], lastChange: null });
       },
 
