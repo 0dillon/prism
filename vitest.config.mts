@@ -10,7 +10,9 @@ export default defineConfig({
   test: {
     // Component tests opt in to jsdom with `// @vitest-environment jsdom`.
     environment: "node",
-    include: ["src/tests/unit/**/*.test.{ts,tsx}"],
+    include: ["src/tests/unit/**/*.test.{ts,tsx}", "src/tests/sql/**/*.test.ts"],
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
     setupFiles: ["src/tests/setup.ts"],
   },
 });
