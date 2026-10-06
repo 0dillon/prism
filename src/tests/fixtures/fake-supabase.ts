@@ -9,6 +9,11 @@ type Result = { data: unknown; error: { message: string } | null };
  * service uses. It mimics the row-level security rules that matter to those queries:
  * a user sees and writes only their own lessons, and cannot write pipeline jobs.
  */
+/** A filter for `.in(column, values)`. */
+class InList {
+  constructor(readonly values: unknown[]) {}
+}
+
 export class FakeSupabase {
   tables: Record<string, Row[]> = {
     lessons: [],
@@ -17,6 +22,8 @@ export class FakeSupabase {
     concept_variants: [],
     render_profiles: [],
     unmet_needs: [],
+    concepts: [],
+    concept_mastery: [],
   };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
@@ -89,7 +96,17 @@ export class FakeSupabase {
     if (table === "lessons") {
       return rows.filter((r) => r.owner_id === userId || r.status === "published");
     }
-    if (table === "render_profiles") return rows.filter((r) => r.user_id === userId);
+    if (table === "render_profiles" || table === "concept_mastery") {
+      return rows.filter((r) => r.user_id === userId);
+    }
+    if (table === "concepts") {
+      const readable = new Set(
+        this.tables.lessons
+          .filter((l) => l.owner_id === userId || l.status === "published")
+          .map((l) => l.id),
+      );
+      return rows.filter((r) => readable.has(r.lesson_id));
+    }
     if (table === "concept_variants") {
       const readable = new Set(
         this.tables.lessons
@@ -181,7 +198,9 @@ export class FakeSupabase {
           return { data: inserted, error: null };
         }
 
-        let rows = this.visible(table, userId).filter((r) => filters.every(([c, v]) => r[c] === v));
+        let rows = this.visible(table, userId).filter((r) =>
+          filters.every(([c, v]) => (v instanceof InList ? v.values.includes(r[c]) : r[c] === v)),
+        );
 
         if (op === "update") {
           if (userId !== null && table !== "lessons" && table !== "concept_sign_links") {
@@ -246,6 +265,10 @@ export class FakeSupabase {
         },
         eq: (column: string, value: unknown) => {
           filters.push([column, value]);
+          return builder;
+        },
+        in: (column: string, values: unknown[]) => {
+          filters.push([column, new InList(values)]);
           return builder;
         },
         order: (column: string, options?: { ascending?: boolean }) => {

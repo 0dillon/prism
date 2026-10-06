@@ -143,7 +143,11 @@ try {
     });
   check("replaying events is accepted", !replay.error, replay.error?.message);
   const stored = await b.db.from("learning_events").select("id").like("id", `SMOKE${tag}%`);
-  check("replaying events stores nothing new", stored.data?.length === 3, String(stored.data?.length));
+  check(
+    "replaying events stores nothing new",
+    stored.data?.length === 3,
+    String(stored.data?.length),
+  );
   const attemptsAfter = (
     await b.db.from("concept_mastery").select("attempts").eq("concept_id", "c_1")
   ).data?.[0]?.attempts;
@@ -151,6 +155,33 @@ try {
     "replaying events does not count an answer twice",
     attemptsBefore === attemptsAfter,
     `${attemptsBefore} -> ${attemptsAfter}`,
+  );
+  // The learner home reads these three tables as the learner (src/lib/lessons/home-service.ts).
+  const homeLessons = await b.db
+    .from("lessons")
+    .select("id, title, status")
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+  check(
+    "learner home sees the published lesson",
+    homeLessons.data?.some((l) => l.id === lessonId) === true,
+    homeLessons.error?.message,
+  );
+  const homeConcepts = await b.db
+    .from("concepts")
+    .select("lesson_id, id")
+    .in("lesson_id", [lessonId]);
+  const homeMastery = await b.db
+    .from("concept_mastery")
+    .select("lesson_id, concept_id, status")
+    .in("lesson_id", [lessonId]);
+  check(
+    "learner home reads concepts and its own mastery",
+    !homeConcepts.error &&
+      !homeMastery.error &&
+      (homeConcepts.data?.length ?? 0) >= 1 &&
+      (homeMastery.data?.length ?? 0) >= 1,
+    homeConcepts.error?.message ?? homeMastery.error?.message,
   );
   check(
     "other users cannot read this learner's events or mastery",
