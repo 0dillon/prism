@@ -924,8 +924,8 @@ Update this table when a phase completes.
 | --- | --- | --- |
 | 0 | Project foundation | MVP tasks done. P0-05 awaits a live database check (9.2). P0-07 and P0-08 deferred |
 | 1 | Database and schema | MVP tasks done. P1-12 to P1-15 deferred. SQL verified on PGlite, not `supabase db reset` (9.2) |
-| 2 | AI ingestion pipeline | Not started |
-| 3 | Profiles, intents, and dynamic rendering state | Not started |
+| 2 | AI ingestion pipeline | MVP tasks done and verified live. P2-08 and P2-18 to P2-23 deferred |
+| 3 | Profiles, intents, and dynamic rendering state | MVP tasks done. P3-16 deferred |
 | 4 | Renderers | Not started |
 | 5 | Learning events and progress | Not started |
 | 6 | B2B school portal and dashboards | Not started |
@@ -1155,6 +1155,8 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: The demo and CI use Gemini (`gemini-3.5-flash` heavy, `gemini-3.5-flash-lite` fast) on a free API key. Production provider and models are still open (9.3). Affects 7.2.
 - 2026-10-06: `experimental.authInterrupts` is enabled in `next.config.ts` so a lesson page can return a real 403 with `forbidden()` (P3-07). Reason: the PRD asks for a 403 page for non-entitled users and Next 16 only offers it behind this flag. A lesson that does not exist and one the user may not see return the same 403, so the response reveals nothing. Affects P3-07.
 - 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
+- 2026-10-06: Session commands match locally only when the whole utterance is one command, so "go over that again but easier" goes to the model and comes back as `simplify` rather than being guessed as `repeat`. The model sees a flat object schema (a `type` plus optional fields) instead of the union, for the same Gemini reason as above, and `toSessionIntent` rebuilds a validated `SessionIntent`. An `answer` is accepted only when a question is waiting. "continue", "keep going" and "carry on" map to `resume`; the session should treat `resume` as `next` when nothing is paused. Measured on the free Gemini tier, the model path takes about 1 second against the 800 ms target in 6.1, to be re-measured on a paid key (P8-06). Affects 5.4 B, 6.1.
+- 2026-10-06: Dragging a settings slider is one undo step: changes sharing a key within 800 ms replace each other in the undo history. Reason: undoing a drag one pixel at a time is unusable. Affects 5.6, P3-13.
 
 ### 9.2 Blockers
 
