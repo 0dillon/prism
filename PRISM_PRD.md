@@ -940,7 +940,7 @@ Update this table when a phase completes.
 - [x] **P0-01** [MVP] Scaffold a Next.js App Router project with TypeScript strict, Tailwind, ESLint, and Prettier at the repo root. Done when: `npm run dev` serves a placeholder home page and `npm run lint` passes.
 - [x] **P0-02** [MVP] Create the directory structure from Section 7.3 with `.gitkeep` files. Done when: all listed folders exist.
 - [x] **P0-03** [MVP] Install core dependencies: `zod`, `zustand`, `@supabase/supabase-js`, `@supabase/ssr`, `langchain` core packages plus the chosen provider package, `unpdf`, `ulid`, Radix primitives, and Motion. Done when: `package.json` lists them and the build passes.
-- [ ] **P0-04** [MVP] Add `.env.example` with every variable from Section 7.6 and a typed env loader. File: `src/lib/env.ts`. Done when: the app throws a clear error at startup if a required server variable is missing.
+- [x] **P0-04** [MVP] Add `.env.example` with every variable from Section 7.6 and a typed env loader. File: `src/lib/env.ts`. Done when: the app throws a clear error at startup if a required server variable is missing.
 - [ ] **P0-05** [MVP] Initialize Supabase locally (`supabase init`) and add browser and server client helpers. Files: `src/lib/supabase/client.ts`, `src/lib/supabase/server.ts`. Done when: a server component can query the database.
 - [ ] **P0-06** [MVP] Set up Vitest with one passing sample test. Done when: `npm test` passes.
 - [ ] **P0-07** Set up Playwright with `@axe-core/playwright` and one smoke test that loads the home page with zero axe violations. Done when: `npm run e2e` passes.
