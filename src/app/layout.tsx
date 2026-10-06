@@ -15,9 +15,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <header className="border-line border-b px-6 py-4">
+        <header className="border-line flex items-center justify-between border-b px-6 py-4">
           <Link href="/" className="text-xl font-semibold tracking-tight">
             Prism
+          </Link>
+          <Link href="/sign-in" className="min-h-11 py-2 font-medium underline">
+            Sign in
           </Link>
         </header>
         <main id="main-content" tabIndex={-1} className="flex-1">
