@@ -90,6 +90,26 @@ export function createFakeLlm(options: FakeLlmOptions = {}) {
       };
     }
 
+    if (name === "match-signs") {
+      const terms = [...prompt.matchAll(/^(t\d+) \| (.+)$/gm)].map((m) => ({
+        ref: m[1],
+        term: m[2],
+      }));
+      const glosses = [...prompt.matchAll(/^(g\d+) \| (.+)$/gm)].map((m) => ({
+        ref: m[1],
+        gloss: m[2],
+      }));
+      // A stand-in for meaning: pair a term with a gloss that shares its first five letters.
+      return {
+        matches: terms.flatMap((t) => {
+          const g = glosses.find((x) =>
+            x.gloss.toLowerCase().includes(t.term.toLowerCase().slice(0, 5)),
+          );
+          return g ? [{ term: t.ref, gloss: g.ref }] : [];
+        }),
+      };
+    }
+
     throw new Error(`fake llm does not know the task "${name}"`);
   };
 

@@ -1,3 +1,4 @@
+import type { SignGloss, SignLink } from "@/lib/ai/ingestion/signs";
 import type { KnowledgeGraph } from "@/lib/schemas/knowledge-graph";
 import {
   parseArtifacts,
@@ -25,6 +26,9 @@ export class MemoryStore implements PipelineStore {
   statusHistory: string[] = [];
   downloads: string[] = [];
   failWrites = false;
+  glosses: SignGloss[] = [];
+  glossError: Error | null = null;
+  signLinks: SignLink[] = [];
 
   async downloadSource(path: string) {
     this.downloads.push(path);
@@ -64,5 +68,14 @@ export class MemoryStore implements PipelineStore {
     this.draft = JSON.parse(JSON.stringify(draft)) as { title: string; graph: KnowledgeGraph };
     this.lessonStatus = "needs_review";
     this.statusHistory.push("needs_review");
+  }
+
+  async listSignGlosses() {
+    if (this.glossError) throw this.glossError;
+    return this.glosses;
+  }
+
+  async saveSignLinks(_lessonId: string, links: SignLink[]) {
+    this.signLinks.push(...links);
   }
 }

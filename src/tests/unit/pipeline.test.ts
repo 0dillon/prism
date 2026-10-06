@@ -330,6 +330,54 @@ describe("runIngestion: resuming", () => {
   });
 });
 
+describe("runIngestion: sign tagging", () => {
+  const run = (
+    store: MemoryStore,
+    input: ReturnType<typeof setup>["input"],
+    llm = createFakeLlm(),
+  ) => runIngestion(input({ generate: llm.generate }) as Parameters<typeof runIngestion>[0]);
+
+  it("proposes links for key terms that match the library, and saves them", async () => {
+    const { store, input } = setup();
+    store.glosses = [{ id: "clip-evap", gloss: "evaporation" }];
+    const result = await run(store, input);
+    expect(result.status).toBe("needs_review");
+    const evaporation = store.draft!.graph.concepts.find((c) => c.keyTerm === "evaporation")!;
+    expect(store.signLinks).toEqual([{ conceptId: evaporation.id, signClipId: "clip-evap" }]);
+    expect(store.job.artifacts.signs).toHaveLength(1);
+  });
+
+  it("links only terms whose gloss exists, never inventing one", async () => {
+    const { store, input } = setup();
+    store.glosses = [{ id: "clip-evap", gloss: "evaporation" }];
+    await run(store, input);
+    expect(store.signLinks).toHaveLength(1);
+    expect(store.signLinks.every((l) => l.signClipId === "clip-evap")).toBe(true);
+  });
+
+  it("does not fail the lesson when the sign library cannot be read", async () => {
+    const { store, input } = setup();
+    store.glossError = new Error("library down");
+    const result = await run(store, input);
+    expect(result.status).toBe("needs_review");
+    expect(store.signLinks).toEqual([]);
+  });
+
+  it("does not fail the lesson when the sign model call fails", async () => {
+    const { store, input } = setup();
+    store.glosses = [{ id: "clip-x", gloss: "unrelated" }];
+    const llm = createFakeLlm({ failAlways: { "match-signs": new Error("model down") } });
+    expect((await run(store, input, llm)).status).toBe("needs_review");
+  });
+
+  it("skips the step on resume once it has run", async () => {
+    const { store, input } = setup();
+    await run(store, input);
+    const again = await run(store, input);
+    expect(again.status === "needs_review" && again.resumedSteps.includes("signs")).toBe(true);
+  });
+});
+
 describe("userFacingError", () => {
   it("passes extraction errors through, since they are written for people", () => {
     expect(userFacingError(new ExtractionError("The PDF has no text layer."))).toBe(

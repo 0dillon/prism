@@ -18,6 +18,7 @@ describe("stages", () => {
       "extracting",
       "merging",
       "generating_quizzes",
+      "tagging_signs",
       "validating",
       "ready",
     ]);
