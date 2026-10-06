@@ -1153,6 +1153,7 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: Schemas sent to the model carry no array `.max()` or string length limits. Gemini rejects bounded arrays of objects as too complex (found by a live call), so limits are enforced in code after the call (clamp titles and summaries, cap concepts per chunk, cap quiz items per concept). Zod still validates everything that is stored. Affects 0.2, P2-04, P2-06.
 - 2026-10-06: Quiz generation runs on the `heavy` tier, four concepts per call. Reason: a wrong quiz answer is costly and the teacher cannot easily spot it, and batching keeps call count low. The PRD lists no tier for this step. Affects 5.1 step 6, 6.2.
 - 2026-10-06: The demo and CI use Gemini (`gemini-3.5-flash` heavy, `gemini-3.5-flash-lite` fast) on a free API key. Production provider and models are still open (9.3). Affects 7.2.
+- 2026-10-06: `experimental.authInterrupts` is enabled in `next.config.ts` so a lesson page can return a real 403 with `forbidden()` (P3-07). Reason: the PRD asks for a 403 page for non-entitled users and Next 16 only offers it behind this flag. A lesson that does not exist and one the user may not see return the same 403, so the response reveals nothing. Affects P3-07.
 - 2026-10-06: `radix-ui` (the unified package) is used instead of individual `@radix-ui/react-*` packages. Reason: it is the current distribution and tree-shakes the same. Affects 7.2.
 
 ### 9.2 Blockers
