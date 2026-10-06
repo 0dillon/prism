@@ -1028,7 +1028,7 @@ Update this table when a phase completes.
 - [x] **P4-08** [MVP] Inline quiz blocks at the configured cadence. Done when: answering emits the same session actions as the cards renderer.
 - [x] **P4-09** [MVP] Word anchors: a pure function that splits a word into bold lead and remainder, applied only when `typography.wordAnchors` is true, with the accessible text unchanged. File: `src/renderers/reader/wordAnchors.tsx`. Done when: a screen reader test reads the sentence normally and a unit test covers short words and punctuation.
 - [ ] **P4-10** [MVP] Read-aloud with browser `speechSynthesis`: play, pause, rate, and sentence highlighting using boundary events. File: `src/renderers/reader/ReadAloud.tsx`. Done when: the highlighted sentence tracks speech in Chrome.
-- [ ] **P4-11** [MVP] "Simpler" button per concept that requests the next reading level from `/api/variants` and swaps the text in place. Done when: the variant displays and a `concept_variant_requested` event is queued.
+- [x] **P4-11** [MVP] "Simpler" button per concept that requests the next reading level from `/api/variants` and swaps the text in place. Done when: the variant displays and a `concept_variant_requested` event is queued.
 - [ ] **P4-12** Word-level highlighting using provider word timings, with fallback to sentence level. Done when: word highlight drift stays under 150 ms on the fixture.
 - [ ] **P4-13** Background tint themes (`cream`, `blue_tint`, `high_contrast`) meeting contrast requirements. Done when: axe reports no contrast violations in each theme.
 
