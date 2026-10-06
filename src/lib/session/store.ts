@@ -83,6 +83,14 @@ export interface SessionStoreActions {
   continue(): void;
   goTo(conceptIndex: number): void;
   restart(): void;
+  /**
+   * The learner has left the screen (tab hidden, page closing). Counts the time up to now,
+   * stops the clock, and reports the idea being read so far, so nothing is lost if the page
+   * never comes back.
+   */
+  suspend(): void;
+  /** The learner is back. Time away is not counted, and a new view of the idea begins. */
+  resume(): void;
   /** Applies an action. The named methods above are shorthand for this. */
   dispatch(action: SessionAction): void;
   /** Restores a saved session for this lesson, if there is a usable one. */
@@ -173,6 +181,7 @@ export function createSessionStore(options: SessionStoreOptions): StoreApi<Sessi
   let lastActionAt: number | null = null;
   // The idea the learner is on, so the time spent on it can be reported when they leave.
   let openView: OpenView | null = null;
+  let suspended = false;
   const storage = options.storage === undefined ? browserStorage() : options.storage;
   const key = `${SESSION_STORAGE_PREFIX}${options.lessonId}`;
   const now = options.now ?? Date.now;
@@ -221,6 +230,40 @@ export function createSessionStore(options: SessionStoreOptions): StoreApi<Sessi
         );
         openView = derived.view;
         for (const event of derived.events) options.onEvent(event);
+      }
+    },
+
+    suspend() {
+      if (suspended) return;
+      const time = now();
+      const { session } = get();
+      const gap =
+        lastActionAt === null ? 0 : Math.min(Math.max(time - lastActionAt, 0), MAX_ACTIVE_GAP_MS);
+      suspended = true;
+      lastActionAt = null;
+      if (gap > 0) set({ session: { ...session, activeMs: session.activeMs + gap } });
+      // Report the idea being read so far, so a closed tab does not lose it.
+      if (options.onEvent && openView) {
+        const { activeMs } = get().session;
+        options.onEvent({
+          lessonId: session.lessonId,
+          graphVersion: session.graphVersion,
+          type: "concept_viewed",
+          conceptId: openView.conceptId,
+          durationMs: Math.max(Math.round(activeMs - openView.activeAtStart), 0),
+        });
+        openView = null;
+      }
+    },
+
+    resume() {
+      if (!suspended) return;
+      suspended = false;
+      lastActionAt = now(); // time away is not study
+      const { session } = get();
+      const id = context().conceptIds[session.conceptIndex];
+      if (options.onEvent && session.phase === "learning" && id && !openView) {
+        openView = { conceptId: id, activeAtStart: session.activeMs };
       }
     },
 

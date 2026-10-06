@@ -43,6 +43,22 @@ export function LessonPlayer({ lessonId, graphVersion, graph, signClips = {} }: 
     });
   });
 
+  // Time on the lesson stops while the tab is hidden, and what was read so far is reported.
+  useEffect(() => {
+    const state = sessionStore;
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") state.getState().suspend();
+      else state.getState().resume();
+    };
+    const onPageHide = () => state.getState().suspend();
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", onPageHide);
+    };
+  }, [sessionStore]);
+
   // Send events to the server while the lesson is open, and report changes to the settings.
   useEffect(() => {
     const stopSync = getEventQueue().start();
