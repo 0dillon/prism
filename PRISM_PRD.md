@@ -927,7 +927,7 @@ Update this table when a phase completes.
 | 2 | AI ingestion pipeline | MVP tasks done and verified live. P2-08 and P2-18 to P2-23 deferred |
 | 3 | Profiles, intents, and dynamic rendering state | MVP tasks done. P3-16 deferred |
 | 4 | Renderers | MVP tasks done. Cards, reader, conversation and visual renderers built and checked in a real browser. P4-06, P4-12, P4-23, P4-24, P4-30 deferred. Sign clips and handshape art are stubbed, and two manual checks are owed (9.2) |
-| 5 | Learning events and progress | Not started |
+| 5 | Learning events and progress | MVP tasks done. The event queue, endpoint, session-raised events, active time, learner home and progress page are built and tested; replay safety is checked on the hosted database. P5-07 (a database parity test) deferred |
 | 6 | B2B school portal and dashboards | Not started |
 | 7 | B2C creator marketplace | Not started |
 | 8 | Hardening | Not started |
