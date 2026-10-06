@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+build
+coverage
+package-lock.json
+PRISM_PRD.md
+supabase/migrations
+src/lib/supabase/database.types.ts
