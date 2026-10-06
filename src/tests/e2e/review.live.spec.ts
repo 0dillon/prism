@@ -15,6 +15,7 @@ const WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 let user: LiveUser;
 let lessonId: string;
+let clipId: string;
 
 const admin = () =>
   createClient(liveEnv.url!, liveEnv.serviceKey!, { auth: { persistSession: false } });
@@ -47,10 +48,30 @@ test.beforeAll(async () => {
     .update({ graph: draftGraph(lessonId) as never })
     .eq("id", lessonId);
   if (saved.error) throw saved.error;
+
+  const gloss = `E2E-${Date.now()}`;
+  const clip = await admin()
+    .from("sign_clips")
+    .insert({
+      gloss,
+      storage_path: "asl/missing-e2e.mp4",
+      source: "e2e",
+      license: "CC-BY-4.0",
+      signer_credit: "E2E Signer",
+    })
+    .select("id")
+    .single();
+  if (clip.error) throw clip.error;
+  clipId = clip.data.id;
+  const link = await admin()
+    .from("concept_sign_links")
+    .insert({ lesson_id: lessonId, concept_id: "c_evaporation", sign_clip_id: clipId });
+  if (link.error) throw link.error;
 });
 
 test.afterAll(async () => {
   if (lessonId) await admin().from("lessons").delete().eq("id", lessonId);
+  if (clipId) await admin().from("sign_clips").delete().eq("id", clipId);
   await user?.cleanup();
 });
 
@@ -61,7 +82,7 @@ test.beforeEach(async ({ context }) => {
 const open = async (page: import("@playwright/test").Page) => {
   await page.goto(`/teach/lessons/${lessonId}/review`);
   await expect(
-    page.getByRole("heading", { level: 1, name: /Review: The Water Cycle/ }),
+    page.getByRole("heading", { level: 1, name: /^Review: / }),
   ).toBeVisible();
 };
 
@@ -192,6 +213,70 @@ test.describe("review page (signed in)", () => {
     );
     await expect(page.getByRole("button", { name: "Reload the latest version" })).toBeVisible();
     expect((await storedGraph()).graph.title).toBe("Changed elsewhere");
+  });
+});
+
+test.describe("signs tab (signed in)", () => {
+  test("hides the concepts panel with real styles and keeps unsaved edits across tabs", async ({
+    page,
+  }) => {
+    await open(page);
+    const title = page.getByLabel("Title", { exact: true }).first();
+    await title.fill("Half typed edit");
+    await page.getByRole("tab", { name: /Signs \(1\)/ }).click();
+    await expect(
+      page.getByRole("heading", { name: "Evaporation of water", level: 3 }),
+    ).toBeVisible();
+    await expect(title).toBeHidden();
+    await page.getByRole("tab", { name: "Concepts and questions" }).click();
+    await expect(title).toHaveValue("Half typed edit");
+  });
+
+  test("has zero axe violations on the signs tab", async ({ page }) => {
+    await open(page);
+    await page.getByRole("tab", { name: /Signs/ }).click();
+    const results = await new AxeBuilder({ page }).withTags(WCAG).analyze();
+    expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+  });
+
+  test("verifying persists with the verifier, and the link records who verified it", async ({
+    page,
+  }) => {
+    await open(page);
+    await page.getByRole("tab", { name: /Signs/ }).click();
+    await expect(page.getByText(/Needs checking/)).toBeVisible();
+    await expect(page.getByText("The clip could not be loaded right now.")).toBeVisible();
+
+    await page.getByRole("button", { name: "Verify the sign for Evaporation of water" }).click();
+    await expect(page.getByText(/Verified\. Learners can see this sign\./)).toBeVisible();
+    const { data } = await admin()
+      .from("concept_sign_links")
+      .select("verified, verified_by")
+      .eq("lesson_id", lessonId)
+      .single();
+    expect(data).toEqual({ verified: true, verified_by: user.id });
+
+    await page.getByRole("button", { name: "Un-verify the sign for Evaporation of water" }).click();
+    await expect(page.getByText(/Needs checking/)).toBeVisible();
+    const after = await admin()
+      .from("concept_sign_links")
+      .select("verified, verified_by")
+      .eq("lesson_id", lessonId)
+      .single();
+    expect(after.data).toEqual({ verified: false, verified_by: null });
+  });
+
+  test("removing a sign needs confirmation and deletes the link", async ({ page }) => {
+    await open(page);
+    await page.getByRole("tab", { name: /Signs/ }).click();
+    await page.getByRole("button", { name: "Remove the sign for Evaporation of water" }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Remove sign" }).click();
+    await expect(page.getByText(/No sign clips were matched/)).toBeVisible();
+    const { data } = await admin()
+      .from("concept_sign_links")
+      .select("id")
+      .eq("lesson_id", lessonId);
+    expect(data).toEqual([]);
   });
 });
 
