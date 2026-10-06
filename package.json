@@ -16,7 +16,8 @@
     "db:types:supabase": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
     "db:reset": "supabase db reset",
     "smoke:supabase": "node --env-file=.env.local scripts/smoke-supabase.mjs",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "smoke:ingest": "node --env-file=.env.local scripts/smoke-ingest.mjs"
   },
   "dependencies": {
     "@langchain/anthropic": "^1.5.12",
