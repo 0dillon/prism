@@ -209,3 +209,78 @@ export async function generateStructured<S extends z.ZodType>(
   });
   throw new StructuredOutputError(task, lastIssues, MAX_ATTEMPTS);
 }
+
+/** The part of a chat model that `streamText` uses. Lets tests pass a fake. */
+export interface StreamingCapableModel {
+  stream(messages: BaseMessage[]): Promise<AsyncIterable<unknown>>;
+}
+
+export interface StreamTextOptions {
+  prompt: string;
+  system?: string;
+  tier: Tier;
+  name?: string;
+  config?: LlmConfig;
+  /** Override the model. Used by tests. */
+  model?: StreamingCapableModel;
+  onUsage?: UsageCallback;
+}
+
+/** The text in one streamed chunk, whether the provider sends a string or a list of parts. */
+export function chunkText(chunk: unknown): string {
+  const content = (chunk as { content?: unknown })?.content;
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .map((part) =>
+      typeof part === "string" ? part : ((part as { text?: unknown })?.text as string) || "",
+    )
+    .join("");
+}
+
+/**
+ * Streams plain text from the model as it is written, so a reply can start being spoken
+ * before it is finished. Usage is reported once, when the stream ends.
+ */
+export async function* streamText(options: StreamTextOptions): AsyncGenerator<string> {
+  const { tier, onUsage } = options;
+  const config = options.config ?? (options.model ? undefined : llmConfigFromEnv());
+  const modelId = config?.models[tier] ?? "injected-model";
+  const model =
+    options.model ?? (createChatModel(tier, config) as unknown as StreamingCapableModel);
+
+  const messages: BaseMessage[] = [];
+  if (options.system) messages.push(new SystemMessage(options.system));
+  messages.push(new HumanMessage(options.prompt));
+
+  const startedAt = Date.now();
+  let tokensIn = 0;
+  let tokensOut = 0;
+  try {
+    for await (const chunk of await model.stream(messages)) {
+      const usage = (
+        chunk as { usage_metadata?: { input_tokens?: number; output_tokens?: number } }
+      ).usage_metadata;
+      if (usage) {
+        tokensIn = usage.input_tokens ?? tokensIn;
+        tokensOut = usage.output_tokens ?? tokensOut;
+      }
+      const text = chunkText(chunk);
+      if (text) yield text;
+    }
+  } finally {
+    if (onUsage) {
+      const { costUsd, costKnown } = estimateCostUsd(modelId, tokensIn, tokensOut);
+      onUsage({
+        tier,
+        model: modelId,
+        tokensIn,
+        tokensOut,
+        costUsd,
+        costKnown,
+        latencyMs: Date.now() - startedAt,
+        validationFailed: false,
+      });
+    }
+  }
+}
