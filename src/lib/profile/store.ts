@@ -9,6 +9,7 @@ import {
   type ProfileChange,
   type ProfilePatch,
 } from "./merge";
+import { saveProfileToServer } from "./client";
 import { DEFAULT_PROFILE, presetProfile } from "./presets";
 
 /**
@@ -195,7 +196,8 @@ export { ProfilePatchError };
 let appStore: StoreApi<ProfileStore> | null = null;
 
 export function getProfileStore(options?: ProfileStoreOptions): StoreApi<ProfileStore> {
-  appStore ??= createProfileStore(options);
+  // The app's store saves to the server in the background. Signed-out visitors keep it on the device.
+  appStore ??= createProfileStore(options ?? { save: saveProfileToServer });
   return appStore;
 }
 
