@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 /*
  * Theme tokens (PRD 5.3 visual.theme, 6.3).
@@ -118,7 +119,11 @@
  * Render Profile (useProfileStyles, P3-09); the defaults match the profile defaults.
  */
 :root {
-  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-system: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-atkinson: "Atkinson Hyperlegible", var(--font-system);
+  --font-lexend: "Lexend", var(--font-system);
+  --font-opendyslexic: "OpenDyslexic", var(--font-system);
+  --font-body: var(--font-system);
   --type-scale: 1;
   --letter-spacing: 0em;
   --word-spacing: 0em;
@@ -143,6 +148,23 @@
 
 html {
   font-size: 100%;
+}
+
+/* Selecting a font: set data-font on any subtree (values match typography.font). */
+[data-font="system"] {
+  --font-body: var(--font-system);
+}
+[data-font="atkinson"] {
+  --font-body: var(--font-atkinson);
+}
+[data-font="lexend"] {
+  --font-body: var(--font-lexend);
+}
+[data-font="opendyslexic"] {
+  --font-body: var(--font-opendyslexic);
+}
+[data-font] {
+  font-family: var(--font-body);
 }
 
 body {
