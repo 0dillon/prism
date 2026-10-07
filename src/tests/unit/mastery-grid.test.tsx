@@ -2,9 +2,12 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { HardestIdeas } from "@/app/teach/classrooms/[id]/HardestIdeas";
 import { MasteryGridTable } from "@/app/teach/classrooms/[id]/MasteryGridTable";
 import {
+  loadHardestIdeas,
   loadMasteryGrid,
+  rankHardestIdeas,
   sortStudents,
   type GridStudent,
   type MasteryStatus,
@@ -280,5 +283,86 @@ describe("MasteryGridTable", () => {
     renderGrid();
     const region = screen.getByRole("region", { name: "The Water Cycle: mastery by student" });
     expect(region.getAttribute("tabindex")).toBe("0");
+  });
+});
+
+describe("hardest ideas", () => {
+  const idea = (conceptId: string, title: string, errorRate: number, attempts: number) => ({
+    conceptId,
+    title,
+    attempts,
+    correct: Math.round(attempts * (1 - errorRate)),
+    errorRate,
+  });
+
+  it("ranks by wrong-answer share, then by how many answers are behind it, then by title", () => {
+    const ranked = rankHardestIdeas([
+      idea("a", "Alpha", 0.2, 10),
+      idea("b", "Bravo", 0.6, 5),
+      idea("c", "Charlie", 0.6, 20),
+      idea("d", "Delta", 0.6, 20),
+    ]);
+    expect(ranked.map((i) => i.title)).toEqual(["Charlie", "Delta", "Bravo", "Alpha"]);
+  });
+
+  it("loads the view rows, leaves out ideas nobody answered, and reads numeric strings", async () => {
+    const { client, calls } = recordingClient({
+      tables: {
+        v_classroom_concept_difficulty: {
+          data: [
+            { concept_id: "c1", concept_title: "Easy", attempts: 10, correct: 9, error_rate: 0.1 },
+            {
+              concept_id: "c2",
+              concept_title: "Hard",
+              attempts: 8,
+              correct: 2,
+              error_rate: "0.750",
+            },
+            {
+              concept_id: "c3",
+              concept_title: "Untouched",
+              attempts: 0,
+              correct: 0,
+              error_rate: null,
+            },
+          ],
+        },
+      },
+    });
+    const ideas = await loadHardestIdeas(client, CLASS, LESSON);
+    expect(ideas.map((i) => [i.title, i.errorRate])).toEqual([
+      ["Hard", 0.75],
+      ["Easy", 0.1],
+    ]);
+    expect(opsNamed(callsOn(calls, "v_classroom_concept_difficulty")[0], "eq")).toEqual([
+      ["classroom_id", CLASS],
+      ["lesson_id", LESSON],
+    ]);
+  });
+
+  it("says plainly when the view cannot be read", async () => {
+    const { client } = recordingClient({
+      tables: { v_classroom_concept_difficulty: { error: { message: "secret" } } },
+    });
+    await expect(loadHardestIdeas(client, CLASS, LESSON)).rejects.toMatchObject({ status: 500 });
+  });
+
+  it("lists the hardest first with a link to each idea in the lesson review", async () => {
+    const ideas = [idea("c2", "Condensation", 0.75, 8), idea("c1", "Evaporation", 0.1, 10)];
+    const { container } = render(<HardestIdeas lessonId={LESSON} ideas={ideas} />);
+    const rows = screen.getAllByRole("row").slice(1);
+    expect(within(rows[0]).getByRole("link", { name: "Condensation" }).getAttribute("href")).toBe(
+      `/teach/lessons/${LESSON}/review#concept-c2-heading`,
+    );
+    expect(within(rows[0]).getByText("75%")).toBeTruthy();
+    expect(within(rows[0]).getByText("2 right of 8")).toBeTruthy();
+    expect(within(rows[1]).getByRole("link", { name: "Evaporation" })).toBeTruthy();
+    await expectNoAxeViolations(container);
+  });
+
+  it("explains an empty list instead of showing an empty table", () => {
+    render(<HardestIdeas lessonId={LESSON} ideas={[]} />);
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(screen.getByText(/nothing to rank/)).toBeTruthy();
   });
 });
