@@ -11,7 +11,7 @@ export async function POST(request: NextRequest, context: RouteContext<"/api/org
   if (!auth.ok) return auth.response;
 
   try {
-    const orgId = parseId((await context.params).id);
+    const orgId = parseId((await context.params).id, "School");
     const limit = limiter.consume(`user:${auth.user.id}`);
     if (!limit.allowed) {
       const response = jsonError(429, "rate_limited", "Too many invitations. Please wait a while.");

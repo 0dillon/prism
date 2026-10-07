@@ -68,8 +68,8 @@ export async function parseBody<S extends z.ZodType>(
 const Uuid = z.uuid();
 
 /** Validates a path parameter that must be a UUID. */
-export function parseId(value: string): string {
+export function parseId(value: string, noun = "Lesson"): string {
   const result = Uuid.safeParse(value);
-  if (!result.success) throw new ServiceError(404, "not_found", "Lesson not found.");
+  if (!result.success) throw new ServiceError(404, "not_found", `${noun} not found.`);
   return result.data;
 }

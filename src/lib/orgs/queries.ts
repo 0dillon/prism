@@ -17,3 +17,16 @@ export async function listPrincipalOrgs(user: UserClient, userId: string): Promi
   const orgs = await user.from("organizations").select("id, name").in("id", ids).order("name");
   return orgs.data ?? [];
 }
+
+/** The organizations where the user can run classes: as a teacher, or as principal. */
+export async function listTeachingOrgs(user: UserClient, userId: string): Promise<OrgSummary[]> {
+  const memberships = await user
+    .from("org_memberships")
+    .select("org_id")
+    .eq("user_id", userId)
+    .in("role", ["teacher", "principal"]);
+  const ids = (memberships.data ?? []).map((m) => m.org_id);
+  if (ids.length === 0) return [];
+  const orgs = await user.from("organizations").select("id, name").in("id", ids).order("name");
+  return orgs.data ?? [];
+}
