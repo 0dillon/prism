@@ -6,7 +6,6 @@ let teacher: string;
 let otherTeacher: string;
 let principal: string;
 let ann: string;
-let ben: string;
 let orgId: string;
 let room: string;
 let code: string;
@@ -17,7 +16,7 @@ beforeAll(async () => {
   otherTeacher = await createUser(db, "other_teacher");
   principal = await createUser(db, "principal");
   ann = await createUser(db, "ann");
-  ben = await createUser(db, "ben");
+  await createUser(db, "ben");
   orgId = (
     await db.query<{ id: string }>(
       `insert into organizations (name, slug) values ('Oak', 'oak') returning id`,
