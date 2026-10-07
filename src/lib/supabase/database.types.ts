@@ -331,6 +331,114 @@ export type Database = {
           },
         ];
       };
+      course_lessons: {
+        Row: { course_id: string; lesson_id: string; order_index: number; is_preview: boolean };
+        Insert: { course_id: string; lesson_id: string; order_index: number; is_preview?: boolean };
+        Update: {
+          course_id?: string;
+          lesson_id?: string;
+          order_index?: number;
+          is_preview?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "course_lessons_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      courses: {
+        Row: {
+          id: string;
+          creator_id: string;
+          title: string;
+          slug: string;
+          description: string;
+          cover_path: string | null;
+          cover_alt: string | null;
+          price_cents: number;
+          currency: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          creator_id: string;
+          title: string;
+          slug: string;
+          description?: string;
+          cover_path?: string | null;
+          cover_alt?: string | null;
+          price_cents?: number;
+          currency?: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          creator_id?: string;
+          title?: string;
+          slug?: string;
+          description?: string;
+          cover_path?: string | null;
+          cover_alt?: string | null;
+          price_cents?: number;
+          currency?: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "courses_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      creator_accounts: {
+        Row: {
+          user_id: string;
+          stripe_account_id: string | null;
+          onboarding_complete: boolean;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          stripe_account_id?: string | null;
+          onboarding_complete?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          stripe_account_id?: string | null;
+          onboarding_complete?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "creator_accounts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       enrollments: {
         Row: { classroom_id: string; student_id: string; created_at: string };
         Insert: { classroom_id: string; student_id: string; created_at?: string };
@@ -568,6 +676,57 @@ export type Database = {
           },
         ];
       };
+      purchases: {
+        Row: {
+          id: string;
+          buyer_id: string;
+          course_id: string;
+          stripe_session_id: string | null;
+          amount_cents: number;
+          platform_fee_cents: number;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          buyer_id: string;
+          course_id: string;
+          stripe_session_id?: string | null;
+          amount_cents: number;
+          platform_fee_cents?: number;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          buyer_id?: string;
+          course_id?: string;
+          stripe_session_id?: string | null;
+          amount_cents?: number;
+          platform_fee_cents?: number;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "purchases_buyer_id_fkey";
+            columns: ["buyer_id"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "purchases_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       quiz_items: {
         Row: {
           id: string;
@@ -708,6 +867,7 @@ export type Database = {
       is_enrolled: { Args: { p_classroom: string }; Returns: boolean };
       is_entitled: { Args: { p_user: string; p_lesson: string }; Returns: boolean };
       org_role: { Args: { p_org: string }; Returns: string };
+      owns_course: { Args: { p_course: string }; Returns: boolean };
       owns_lesson: { Args: { p_lesson: string }; Returns: boolean };
       publish_lesson: { Args: { p_lesson_id: string; p_graph: Json }; Returns: number };
       try_uuid: { Args: { p_text: string }; Returns: string };
