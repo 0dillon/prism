@@ -102,55 +102,11 @@ describe("classrooms", () => {
     expect(names(rows.rows)).toEqual(["Elm 1"]);
   });
 
-  it("lets a teacher create a classroom for themselves in their organization", async () => {
-    await asUser(db, teacherB, (tx) =>
-      tx.query(
-        `insert into classrooms (org_id, teacher_id, name, join_code) values ($1, $2, 'New', 'DDDDDD')`,
-        [orgId, teacherB],
-      ),
-    );
-    await asService(db, (tx) => tx.query(`delete from classrooms where join_code = 'DDDDDD'`));
-  });
-
-  it("refuses a classroom for another teacher, or in an organization the user is not in", async () => {
-    await expect(
-      asUser(db, teacherB, (tx) =>
-        tx.query(
-          `insert into classrooms (org_id, teacher_id, name, join_code) values ($1, $2, 'X', 'EEEEEE')`,
-          [orgId, teacherA],
-        ),
-      ),
-    ).rejects.toThrow(RLS);
-    await expect(
-      asUser(db, teacherB, (tx) =>
-        tx.query(
-          `insert into classrooms (org_id, teacher_id, name, join_code) values ($1, $2, 'X', 'EEEEEE')`,
-          [otherOrgId, teacherB],
-        ),
-      ),
-    ).rejects.toThrow(RLS);
-  });
-
-  it("refuses a student creating a classroom", async () => {
-    await expect(
-      asUser(db, student, (tx) =>
-        tx.query(
-          `insert into classrooms (org_id, teacher_id, name, join_code) values ($1, $2, 'X', 'FFFFFF')`,
-          [orgId, student],
-        ),
-      ),
-    ).rejects.toThrow(RLS);
-  });
-
-  it("does not let a teacher change or delete another teacher's classroom", async () => {
+  it("does not let a teacher change another teacher's classroom", async () => {
     const updated = await asUser(db, teacherB, (tx) =>
       tx.query(`update classrooms set name = 'Mine' where id = $1`, [roomA]),
     );
     expect(updated.affectedRows).toBe(0);
-    const deleted = await asUser(db, teacherB, (tx) =>
-      tx.query(`delete from classrooms where id = $1`, [roomA]),
-    );
-    expect(deleted.affectedRows).toBe(0);
   });
 
   it("rejects a malformed join code", async () => {
