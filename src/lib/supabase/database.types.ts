@@ -860,7 +860,57 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: { [_ in never]: never };
+    Views: {
+      v_classroom_concept_difficulty: {
+        Row: {
+          classroom_id: string | null;
+          lesson_id: string | null;
+          concept_id: string | null;
+          concept_title: string | null;
+          attempts: number | null;
+          correct: number | null;
+          error_rate: number | null;
+        };
+        Relationships: [];
+      };
+      v_classroom_student_progress: {
+        Row: {
+          classroom_id: string | null;
+          student_id: string | null;
+          display_name: string | null;
+          lesson_id: string | null;
+          total_concepts: number | null;
+          mastered_concepts: number | null;
+          answered: number | null;
+          correct: number | null;
+          active_seconds: number | null;
+        };
+        Relationships: [];
+      };
+      v_org_classroom_summary: {
+        Row: {
+          org_id: string | null;
+          classroom_id: string | null;
+          classroom_name: string | null;
+          teacher_id: string | null;
+          students: number | null;
+          assigned_lessons: number | null;
+          active_learners: number | null;
+          completion: number | null;
+          average_mastery: number | null;
+        };
+        Relationships: [];
+      };
+      v_org_layout_usage: {
+        Row: {
+          org_id: string | null;
+          layout: string | null;
+          learners: number | null;
+          share: number | null;
+        };
+        Relationships: [];
+      };
+    };
     Functions: {
       is_classroom_principal: { Args: { p_classroom: string }; Returns: boolean };
       is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
