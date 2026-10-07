@@ -730,6 +730,20 @@ export type Database = {
           },
         ];
       };
+      pending_enrollments: {
+        Row: { classroom_id: string; email: string; created_at: string };
+        Insert: { classroom_id: string; email: string; created_at?: string };
+        Update: { classroom_id?: string; email?: string; created_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "pending_enrollments_classroom_id_fkey";
+            columns: ["classroom_id"];
+            isOneToOne: false;
+            referencedRelation: "classrooms";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       purchases: {
         Row: {
           id: string;
@@ -970,6 +984,10 @@ export type Database = {
         Args: { p_token: string };
         Returns: { joined_org: string; joined_role: string }[];
       };
+      add_students_by_email: {
+        Args: { p_classroom: string; p_emails: string[] };
+        Returns: { student_email: string; outcome: string }[];
+      };
       create_classroom: {
         Args: { p_org: string; p_name: string; p_grade?: string; p_subject?: string };
         Returns: string;
@@ -979,10 +997,12 @@ export type Database = {
         Returns: { invitation_id: string; token: string; expires_at: string }[];
       };
       create_organization: { Args: { p_name: string; p_slug: string }; Returns: string };
+      enroll_student: { Args: { p_classroom: string; p_student: string }; Returns: boolean };
       is_classroom_principal: { Args: { p_classroom: string }; Returns: boolean };
       is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
       is_enrolled: { Args: { p_classroom: string }; Returns: boolean };
       is_entitled: { Args: { p_user: string; p_lesson: string }; Returns: boolean };
+      join_classroom: { Args: { p_code: string }; Returns: string };
       new_join_code: { Args: Record<PropertyKey, never>; Returns: string };
       org_role: { Args: { p_org: string }; Returns: string };
       owns_course: { Args: { p_course: string }; Returns: boolean };

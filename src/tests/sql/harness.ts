@@ -29,6 +29,7 @@ create table auth.users (
   id uuid primary key default gen_random_uuid(),
   email text,
   raw_user_meta_data jsonb not null default '{}'::jsonb,
+  email_confirmed_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -91,10 +92,15 @@ export async function createDb(options: { upTo?: string } = {}): Promise<Db> {
 }
 
 /** Inserts an auth user (the signup trigger creates users_public) and returns its id. */
-export async function createUser(db: Db, name: string): Promise<string> {
+export async function createUser(
+  db: Db,
+  name: string,
+  options: { confirmed?: boolean } = {},
+): Promise<string> {
   const result = await db.query<{ id: string }>(
-    `insert into auth.users (email, raw_user_meta_data) values ($1, $2) returning id`,
-    [`${name}@example.test`, JSON.stringify({ display_name: name })],
+    `insert into auth.users (email, raw_user_meta_data, email_confirmed_at)
+     values ($1, $2, case when $3 then now() end) returning id`,
+    [`${name}@example.test`, JSON.stringify({ display_name: name }), options.confirmed ?? true],
   );
   return result.rows[0].id;
 }
