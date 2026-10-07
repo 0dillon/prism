@@ -13,8 +13,16 @@ export interface InvitationMail {
   link: string;
 }
 
+export interface GuardianConsentMail {
+  to: string;
+  /** The child's first name or display name, so the guardian knows who is asking. */
+  childName: string;
+  link: string;
+}
+
 export interface Mailer {
   sendInvitation(mail: InvitationMail): Promise<{ sent: boolean }>;
+  sendGuardianConsent(mail: GuardianConsentMail): Promise<{ sent: boolean }>;
 }
 
 export const logMailer: Mailer = {
@@ -24,6 +32,11 @@ export const logMailer: Mailer = {
       role: mail.role,
       org: mail.orgName,
     });
+    return { sent: false };
+  },
+  async sendGuardianConsent() {
+    // The link carries the secret token and the address is personal data: neither is logged.
+    logger.info("guardian consent requested, no email provider configured");
     return { sent: false };
   },
 };
