@@ -923,7 +923,7 @@ Update this table when a phase completes.
 | Phase | Name | Status |
 | --- | --- | --- |
 | 0 | Project foundation | MVP tasks done. P0-05 awaits a live database check (9.2). P0-07 and P0-08 deferred |
-| 1 | Database and schema | MVP tasks done. P1-12 to P1-15 deferred. SQL verified on PGlite, not `supabase db reset` (9.2) |
+| 1 | Database and schema | All tasks done. SQL verified on PGlite, not `supabase db reset` (9.2) |
 | 2 | AI ingestion pipeline | MVP tasks done and verified live. P2-08 and P2-18 to P2-23 deferred |
 | 3 | Profiles, intents, and dynamic rendering state | MVP tasks done. P3-16 deferred |
 | 4 | Renderers | MVP tasks done. Cards, reader, conversation and visual renderers built and checked in a real browser. P4-06, P4-12, P4-23, P4-24, P4-30 deferred. Sign clips and handshape art are stubbed, and two manual checks are owed (9.2) |
@@ -1161,6 +1161,8 @@ Add entries as `YYYY-MM-DD: decision, reason, affected sections`.
 - 2026-10-06: Dragging a settings slider is one undo step: changes sharing a key within 800 ms replace each other in the undo history. Reason: undoing a drag one pixel at a time is unusable. Affects 5.6, P3-13.
 - 2026-10-06: The demo seed publishes the hand-written sample lesson (`src/lib/demo/sample-lesson.ts`) through `publish_lesson`, not the output of an ingestion run on the demo PDF, so the demo does not depend on a model call or its rate limits. The ingestion path is separately verified live (`npm run smoke:ingest`). Verified sign links are not seeded because there are no clips yet (9.2, 9.3). `npm run seed:demo` reads the password from `DEMO_PASSWORD`, uses `*.test` addresses, and `-- --teardown` removes everything. Affects P9-02.
 
+- 2026-10-07: `is_entitled` now follows the PRD rule (owner, enrolled in a classroom the lesson is assigned to, paid purchase, or free preview), so a published lesson is no longer readable by every signed-in user. The demo seed therefore creates a school, a class and an assignment. The learner home still lists whatever row-level security lets the learner read, so a marketplace preview lesson would appear there until Phase 7 narrows it to assigned and purchased lessons. Dashboard views run with the owner's rights and filter their own rows by the caller's role; layout usage shares are taken over the groups that remain after suppression so a hidden group cannot be inferred. Affects P1-14, P1-15, P6.
+
 ### 9.2 Blockers
 
 Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
@@ -1170,6 +1172,7 @@ Add entries as `YYYY-MM-DD: task ID, what is blocked, what was stubbed`.
 - 2026-10-06: P4-14 and P4-23, manual checks owed. Text to speech and key barge-in (under 1 ms to stop the voice) were verified in a real Chromium; speech to text was verified only against a fake recognizer because there was no microphone, and "read once by NVDA or VoiceOver with Prism's voice off" needs a screen reader. The transcript is an ARIA log so each reply is added once. Someone with a microphone and a screen reader should run both before a school pilot.
 - 2026-10-06: P4-25, partly blocked. Real ASL clips must be recorded by or licensed from a fluent Deaf signer, which cannot be done from code. Stubbed: every demo key term is fingerspelled (listed in 9.3) and the whole clip path works against fixtures. P4-28 is met in text alternatives; the handshape artwork waits on the same review.
 - 2026-10-06: P9-04, rehearsal owed. `docs/demo-script.md` plans 3:45 but the time was not measured by a person. P9-06 (deploy to Vercel) is blocked on the account: it needs a Vercel project linked to the repository and the environment variables set, which only the owner can do. Stubbed: the app builds and starts in production mode in CI, and the demo runs from the production build in the browser tests.
+- 2026-10-07: P1-12 to P1-15 are applied and tested on PGlite, but not yet pushed to the hosted project (`supabase db push` and re-running `npm run seed:demo` are owed by the project owner). Until then the deployed demo accounts keep reading the lesson through the old rule; after the push they need the re-seed to be enrolled.
 
 ### 9.3 Open questions and findings
 
