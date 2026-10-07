@@ -102,6 +102,7 @@ export type Database = {
           subject: string | null;
           join_code: string;
           created_at: string;
+          archived_at: string | null;
         };
         Insert: {
           id?: string;
@@ -112,6 +113,7 @@ export type Database = {
           subject?: string | null;
           join_code: string;
           created_at?: string;
+          archived_at?: string | null;
         };
         Update: {
           id?: string;
@@ -122,6 +124,7 @@ export type Database = {
           subject?: string | null;
           join_code?: string;
           created_at?: string;
+          archived_at?: string | null;
         };
         Relationships: [
           {
@@ -967,6 +970,10 @@ export type Database = {
         Args: { p_token: string };
         Returns: { joined_org: string; joined_role: string }[];
       };
+      create_classroom: {
+        Args: { p_org: string; p_name: string; p_grade?: string; p_subject?: string };
+        Returns: string;
+      };
       create_invitation: {
         Args: { p_org: string; p_email: string; p_role: string };
         Returns: { invitation_id: string; token: string; expires_at: string }[];
@@ -976,10 +983,12 @@ export type Database = {
       is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
       is_enrolled: { Args: { p_classroom: string }; Returns: boolean };
       is_entitled: { Args: { p_user: string; p_lesson: string }; Returns: boolean };
+      new_join_code: { Args: Record<PropertyKey, never>; Returns: string };
       org_role: { Args: { p_org: string }; Returns: string };
       owns_course: { Args: { p_course: string }; Returns: boolean };
       owns_lesson: { Args: { p_lesson: string }; Returns: boolean };
       publish_lesson: { Args: { p_lesson_id: string; p_graph: Json }; Returns: number };
+      regenerate_join_code: { Args: { p_classroom: string }; Returns: string };
       try_uuid: { Args: { p_text: string }; Returns: string };
     };
     Enums: { [_ in never]: never };
