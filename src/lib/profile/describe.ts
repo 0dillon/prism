@@ -97,3 +97,26 @@ export function describeChanges(changes: ProfileChange[]): string[] {
   const shown = concrete.length > 0 ? concrete : changes;
   return shown.map(describeChange);
 }
+
+/** The value at a dotted path such as "typography.font", or undefined. */
+function valueAt(source: unknown, path: string): unknown {
+  return path.split(".").reduce<unknown>((value, key) => {
+    return typeof value === "object" && value !== null
+      ? (value as Record<string, unknown>)[key]
+      : undefined;
+  }, source);
+}
+
+/**
+ * The whole profile in plain language, one line per setting, in the order of the settings
+ * panel. Used where someone other than the learner may see it, with the learner's consent.
+ * A setting the profile does not have is left out.
+ */
+export function describeProfile(profile: unknown): string[] {
+  return Object.keys(SETTING_DESCRIPTIONS)
+    .filter((path) => path !== "preset")
+    .flatMap((path) => {
+      const value = valueAt(profile, path);
+      return value === undefined ? [] : [SETTING_DESCRIPTIONS[path](value)];
+    });
+}

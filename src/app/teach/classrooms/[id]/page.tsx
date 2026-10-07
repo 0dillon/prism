@@ -105,6 +105,7 @@ export default async function ClassroomPage({
               <p className="text-muted">No students have joined this class yet.</p>
             ) : (
               <MasteryGridTable
+                classroomId={classroom.id}
                 lessonTitle={selected.title}
                 concepts={grid.concepts}
                 students={grid.students}
@@ -138,7 +139,14 @@ export default async function ClassroomPage({
         ) : (
           <ul className="flex flex-col gap-1">
             {roster.students.map((student) => (
-              <li key={student.studentId}>{student.name}</li>
+              <li key={student.studentId}>
+                <Link
+                  href={`/teach/classrooms/${classroom.id}/students/${student.studentId}`}
+                  className="underline"
+                >
+                  {student.name}
+                </Link>
+              </li>
             ))}
           </ul>
         )}

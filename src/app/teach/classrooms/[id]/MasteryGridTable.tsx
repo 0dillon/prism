@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { announce } from "@/lib/a11y/live-region";
 import {
@@ -25,6 +26,7 @@ const STATUS_MARKS: Record<MasteryStatus, string> = {
 };
 
 interface MasteryGridTableProps {
+  classroomId: string;
   lessonTitle: string;
   concepts: GridConcept[];
   students: GridStudent[];
@@ -35,7 +37,12 @@ interface MasteryGridTableProps {
  * table commands read each cell with its student and idea. Each column header is a button
  * that sorts by that column, and the table says how it is sorted.
  */
-export function MasteryGridTable({ lessonTitle, concepts, students }: MasteryGridTableProps) {
+export function MasteryGridTable({
+  classroomId,
+  lessonTitle,
+  concepts,
+  students,
+}: MasteryGridTableProps) {
   const [sort, setSort] = useState<{ key: SortKey; direction: SortDirection }>({
     key: "name",
     direction: "ascending",
@@ -116,7 +123,12 @@ export function MasteryGridTable({ lessonTitle, concepts, students }: MasteryGri
           {rows.map((student) => (
             <tr key={student.studentId} className="border-line border-b align-top">
               <th scope="row" className="p-2 text-start font-semibold">
-                {student.name}
+                <Link
+                  href={`/teach/classrooms/${classroomId}/students/${student.studentId}`}
+                  className="underline"
+                >
+                  {student.name}
+                </Link>
               </th>
               {concepts.map((concept) => {
                 const cell = student.cells[concept.id];
