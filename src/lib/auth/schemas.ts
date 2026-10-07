@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPlausibleBirthDate, todayIso } from "@/lib/consent/age";
 
 /** Validation for the sign-in and sign-up forms. Messages are shown to the user. */
 
@@ -23,6 +24,14 @@ export const SignUpInput = z.object({
     .min(1, "Enter your name.")
     .max(60, "Use 60 characters or fewer for your name."),
   email,
+  birthDate: z
+    .string()
+    .trim()
+    .min(1, "Enter your date of birth.")
+    .refine(
+      (value) => isPlausibleBirthDate(value, todayIso(Date.now())),
+      "Enter a real date of birth.",
+    ),
   password: z
     .string()
     .min(MIN_PASSWORD_LENGTH, `Use at least ${MIN_PASSWORD_LENGTH} characters for your password.`)

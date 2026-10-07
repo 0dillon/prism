@@ -67,6 +67,19 @@ export function AuthForm({ mode, next }: AuthFormProps) {
         error={state.errors?.email}
       />
 
+      {isSignUp ? (
+        <TextField
+          label="Date of birth"
+          name="birthDate"
+          type="date"
+          autoComplete="bday"
+          required
+          hint="We use this only to check whether a parent or guardian needs to agree first. We do not show it to anyone."
+          defaultValue={state.values?.birthDate}
+          error={state.errors?.birthDate}
+        />
+      ) : null}
+
       <TextField
         label="Password"
         name="password"

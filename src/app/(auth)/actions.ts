@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/paths";
 import { fieldErrors, SignInInput, SignUpInput } from "@/lib/auth/schemas";
+import { needsGuardianConsent, todayIso } from "@/lib/consent/age";
 import { createClient } from "@/lib/supabase/server";
 
 export interface AuthFormState {
@@ -15,7 +16,7 @@ export interface AuthFormState {
   /** "error" for failures, "info" for notices such as "check your email". */
   tone?: "error" | "info";
   /** Values to put back in the form after a failed submit. Never includes the password. */
-  values?: { email?: string; displayName?: string };
+  values?: { email?: string; displayName?: string; birthDate?: string };
 }
 
 const SERVICE_DOWN = "We could not reach the sign-in service. Please try again in a moment.";
@@ -55,7 +56,11 @@ export async function signUpAction(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const values = { email: text(formData, "email"), displayName: text(formData, "displayName") };
+  const values = {
+    email: text(formData, "email"),
+    displayName: text(formData, "displayName"),
+    birthDate: text(formData, "birthDate"),
+  };
   const parsed = SignUpInput.safeParse({ ...values, password: text(formData, "password") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
 
@@ -66,7 +71,9 @@ export async function signUpAction(
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { display_name: parsed.data.displayName },
+      // The database reads the date of birth when it creates the account, so an under-13
+      // account is never active, even for a moment.
+      data: { display_name: parsed.data.displayName, birth_date: parsed.data.birthDate },
       emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
     },
   });
@@ -79,10 +86,15 @@ export async function signUpAction(
       values,
     };
   }
+  const young = needsGuardianConsent(parsed.data.birthDate, todayIso(Date.now()));
   if (!data.session) {
     // Email confirmation is on: the account exists but cannot sign in until confirmed.
     return {
-      message: "Check your email for a link to confirm your account.",
+      message:
+        "Check your email for a link to confirm your account." +
+        (young
+          ? " Because you are under 13, a parent or guardian also needs to say yes before you can use Prism."
+          : ""),
       tone: "info",
       values: { email: values.email },
     };
