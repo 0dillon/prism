@@ -95,12 +95,19 @@ export async function createDb(options: { upTo?: string } = {}): Promise<Db> {
 export async function createUser(
   db: Db,
   name: string,
-  options: { confirmed?: boolean } = {},
+  options: { confirmed?: boolean; birthDate?: string } = {},
 ): Promise<string> {
   const result = await db.query<{ id: string }>(
     `insert into auth.users (email, raw_user_meta_data, email_confirmed_at)
      values ($1, $2, case when $3 then now() end) returning id`,
-    [`${name}@example.test`, JSON.stringify({ display_name: name }), options.confirmed ?? true],
+    [
+      `${name}@example.test`,
+      JSON.stringify({
+        display_name: name,
+        ...(options.birthDate ? { birth_date: options.birthDate } : {}),
+      }),
+      options.confirmed ?? true,
+    ],
   );
   return result.rows[0].id;
 }
