@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { makeGraph } from "../fixtures/graph";
-import { asService, asUser, createDb, createUser, type Db } from "./harness";
+import { asService, asUser, assignLesson, createDb, createUser, type Db } from "./harness";
 
 let db: Db;
 let teacher: string;
@@ -110,6 +110,7 @@ describe("publish_lesson", () => {
   it("lets an entitled learner read the lesson, its concepts and quiz items afterwards", async () => {
     const id = await draftLesson();
     await publish(teacher, id, makeGraph());
+    await assignLesson(db, teacher, id, [learner]);
     const seen = await asUser(db, learner, async (tx) => ({
       lessons: (await tx.query(`select id from lessons where id = $1`, [id])).rows.length,
       concepts: (await tx.query(`select id from concepts where lesson_id = $1`, [id])).rows.length,

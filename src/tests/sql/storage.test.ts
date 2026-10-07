@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { asUser, createDb, createUser, type Db } from "./harness";
+import { asUser, assignLesson, createDb, createUser, type Db } from "./harness";
 
 let db: Db;
 let owner: string;
@@ -21,6 +21,7 @@ beforeAll(async () => {
       )
     ).rows[0].id;
   published = await lesson("published");
+  await assignLesson(db, owner, published, [other]);
   draft = await lesson("needs_review");
 });
 

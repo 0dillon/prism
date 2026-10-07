@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { asUser, createDb, createUser, type Db } from "./harness";
+import { asUser, assignLesson, createDb, createUser, type Db } from "./harness";
 
 let db: Db;
 let owner: string;
@@ -27,7 +27,11 @@ afterAll(async () => {
 });
 
 /** A fresh learner so each test sees only its own mastery rows. */
-const learner = (name: string) => createUser(db, name);
+const learner = async (name: string) => {
+  const id = await createUser(db, name);
+  await assignLesson(db, owner, lesson, [id]);
+  return id;
+};
 
 let clock = Date.parse("2026-10-06T10:00:00Z");
 

@@ -123,3 +123,46 @@ export async function asService<T>(db: Db, fn: (tx: Tx) => Promise<T>): Promise<
     return fn(tx);
   });
 }
+
+/**
+ * Gives learners access to a published lesson the way a school does: a classroom owned by
+ * the lesson's owner, the learners enrolled in it, and the lesson assigned to it.
+ */
+export async function assignLesson(
+  db: Db,
+  ownerId: string,
+  lessonId: string,
+  learnerIds: string[],
+): Promise<void> {
+  const suffix = Math.random().toString(36).slice(2, 10);
+  const code = Array.from(
+    { length: 6 },
+    () => "ABCDEFGHJKLMNPQRSTUVWXYZ"[Math.floor(Math.random() * 24)],
+  ).join("");
+  const org = (
+    await db.query<{ id: string }>(
+      `insert into organizations (name, slug) values ('School', $1) returning id`,
+      [`school-${suffix}`],
+    )
+  ).rows[0].id;
+  await db.query(`insert into org_memberships (org_id, user_id, role) values ($1, $2, 'teacher')`, [
+    org,
+    ownerId,
+  ]);
+  const room = (
+    await db.query<{ id: string }>(
+      `insert into classrooms (org_id, teacher_id, name, join_code) values ($1, $2, 'Class', $3) returning id`,
+      [org, ownerId, code],
+    )
+  ).rows[0].id;
+  await db.query(`insert into assignments (classroom_id, lesson_id) values ($1, $2)`, [
+    room,
+    lessonId,
+  ]);
+  for (const learner of learnerIds) {
+    await db.query(`insert into enrollments (classroom_id, student_id) values ($1, $2)`, [
+      room,
+      learner,
+    ]);
+  }
+}
