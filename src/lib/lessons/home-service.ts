@@ -1,11 +1,13 @@
 import { ServiceError, type UserClient } from "@/lib/api/http";
+import { compareDue } from "@/lib/assignments/service";
 import { logger } from "@/lib/log";
 
 /**
  * The learner's home (PRD CE-10, P5-05): the lessons they can open, each with how far they
  * have got. Progress is mastered ideas over ideas in the lesson as it is now (PRD 5.7), so a
  * lesson that gains or loses an idea changes the denominator and not the learner's record.
- * Everything is read as the learner, so row-level security decides which lessons appear.
+ * The lessons are the ones assigned to the classes the learner is in, soonest due date first.
+ * Everything is read as the learner, so row-level security decides what appears.
  */
 
 export interface LessonProgress {
@@ -16,6 +18,10 @@ export interface LessonProgress {
   /** Ideas the learner has been asked about at least once. */
   startedConcepts: number;
   status: "not_started" | "in_progress" | "complete";
+  /** The earliest due date among the classes that assigned it, or null if none has one. */
+  dueAt: string | null;
+  /** Past its due date and not finished. */
+  overdue: boolean;
 }
 
 export function progressFraction(p: Pick<LessonProgress, "masteredConcepts" | "totalConcepts">) {
@@ -23,13 +29,30 @@ export function progressFraction(p: Pick<LessonProgress, "masteredConcepts" | "t
 }
 
 export async function loadLearnerHome(user: UserClient): Promise<LessonProgress[]> {
+  const assigned = await user.from("assignments").select("lesson_id, due_at");
+  if (assigned.error) fail("assignments", assigned.error.message);
+  // A lesson can be assigned by more than one class; the earliest due date is the one that matters.
+  const dueByLesson = new Map<string, string | null>();
+  for (const a of assigned.data ?? []) {
+    const known = dueByLesson.get(a.lesson_id);
+    dueByLesson.set(
+      a.lesson_id,
+      known === undefined || compareDue(a.due_at, known) < 0 ? a.due_at : known,
+    );
+  }
+  if (dueByLesson.size === 0) return [];
+
   const lessons = await user
     .from("lessons")
-    .select("id, title, status")
+    .select("id, title, status, created_at")
+    .in("id", [...dueByLesson.keys()])
     .eq("status", "published")
     .order("created_at", { ascending: false });
   if (lessons.error) fail("lessons", lessons.error.message);
-  const rows = lessons.data ?? [];
+  const rows = (lessons.data ?? [])
+    .map((l) => ({ ...l, dueAt: dueByLesson.get(l.id) ?? null }))
+    // Newest first is kept for lessons with the same (or no) due date, because sort is stable.
+    .sort((a, b) => compareDue(a.dueAt, b.dueAt));
   if (rows.length === 0) return [];
 
   const ids = rows.map((l) => l.id);
@@ -46,6 +69,7 @@ export async function loadLearnerHome(user: UserClient): Promise<LessonProgress[
     conceptsOf.get(c.lesson_id)!.add(c.id);
   }
 
+  const now = Date.now();
   return rows.map((lesson) => {
     const current = conceptsOf.get(lesson.id) ?? new Set<string>();
     // Only ideas still in the lesson count, so an old record cannot push progress past 100%.
@@ -54,9 +78,12 @@ export async function loadLearnerHome(user: UserClient): Promise<LessonProgress[
     );
     const mastered = mine.filter((m) => m.status === "mastered").length;
     const started = mine.length;
+    const complete = current.size > 0 && mastered >= current.size;
     return {
       lessonId: lesson.id,
       title: lesson.title,
+      dueAt: lesson.dueAt,
+      overdue: lesson.dueAt !== null && Date.parse(lesson.dueAt) < now && !complete,
       totalConcepts: current.size,
       masteredConcepts: mastered,
       startedConcepts: started,

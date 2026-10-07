@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { formatDue } from "@/lib/assignments/service";
 import { loadLearnerHome, progressFraction } from "@/lib/lessons/home-service";
 import { createClient } from "@/lib/supabase/server";
 import { ProgressBar } from "@/renderers/shared/ProgressBar";
@@ -33,26 +34,35 @@ export default async function LearnerHomePage() {
           There are no lessons for you yet. When a teacher shares one, it will appear here.
         </p>
       ) : (
-        <ul className="flex flex-col gap-4">
-          {lessons.map((lesson) => (
-            <li
-              key={lesson.lessonId}
-              className="border-line flex flex-col gap-3 rounded-lg border p-4"
-            >
-              <h2 className="text-xl font-semibold">
-                <Link href={`/learn/${lesson.lessonId}`} className="underline">
-                  {lesson.title}
-                </Link>
-              </h2>
-              <ProgressBar
-                value={progressFraction(lesson)}
-                label={`Progress in ${lesson.title}`}
-                text={`${lesson.masteredConcepts} of ${countOf(lesson.totalConcepts, "idea")} mastered`}
-              />
-              <p className="text-muted text-sm">{STATUS_WORDS[lesson.status]}</p>
-            </li>
-          ))}
-        </ul>
+        <section aria-labelledby="assigned-heading" className="flex flex-col gap-4">
+          <h2 id="assigned-heading" className="text-xl font-semibold">
+            Assigned
+          </h2>
+          <ul className="flex flex-col gap-4">
+            {lessons.map((lesson) => (
+              <li
+                key={lesson.lessonId}
+                className="border-line flex flex-col gap-3 rounded-lg border p-4"
+              >
+                <h3 className="text-xl font-semibold">
+                  <Link href={`/learn/${lesson.lessonId}`} className="underline">
+                    {lesson.title}
+                  </Link>
+                </h3>
+                <ProgressBar
+                  value={progressFraction(lesson)}
+                  label={`Progress in ${lesson.title}`}
+                  text={`${lesson.masteredConcepts} of ${countOf(lesson.totalConcepts, "idea")} mastered`}
+                />
+                <p className="text-muted text-sm">
+                  {STATUS_WORDS[lesson.status]}
+                  {lesson.dueAt ? ` · ${formatDue(lesson.dueAt)}` : ""}
+                  {lesson.overdue ? " · Overdue" : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
       <JoinClassForm />
     </div>
