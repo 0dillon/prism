@@ -10,12 +10,14 @@ import {
 import { loadDashboard } from "@/lib/admin/dashboard";
 import { currentFilters, rangeLabel } from "@/lib/admin/filters";
 import { listPrincipalOrgs } from "@/lib/orgs/queries";
+import { loadOrgSpend } from "@/lib/orgs/spend";
 import { createClient } from "@/lib/supabase/server";
 import { BarChart } from "./BarChart";
 import { ClassroomTable } from "./ClassroomTable";
 import { Filters } from "./Filters";
 import { InviteForm } from "./InviteForm";
 import { LayoutPanel } from "./LayoutPanel";
+import { SpendCard } from "./SpendCard";
 
 export const metadata: Metadata = { title: "School" };
 
@@ -33,7 +35,10 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   const requested = Array.isArray(search.org) ? search.org[0] : search.org;
   const org = orgs.find((o) => o.id === requested) ?? orgs[0];
   const { filters, active, query } = currentFilters(search);
-  const dashboard = await loadDashboard(supabase, org.id, filters);
+  const [dashboard, spend] = await Promise.all([
+    loadDashboard(supabase, org.id, filters),
+    loadOrgSpend(supabase, org.id),
+  ]);
   const range = rangeLabel(filters);
   const engagement = engagementPoints(dashboard.weekly);
   const progress = progressPoints(dashboard.weekly);
@@ -121,6 +126,8 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
         </h2>
         <LayoutPanel layouts={dashboard.layouts} />
       </section>
+
+      <SpendCard orgId={org.id} spend={spend} />
 
       <InviteForm orgId={org.id} />
       <p className="text-muted">
