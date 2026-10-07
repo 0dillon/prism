@@ -52,7 +52,8 @@ for (const raw of readFileSync(SOURCE, "utf8").split(/\r?\n/)) {
 }
 
 const pages: string[][] = [];
-for (let i = 0; i < lines.length; i += LINES_PER_PAGE) pages.push(lines.slice(i, i + LINES_PER_PAGE));
+for (let i = 0; i < lines.length; i += LINES_PER_PAGE)
+  pages.push(lines.slice(i, i + LINES_PER_PAGE));
 
 writeFileSync(OUTPUT, makePdf(pages));
 console.log(`Wrote ${OUTPUT}: ${pages.length} pages, ${lines.length} lines.`);
