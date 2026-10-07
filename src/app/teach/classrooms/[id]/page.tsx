@@ -4,18 +4,23 @@ import { notFound, redirect } from "next/navigation";
 import { ServiceError } from "@/lib/api/http";
 import { formatDue, listClassroomAssignments } from "@/lib/assignments/service";
 import { getClassroom } from "@/lib/classrooms/service";
+import { loadMasteryGrid } from "@/lib/classrooms/grid";
 import { loadRoster } from "@/lib/classrooms/students";
 import { createClient } from "@/lib/supabase/server";
 import { countOf } from "@/renderers/shared/lesson";
 import { AddStudents } from "./AddStudents";
 import { AssignedLessons } from "./AssignedLessons";
 import { ClassroomSettings } from "./ClassroomSettings";
+import { MasteryGridTable } from "./MasteryGridTable";
 
 export const metadata: Metadata = { title: "Class" };
 
 export const dynamic = "force-dynamic";
 
-export default async function ClassroomPage({ params }: PageProps<"/teach/classrooms/[id]">) {
+export default async function ClassroomPage({
+  params,
+  searchParams,
+}: PageProps<"/teach/classrooms/[id]">) {
   const { id } = await params;
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
@@ -34,8 +39,12 @@ export default async function ClassroomPage({ params }: PageProps<"/teach/classr
     listClassroomAssignments(supabase, classroom.id),
   ]);
 
+  const requested = (await searchParams).lesson;
+  const selected = assigned.find((a) => a.lessonId === requested) ?? assigned[0];
+  const grid = selected ? await loadMasteryGrid(supabase, classroom.id, selected.lessonId) : null;
+
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 p-6">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 p-6">
       <div className="flex flex-col gap-1">
         <p>
           <Link href="/teach/classrooms" className="underline">
@@ -54,6 +63,51 @@ export default async function ClassroomPage({ params }: PageProps<"/teach/classr
           {classroom.archived ? " · Archived" : ""}
         </p>
       </div>
+      <section aria-labelledby="progress-heading" className="flex flex-col gap-4">
+        <h2 id="progress-heading" className="text-xl font-semibold">
+          Progress
+        </h2>
+        {!selected || !grid ? (
+          <p className="text-muted">
+            Assign a lesson to see how each student is getting on. Every student is measured the
+            same way: ideas mastered out of the ideas in the lesson.
+          </p>
+        ) : (
+          <>
+            {assigned.length > 1 ? (
+              <nav aria-label="Lessons in this class">
+                <ul className="flex flex-wrap gap-2">
+                  {assigned.map((a) => (
+                    <li key={a.lessonId}>
+                      <Link
+                        href={`/teach/classrooms/${classroom.id}?lesson=${a.lessonId}`}
+                        aria-current={a.lessonId === selected.lessonId ? "page" : undefined}
+                        className={`inline-flex min-h-11 items-center rounded-md border px-3 ${
+                          a.lessonId === selected.lessonId
+                            ? "bg-accent text-accent-foreground border-transparent"
+                            : "border-line"
+                        }`}
+                      >
+                        {a.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ) : null}
+            {grid.students.length === 0 ? (
+              <p className="text-muted">No students have joined this class yet.</p>
+            ) : (
+              <MasteryGridTable
+                lessonTitle={selected.title}
+                concepts={grid.concepts}
+                students={grid.students}
+              />
+            )}
+          </>
+        )}
+      </section>
+
       <AddStudents
         classroomId={classroom.id}
         joinCode={classroom.joinCode}
