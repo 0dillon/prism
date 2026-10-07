@@ -912,6 +912,7 @@ export type Database = {
       };
     };
     Functions: {
+      create_organization: { Args: { p_name: string; p_slug: string }; Returns: string };
       is_classroom_principal: { Args: { p_classroom: string }; Returns: boolean };
       is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
       is_enrolled: { Args: { p_classroom: string }; Returns: boolean };
