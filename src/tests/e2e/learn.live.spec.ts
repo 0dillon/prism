@@ -2,7 +2,15 @@ import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
 import { makeGraph } from "../fixtures/graph";
-import { createLiveUser, hasLiveSupabase, liveEnv, type LiveUser } from "./live-session";
+import {
+  createLiveSchool,
+  createLiveUser,
+  hasLiveSupabase,
+  hasSchoolSchema,
+  liveEnv,
+  type LiveSchool,
+  type LiveUser,
+} from "./live-session";
 
 // These need a real Supabase project and signed-in users. They skip in CI.
 test.skip(!hasLiveSupabase, "Needs Supabase credentials (run `npm run e2e:live`)");
@@ -16,6 +24,7 @@ let teacher: LiveUser;
 let learner: LiveUser;
 let publishedId: string;
 let draftId: string;
+let school: LiveSchool;
 
 async function makeLesson(status: string): Promise<string> {
   const created = await admin()
@@ -38,9 +47,18 @@ test.beforeAll(async () => {
   learner = await createLiveUser("127.0.0.1");
   publishedId = await makeLesson("published");
   draftId = await makeLesson("needs_review");
+  // A published lesson is opened by assignment: the learner is in a class it was given to.
+  if (await hasSchoolSchema()) {
+    school = await createLiveSchool({
+      teacherId: teacher.id,
+      studentIds: [learner.id],
+      lessonId: publishedId,
+    });
+  }
 });
 
 test.afterAll(async () => {
+  await school?.cleanup();
   await admin().from("lessons").delete().in("id", [publishedId, draftId].filter(Boolean));
   await teacher?.cleanup();
   await learner?.cleanup();
