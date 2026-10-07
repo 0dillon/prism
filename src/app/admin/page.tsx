@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { InviteForm } from "./InviteForm";
 import { listPrincipalOrgs } from "@/lib/orgs/queries";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,6 +20,7 @@ export default async function AdminPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
       <h1 className="text-3xl font-bold">{orgs[0].name}</h1>
+      <InviteForm orgId={orgs[0].id} />
       <p className="text-muted">
         <Link href="/admin/setup" className="underline">
           Set up another school
