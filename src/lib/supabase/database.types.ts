@@ -620,6 +620,57 @@ export type Database = {
           },
         ];
       };
+      org_invitations: {
+        Row: {
+          id: string;
+          org_id: string;
+          email: string;
+          role: string;
+          token_hash: string;
+          invited_by: string | null;
+          expires_at: string;
+          accepted_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          email: string;
+          role: string;
+          token_hash: string;
+          invited_by?: string | null;
+          expires_at?: string;
+          accepted_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          email?: string;
+          role?: string;
+          token_hash?: string;
+          invited_by?: string | null;
+          expires_at?: string;
+          accepted_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "org_invitations_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "org_invitations_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       org_memberships: {
         Row: { org_id: string; user_id: string; role: string; created_at: string };
         Insert: { org_id: string; user_id: string; role: string; created_at?: string };
@@ -912,6 +963,14 @@ export type Database = {
       };
     };
     Functions: {
+      accept_invitation: {
+        Args: { p_token: string };
+        Returns: { joined_org: string; joined_role: string }[];
+      };
+      create_invitation: {
+        Args: { p_org: string; p_email: string; p_role: string };
+        Returns: { invitation_id: string; token: string; expires_at: string }[];
+      };
       create_organization: { Args: { p_name: string; p_slug: string }; Returns: string };
       is_classroom_principal: { Args: { p_classroom: string }; Returns: boolean };
       is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
