@@ -9,7 +9,7 @@ export type ApiResult<T> = { ok: true; data: T } | { ok: false; status: number; 
 export async function sendJson<T = unknown>(
   url: string,
   body: unknown,
-  method: "POST" | "PATCH" | "DELETE" = "POST",
+  method: "POST" | "PUT" | "PATCH" | "DELETE" = "POST",
 ): Promise<ApiResult<T>> {
   let response: Response;
   try {

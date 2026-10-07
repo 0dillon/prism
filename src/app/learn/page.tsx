@@ -3,10 +3,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { formatDue } from "@/lib/assignments/service";
 import { loadLearnerHome, progressFraction } from "@/lib/lessons/home-service";
+import { loadSharing } from "@/lib/profile/sharing";
 import { createClient } from "@/lib/supabase/server";
 import { ProgressBar } from "@/renderers/shared/ProgressBar";
 import { countOf } from "@/renderers/shared/lesson";
 import { JoinClassForm } from "./JoinClassForm";
+import { ShareSettingsToggle } from "./ShareSettingsToggle";
 
 export const metadata: Metadata = { title: "My lessons" };
 
@@ -24,7 +26,10 @@ export default async function LearnerHomePage() {
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/sign-in?next=%2Flearn");
 
-  const lessons = await loadLearnerHome(supabase);
+  const [lessons, sharing] = await Promise.all([
+    loadLearnerHome(supabase),
+    loadSharing(supabase, data.user.id),
+  ]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
@@ -65,6 +70,7 @@ export default async function LearnerHomePage() {
         </section>
       )}
       <JoinClassForm />
+      <ShareSettingsToggle initial={sharing} />
     </div>
   );
 }
