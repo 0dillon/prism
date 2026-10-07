@@ -4,9 +4,11 @@ import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { ServiceError } from "@/lib/api/http";
 import { loadStudentDetail } from "@/lib/classrooms/student";
+import { listPendingConsents } from "@/lib/consent/service";
 import { createClient } from "@/lib/supabase/server";
 import { ProgressBar } from "@/renderers/shared/ProgressBar";
 import { countOf, formatActiveTime } from "@/renderers/shared/lesson";
+import { RecordConsent } from "./RecordConsent";
 
 export const metadata: Metadata = { title: "Student" };
 
@@ -27,8 +29,10 @@ export default async function StudentPage({
   }
 
   let detail;
+  let waiting = false;
   try {
     detail = await loadStudentDetail(supabase, id, studentId);
+    waiting = (await listPendingConsents(supabase, id)).has(studentId);
   } catch (error) {
     if (error instanceof ServiceError && error.status === 404) notFound();
     throw error;
@@ -44,6 +48,8 @@ export default async function StudentPage({
         </p>
         <h1 className="text-3xl font-bold">{detail.name}</h1>
       </div>
+
+      {waiting ? <RecordConsent studentId={studentId} name={detail.name} /> : null}
 
       <section aria-labelledby="lessons-heading" className="flex flex-col gap-4">
         <h2 id="lessons-heading" className="text-xl font-semibold">

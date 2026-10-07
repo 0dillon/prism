@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { formatDue } from "@/lib/assignments/service";
+import { loadConsent } from "@/lib/consent/service";
 import { loadLearnerHome, progressFraction } from "@/lib/lessons/home-service";
 import { loadSharing } from "@/lib/profile/sharing";
 import { createClient } from "@/lib/supabase/server";
 import { ProgressBar } from "@/renderers/shared/ProgressBar";
 import { countOf } from "@/renderers/shared/lesson";
+import { ConsentPending } from "./ConsentPending";
 import { JoinClassForm } from "./JoinClassForm";
 import { ShareSettingsToggle } from "./ShareSettingsToggle";
 
@@ -26,10 +28,26 @@ export default async function LearnerHomePage() {
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/sign-in?next=%2Flearn");
 
-  const [lessons, sharing] = await Promise.all([
+  const [lessons, sharing, consent] = await Promise.all([
     loadLearnerHome(supabase),
     loadSharing(supabase, data.user.id),
+    loadConsent(supabase, data.user.id),
   ]);
+
+  // A learner under 13 whose parent or guardian has not agreed yet sees only this.
+  if (consent.status === "pending") {
+    return (
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
+        <h1 className="text-3xl font-bold">My lessons</h1>
+        <ConsentPending requested={consent.requested} />
+        <p>
+          <Link href="/account" className="underline">
+            Your data and privacy
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
@@ -71,6 +89,11 @@ export default async function LearnerHomePage() {
       )}
       <JoinClassForm />
       <ShareSettingsToggle initial={sharing} />
+      <p>
+        <Link href="/account" className="underline">
+          Your data and privacy
+        </Link>
+      </p>
     </div>
   );
 }
