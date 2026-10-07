@@ -967,6 +967,7 @@ export type Database = {
           answered: number | null;
           correct: number | null;
           active_seconds: number | null;
+          last_active_at: string | null;
         };
         Relationships: [];
       };
@@ -1013,6 +1014,7 @@ export type Database = {
       };
       create_organization: { Args: { p_name: string; p_slug: string }; Returns: string };
       enroll_student: { Args: { p_classroom: string; p_student: string }; Returns: boolean };
+      get_shared_profile: { Args: { p_classroom: string; p_student: string }; Returns: Json };
       is_classroom_principal: { Args: { p_classroom: string }; Returns: boolean };
       is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
       is_enrolled: { Args: { p_classroom: string }; Returns: boolean };
@@ -1024,6 +1026,7 @@ export type Database = {
       owns_lesson: { Args: { p_lesson: string }; Returns: boolean };
       publish_lesson: { Args: { p_lesson_id: string; p_graph: Json }; Returns: number };
       regenerate_join_code: { Args: { p_classroom: string }; Returns: string };
+      set_profile_sharing: { Args: { p_share: boolean }; Returns: boolean };
       try_uuid: { Args: { p_text: string }; Returns: string };
     };
     Enums: { [_ in never]: never };
