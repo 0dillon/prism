@@ -1077,7 +1077,7 @@ Update this table when a phase completes.
 - [x] **P6-08** Student detail view for teachers: per-lesson progress, active time, and last activity. Shows the Render Profile only if `share_with_teachers` is true. Done when: a test confirms the profile is absent without opt-in. (B2B-3, B2B-5)
 - [x] **P6-09** Student privacy control: a "Share my settings with my teachers" toggle, off by default, with each change written to `audit_log`. Done when: toggling updates the flag and the log. (B2B-5)
 - [x] **P6-10** Principal dashboard: classroom summary table with completion, average mastery, active learners, and time on task. Reads `v_org_classroom_summary`. File: `src/app/admin/page.tsx`. Done when: it loads in under 2 seconds on a seeded org of 1,000 students. (B2B-4)
-- [ ] **P6-11** Principal dashboard filters: grade, subject, teacher, and date range, reflected in the URL. Done when: filters change results and survive reload.
+- [x] **P6-11** Principal dashboard filters: grade, subject, teacher, and date range, reflected in the URL. Done when: filters change results and survive reload.
 - [ ] **P6-12** Principal dashboard charts (progress over time, engagement by week) with a data table alternative for each chart. Done when: every chart has an equivalent table and a text summary.
 - [ ] **P6-13** School-wide layout usage panel from `v_org_layout_usage` with suppression under 5 and an explanatory note. Done when: a group of 4 is displayed as "fewer than 5". (B2B-4)
 - [ ] **P6-14** CSV export of aggregated classroom data. Done when: the export matches the on-screen table and contains no layout or profile columns.
