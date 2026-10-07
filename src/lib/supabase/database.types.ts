@@ -1021,7 +1021,20 @@ export type Database = {
       is_entitled: { Args: { p_user: string; p_lesson: string }; Returns: boolean };
       join_classroom: { Args: { p_code: string }; Returns: string };
       new_join_code: { Args: Record<PropertyKey, never>; Returns: string };
+      org_classroom_activity: {
+        Args: { p_org: string; p_from: string; p_to: string };
+        Returns: { classroom_id: string; active_learners: number; active_seconds: number }[];
+      };
       org_role: { Args: { p_org: string }; Returns: string };
+      org_weekly_activity: {
+        Args: { p_org: string; p_from: string; p_to: string };
+        Returns: {
+          week_start: string;
+          active_learners: number;
+          active_seconds: number;
+          mastered_ideas: number;
+        }[];
+      };
       owns_course: { Args: { p_course: string }; Returns: boolean };
       owns_lesson: { Args: { p_lesson: string }; Returns: boolean };
       publish_lesson: { Args: { p_lesson_id: string; p_graph: Json }; Returns: number };
