@@ -47,6 +47,7 @@ async function makeUser(name) {
 }
 
 let lessonId;
+let orgId;
 try {
   const a = await makeUser("a");
   const b = await makeUser("b");
@@ -78,8 +79,36 @@ try {
   );
   await a.db.from("lessons").update({ status: "published", graph_version: 1 }).eq("id", lessonId);
   check(
-    "other user sees the published lesson",
+    "other user cannot see a published lesson that is not assigned to them",
+    (await b.db.from("lessons").select("id")).data?.length === 0,
+  );
+  // A school: a classroom owned by user a, user b enrolled, the lesson assigned to it.
+  const org = await admin
+    .from("organizations")
+    .insert({ name: "Smoke School", slug: `smoke-${tag}` })
+    .select("id")
+    .single();
+  orgId = org.data?.id;
+  await admin.from("org_memberships").insert({ org_id: orgId, user_id: a.id, role: "teacher" });
+  const room = await admin
+    .from("classrooms")
+    .insert({ org_id: orgId, teacher_id: a.id, name: "Smoke class", join_code: "SMOKE2" })
+    .select("id")
+    .single();
+  check("service role can create a classroom", !room.error, room.error?.message);
+  await admin.from("enrollments").insert({ classroom_id: room.data?.id, student_id: b.id });
+  const assigned = await a.db
+    .from("assignments")
+    .insert({ classroom_id: room.data?.id, lesson_id: lessonId });
+  check("teacher can assign their lesson", !assigned.error, assigned.error?.message);
+  check(
+    "enrolled student sees the assigned lesson",
     (await b.db.from("lessons").select("id")).data?.length === 1,
+  );
+  check(
+    "a teacher sees only their own classrooms",
+    (await b.db.from("classrooms").select("id")).data?.length === 1 &&
+      (await a.db.from("classrooms").select("id")).data?.length === 1,
   );
 
   await a.db.from("render_profiles").insert({ user_id: a.id, profile: { layout: "cards" } });
@@ -211,6 +240,7 @@ try {
   });
 } finally {
   if (lessonId) await admin.from("lessons").delete().eq("id", lessonId);
+  if (orgId) await admin.from("organizations").delete().eq("id", orgId);
   for (const id of userIds) await admin.auth.admin.deleteUser(id);
   console.log(results.map((r) => r.line).join("\n"));
   console.log(`cleanup: deleted ${userIds.length} throwaway users`);

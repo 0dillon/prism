@@ -57,8 +57,65 @@ async function ensureUser(account: DemoAccount, password: string): Promise<strin
   if (error || !data.user) throw error ?? new Error(`could not create ${account.email}`);
   return data.user.id;
 }
+const DEMO_ORG_SLUG = "prism-demo";
+const DEMO_JOIN_CODE = "DEMO22";
+
+/** The school the demo learners belong to: a class taught by the demo teacher, with the lesson assigned. */
+async function ensureClassroom(
+  teacherId: string,
+  lessonId: string,
+): Promise<{ orgId: string; classroomId: string }> {
+  let org = (await admin.from("organizations").select("id").eq("slug", DEMO_ORG_SLUG).maybeSingle())
+    .data;
+  if (!org) {
+    const created = await admin
+      .from("organizations")
+      .insert({ name: "Prism Demo School", slug: DEMO_ORG_SLUG, created_by: teacherId })
+      .select("id")
+      .single();
+    if (created.error) throw created.error;
+    org = created.data;
+  }
+  const member = await admin
+    .from("org_memberships")
+    .upsert(
+      { org_id: org.id, user_id: teacherId, role: "teacher" },
+      { onConflict: "org_id,user_id" },
+    );
+  if (member.error) throw member.error;
+
+  let room = (
+    await admin.from("classrooms").select("id").eq("join_code", DEMO_JOIN_CODE).maybeSingle()
+  ).data;
+  if (!room) {
+    const created = await admin
+      .from("classrooms")
+      .insert({
+        org_id: org.id,
+        teacher_id: teacherId,
+        name: "Demo class",
+        grade: "5",
+        subject: "Science",
+        join_code: DEMO_JOIN_CODE,
+      })
+      .select("id")
+      .single();
+    if (created.error) throw created.error;
+    room = created.data;
+  }
+  const assigned = await admin
+    .from("assignments")
+    .upsert(
+      { classroom_id: room.id, lesson_id: lessonId },
+      { onConflict: "classroom_id,lesson_id" },
+    );
+  if (assigned.error) throw assigned.error;
+  return { orgId: org.id, classroomId: room.id };
+}
 
 async function teardown() {
+  // Removing the organization removes its classrooms, enrollments and assignments.
+  await admin.from("organizations").delete().eq("slug", DEMO_ORG_SLUG);
   for (const account of [DEMO_TEACHER, ...DEMO_LEARNER_ACCOUNTS]) {
     const id = await findUserId(account.email);
     if (id) {
@@ -126,8 +183,22 @@ async function main() {
   }
   console.log(`lesson published: ${lesson.id} (version ${lesson.graph_version})`);
 
+  const { orgId, classroomId } = await ensureClassroom(teacherId, lesson.id);
+  console.log("classroom ready: Demo class (join code " + DEMO_JOIN_CODE + ")");
+
   for (const learner of DEMO_LEARNER_ACCOUNTS) {
     const id = await ensureUser(learner, password);
+    const enrolled = await admin
+      .from("enrollments")
+      .upsert(
+        { classroom_id: classroomId, student_id: id },
+        { onConflict: "classroom_id,student_id" },
+      );
+    if (enrolled.error) throw enrolled.error;
+    const membership = await admin
+      .from("org_memberships")
+      .upsert({ org_id: orgId, user_id: id, role: "student" }, { onConflict: "org_id,user_id" });
+    if (membership.error) throw membership.error;
     await admin.from("users_public").update({ display_name: learner.displayName }).eq("id", id);
     const saved = await admin
       .from("render_profiles")
