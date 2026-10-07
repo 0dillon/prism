@@ -3,11 +3,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { ServiceError } from "@/lib/api/http";
+import { formatDue, listLessonAssignments } from "@/lib/assignments/service";
+import { listClassrooms } from "@/lib/classrooms/service";
 import { loadLessonProgress } from "@/lib/lessons/progress-service";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { ProgressBar } from "@/renderers/shared/ProgressBar";
 import { countOf, formatActiveTime } from "@/renderers/shared/lesson";
+import { AssignPanel } from "./AssignPanel";
 
 export const metadata: Metadata = { title: "Lesson progress" };
 
@@ -29,6 +32,12 @@ export default async function ProgressPage({ params }: PageProps<"/teach/lessons
     if (error instanceof ServiceError && error.status === 404) notFound();
     throw error;
   }
+
+  const [classrooms, assignments] = await Promise.all([
+    listClassrooms(supabase, auth.user.id),
+    listLessonAssignments(supabase, id),
+  ]);
+  const assignedTo = new Map(assignments.map((a) => [a.classroomId, a.dueAt]));
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
@@ -88,6 +97,28 @@ export default async function ProgressPage({ params }: PageProps<"/teach/lessons
           </tbody>
         </table>
       )}
+
+      <section aria-labelledby="assign-heading" className="flex flex-col gap-3">
+        <h2 id="assign-heading" className="text-xl font-semibold">
+          Assign this lesson
+        </h2>
+        {report.published ? (
+          <AssignPanel
+            lessonId={id}
+            classrooms={classrooms.map((room) => {
+              const due = assignedTo.get(room.id);
+              return {
+                id: room.id,
+                name: room.name,
+                assigned: assignedTo.has(room.id),
+                dueLabel: due ? formatDue(due) : null,
+              };
+            })}
+          />
+        ) : (
+          <p className="text-muted">Publish the lesson before you assign it to a class.</p>
+        )}
+      </section>
 
       <p>
         <Link href={`/teach/lessons/${id}/review`} className="font-semibold underline">

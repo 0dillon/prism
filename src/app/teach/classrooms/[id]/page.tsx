@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ServiceError } from "@/lib/api/http";
+import { formatDue, listClassroomAssignments } from "@/lib/assignments/service";
 import { getClassroom } from "@/lib/classrooms/service";
 import { loadRoster } from "@/lib/classrooms/students";
 import { createClient } from "@/lib/supabase/server";
 import { countOf } from "@/renderers/shared/lesson";
 import { AddStudents } from "./AddStudents";
+import { AssignedLessons } from "./AssignedLessons";
 import { ClassroomSettings } from "./ClassroomSettings";
 
 export const metadata: Metadata = { title: "Class" };
@@ -27,7 +29,10 @@ export default async function ClassroomPage({ params }: PageProps<"/teach/classr
     throw error;
   }
 
-  const roster = await loadRoster(supabase, classroom.id);
+  const [roster, assigned] = await Promise.all([
+    loadRoster(supabase, classroom.id),
+    listClassroomAssignments(supabase, classroom.id),
+  ]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 p-6">
@@ -74,6 +79,15 @@ export default async function ClassroomPage({ params }: PageProps<"/teach/classr
           </p>
         ) : null}
       </section>
+
+      <AssignedLessons
+        classroomId={classroom.id}
+        items={assigned.map((a) => ({
+          lessonId: a.lessonId,
+          title: a.title,
+          dueLabel: a.dueAt ? formatDue(a.dueAt) : null,
+        }))}
+      />
 
       <ClassroomSettings classroom={classroom} />
     </div>

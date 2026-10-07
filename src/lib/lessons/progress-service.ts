@@ -28,6 +28,8 @@ export interface LearnerProgress {
 
 export interface LessonProgressReport {
   title: string;
+  /** Only a published lesson can be assigned. */
+  published: boolean;
   totalConcepts: number;
   learners: LearnerProgress[];
 }
@@ -40,7 +42,7 @@ export async function loadLessonProgress(
 ): Promise<LessonProgressReport> {
   const { data: lesson } = await user
     .from("lessons")
-    .select("id, owner_id, title")
+    .select("id, owner_id, title, status")
     .eq("id", lessonId)
     .maybeSingle();
   // A lesson that does not exist and one that belongs to someone else look the same.
@@ -109,5 +111,10 @@ export async function loadLessonProgress(
   const unnamed = learners
     .filter((l) => !l.name)
     .map((l, i) => ({ ...l, name: `Learner ${i + 1}` }));
-  return { title: lesson.title, totalConcepts: current.size, learners: [...named, ...unnamed] };
+  return {
+    title: lesson.title,
+    published: lesson.status === "published",
+    totalConcepts: current.size,
+    learners: [...named, ...unnamed],
+  };
 }
