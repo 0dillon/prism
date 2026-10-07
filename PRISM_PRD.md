@@ -1080,7 +1080,7 @@ Update this table when a phase completes.
 - [x] **P6-11** Principal dashboard filters: grade, subject, teacher, and date range, reflected in the URL. Done when: filters change results and survive reload.
 - [x] **P6-12** Principal dashboard charts (progress over time, engagement by week) with a data table alternative for each chart. Done when: every chart has an equivalent table and a text summary.
 - [x] **P6-13** School-wide layout usage panel from `v_org_layout_usage` with suppression under 5 and an explanatory note. Done when: a group of 4 is displayed as "fewer than 5". (B2B-4)
-- [ ] **P6-14** CSV export of aggregated classroom data. Done when: the export matches the on-screen table and contains no layout or profile columns.
+- [x] **P6-14** CSV export of aggregated classroom data. Done when: the export matches the on-screen table and contains no layout or profile columns.
 - [ ] **P6-15** Organization LLM spend tracking against `monthly_spend_cap_usd` with an alert at 80% and a soft block on new ingestion at 100%. Done when: a test org over cap cannot start ingestion and sees a clear message.
 - [ ] **P6-16** Consent and age flow: date of birth collection at student sign-up where required, a guardian consent path for under-13 users, and data export and deletion requests. Done when: an under-13 account is inactive until consent is recorded.
 - [ ] **P6-17** End-to-end test: principal creates org, teacher uploads and assigns, three students with different presets complete the lesson, dashboards show all three. Done when: the Playwright test passes.
