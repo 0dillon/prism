@@ -8,6 +8,138 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      assignments: {
+        Row: {
+          id: string;
+          classroom_id: string;
+          lesson_id: string;
+          due_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          classroom_id: string;
+          lesson_id: string;
+          due_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          classroom_id?: string;
+          lesson_id?: string;
+          due_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assignments_classroom_id_fkey";
+            columns: ["classroom_id"];
+            isOneToOne: false;
+            referencedRelation: "classrooms";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assignments_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      audit_log: {
+        Row: {
+          id: string;
+          org_id: string | null;
+          actor_id: string | null;
+          action: string;
+          target: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id?: string | null;
+          actor_id?: string | null;
+          action: string;
+          target?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string | null;
+          actor_id?: string | null;
+          action?: string;
+          target?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "audit_log_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      classrooms: {
+        Row: {
+          id: string;
+          org_id: string;
+          teacher_id: string;
+          name: string;
+          grade: string | null;
+          subject: string | null;
+          join_code: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          teacher_id: string;
+          name: string;
+          grade?: string | null;
+          subject?: string | null;
+          join_code: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          org_id?: string;
+          teacher_id?: string;
+          name?: string;
+          grade?: string | null;
+          subject?: string | null;
+          join_code?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "classrooms_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "classrooms_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       concept_mastery: {
         Row: {
           id: string;
@@ -199,6 +331,27 @@ export type Database = {
           },
         ];
       };
+      enrollments: {
+        Row: { classroom_id: string; student_id: string; created_at: string };
+        Insert: { classroom_id: string; student_id: string; created_at?: string };
+        Update: { classroom_id?: string; student_id?: string; created_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_classroom_id_fkey";
+            columns: ["classroom_id"];
+            isOneToOne: false;
+            referencedRelation: "classrooms";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "enrollments_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       ingestion_jobs: {
         Row: {
           id: string;
@@ -359,6 +512,62 @@ export type Database = {
           },
         ];
       };
+      org_memberships: {
+        Row: { org_id: string; user_id: string; role: string; created_at: string };
+        Insert: { org_id: string; user_id: string; role: string; created_at?: string };
+        Update: { org_id?: string; user_id?: string; role?: string; created_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "org_memberships_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "org_memberships_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      organizations: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          monthly_spend_cap_usd: number | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          monthly_spend_cap_usd?: number | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          monthly_spend_cap_usd?: number | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organizations_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       quiz_items: {
         Row: {
           id: string;
@@ -494,7 +703,11 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      is_classroom_principal: { Args: { p_classroom: string }; Returns: boolean };
+      is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
+      is_enrolled: { Args: { p_classroom: string }; Returns: boolean };
       is_entitled: { Args: { p_user: string; p_lesson: string }; Returns: boolean };
+      org_role: { Args: { p_org: string }; Returns: string };
       owns_lesson: { Args: { p_lesson: string }; Returns: boolean };
       publish_lesson: { Args: { p_lesson_id: string; p_graph: Json }; Returns: number };
       try_uuid: { Args: { p_text: string }; Returns: string };
