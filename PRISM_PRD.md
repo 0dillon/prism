@@ -1068,7 +1068,7 @@ Update this table when a phase completes.
 ### Phase 6: B2B school portal and dashboards
 
 - [x] **P6-01** Organization creation flow for principals. File: `src/app/admin/setup/page.tsx`, route `POST /api/orgs`. Done when: creating an org makes the creator its principal. (B2B-1)
-- [ ] **P6-02** Email invitations with role, an accept page, and expiry after 7 days. Done when: an invited teacher who accepts gets a `teacher` membership.
+- [x] **P6-02** Email invitations with role, an accept page, and expiry after 7 days. Done when: an invited teacher who accepts gets a `teacher` membership.
 - [ ] **P6-03** Classroom create, edit, and archive for teachers. File: `src/app/teach/classrooms/`. Done when: a teacher sees only their own classrooms.
 - [ ] **P6-04** Add students by email list, CSV upload with validation and error report, and join code. Done when: all three methods create `enrollments` rows. (B2B-1)
 - [ ] **P6-05** Assign a published lesson to classrooms with an optional due date. Route `POST /api/assignments`. Done when: enrolled students see the lesson under Assigned. (B2B-2)
