@@ -12,7 +12,7 @@ import {
   spendLevel,
   spendRatio,
   type OrgSpend,
-} from "@/lib/orgs/spend";
+} from "@/lib/orgs/spend-level";
 import { ProgressBar } from "@/renderers/shared/ProgressBar";
 
 /**

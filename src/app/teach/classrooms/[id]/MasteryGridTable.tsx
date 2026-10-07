@@ -10,7 +10,7 @@ import {
   type MasteryStatus,
   type SortDirection,
   type SortKey,
-} from "@/lib/classrooms/grid";
+} from "@/lib/classrooms/grid-sort";
 import { formatActiveTime } from "@/renderers/shared/lesson";
 
 const STATUS_WORDS: Record<MasteryStatus, string> = {

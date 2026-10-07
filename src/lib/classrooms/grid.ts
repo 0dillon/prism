@@ -1,35 +1,21 @@
 import { ServiceError, type UserClient } from "@/lib/api/http";
 import { logger } from "@/lib/log";
+import type { GridConcept, GridStudent, MasteryStatus } from "./grid-sort";
+export { sortStudents } from "./grid-sort";
+export type {
+  GridCell,
+  GridConcept,
+  GridStudent,
+  MasteryStatus,
+  SortDirection,
+  SortKey,
+} from "./grid-sort";
 
 /**
  * The teacher's mastery grid (PRD 5.8, P6-06): one row per student, one column per idea in an
  * assigned lesson, each cell saying whether the idea is mastered. It reads only the dashboard
  * views, which return nothing but the caller's own classrooms and carry no layout or profile.
  */
-
-export type MasteryStatus = "not_started" | "in_progress" | "mastered";
-
-export interface GridCell {
-  status: MasteryStatus;
-  attempts: number;
-}
-
-export interface GridConcept {
-  id: string;
-  title: string;
-}
-
-export interface GridStudent {
-  studentId: string;
-  name: string;
-  cells: Record<string, GridCell>;
-  mastered: number;
-  total: number;
-  answered: number;
-  correct: number;
-  /** Active time on the lesson, in whole seconds. */
-  activeSeconds: number;
-}
 
 export interface MasteryGrid {
   concepts: GridConcept[];
@@ -109,31 +95,6 @@ export async function loadMasteryGrid(
       .map(({ id, title }) => ({ id, title })),
     students: list.sort((a, b) => a.name.localeCompare(b.name)),
   };
-}
-
-export type SortKey = "name" | "mastered" | `concept:${string}`;
-export type SortDirection = "ascending" | "descending";
-
-const RANK: Record<MasteryStatus, number> = { not_started: 0, in_progress: 1, mastered: 2 };
-
-/** Sorts students by name, by ideas mastered, or by how far they have got on one idea. */
-export function sortStudents(
-  students: GridStudent[],
-  key: SortKey,
-  direction: SortDirection,
-): GridStudent[] {
-  const sign = direction === "ascending" ? 1 : -1;
-  const value = (s: GridStudent): number =>
-    key === "mastered"
-      ? s.mastered
-      : key.startsWith("concept:")
-        ? RANK[s.cells[key.slice("concept:".length)]?.status ?? "not_started"]
-        : 0;
-  return [...students].sort((a, b) => {
-    const byKey = key === "name" ? a.name.localeCompare(b.name) : value(a) - value(b);
-    // Ties fall back to name so the order is stable and predictable.
-    return sign * byKey || a.name.localeCompare(b.name);
-  });
 }
 
 export interface HardIdea {
