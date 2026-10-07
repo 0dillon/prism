@@ -1071,7 +1071,7 @@ Update this table when a phase completes.
 - [x] **P6-02** Email invitations with role, an accept page, and expiry after 7 days. Done when: an invited teacher who accepts gets a `teacher` membership.
 - [x] **P6-03** Classroom create, edit, and archive for teachers. File: `src/app/teach/classrooms/`. Done when: a teacher sees only their own classrooms.
 - [x] **P6-04** Add students by email list, CSV upload with validation and error report, and join code. Done when: all three methods create `enrollments` rows. (B2B-1)
-- [ ] **P6-05** Assign a published lesson to classrooms with an optional due date. Route `POST /api/assignments`. Done when: enrolled students see the lesson under Assigned. (B2B-2)
+- [x] **P6-05** Assign a published lesson to classrooms with an optional due date. Route `POST /api/assignments`. Done when: enrolled students see the lesson under Assigned. (B2B-2)
 - [ ] **P6-06** Teacher classroom dashboard: student-by-concept mastery grid as an accessible table, with sorting. Reads `v_classroom_student_progress`. File: `src/app/teach/classrooms/[id]/page.tsx`. Done when: the grid matches seed data and is navigable by screen reader table commands. (B2B-3)
 - [ ] **P6-07** Teacher dashboard: concepts ranked by error rate, linking to the concept in the review page. Reads `v_classroom_concept_difficulty`. Done when: the hardest seeded concept is listed first.
 - [ ] **P6-08** Student detail view for teachers: per-lesson progress, active time, and last activity. Shows the Render Profile only if `share_with_teachers` is true. Done when: a test confirms the profile is absent without opt-in. (B2B-3, B2B-5)
