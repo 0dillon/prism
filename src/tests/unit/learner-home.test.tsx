@@ -277,6 +277,31 @@ describe("the learner home page", () => {
     const box = screen.getByRole("checkbox", { name: "Share my settings with my teachers" });
     expect(box).not.toBeChecked();
   });
+  it("shows only the consent step to a learner under 13 whose guardian has not agreed", async () => {
+    seed();
+    db.tables.user_consents.push({ user_id: ME, status: "pending", requested_at: null });
+    render(await LearnerHomePage());
+    expect(
+      screen.getByRole("heading", { name: "A parent or guardian needs to say yes first" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "The Water Cycle" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Join a class" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Your data and privacy" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+  });
+
+  it("shows the lessons again once consent is recorded", async () => {
+    seed();
+    db.tables.user_consents.push({ user_id: ME, status: "granted", requested_at: null });
+    render(await LearnerHomePage());
+    expect(screen.getByRole("link", { name: "The Water Cycle" })).toBeInTheDocument();
+    expect(
+      screen.queryByText("A parent or guardian needs to say yes first"),
+    ).not.toBeInTheDocument();
+  });
+
   it("explains an empty home kindly", async () => {
     render(await LearnerHomePage());
     expect(screen.getByText(/no lessons for you yet/)).toBeInTheDocument();

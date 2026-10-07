@@ -231,6 +231,36 @@ describe("the student page", () => {
     ).rejects.toMatchObject({ to: expect.stringContaining("/sign-in?next=") });
   });
 
+  it("offers to record consent when the student is waiting for it", async () => {
+    mocks.userId = "teacher-1";
+    const base = teacherClient();
+    mocks.client = recordingClient({
+      tables: {
+        enrollments: { data: [{ student_id: STUDENT }] },
+        v_classroom_student_progress: { data: [progressRow()] },
+        users_public: { data: [{ display_name: "Maya" }] },
+        lessons: { data: [{ id: LESSON, title: "The Water Cycle" }] },
+      },
+      rpc: {
+        get_shared_profile: { data: null },
+        pending_consents: { data: [{ student_id: STUDENT }] },
+      },
+    }).client;
+    void base;
+    render(
+      await StudentPage({ params: Promise.resolve({ id: CLASS, studentId: STUDENT }) } as never),
+    );
+    expect(screen.getByRole("heading", { name: "Waiting for a parent or guardian" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Record that the school holds consent" }),
+    ).toBeTruthy();
+  });
+
+  it("does not offer it for a student who does not need it", async () => {
+    await show(teacherClient().client);
+    expect(screen.queryByRole("heading", { name: "Waiting for a parent or guardian" })).toBeNull();
+  });
+
   it("is not found for ids that are not ids", async () => {
     mocks.userId = "teacher-1";
     await expect(

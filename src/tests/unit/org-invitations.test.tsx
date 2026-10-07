@@ -77,7 +77,7 @@ describe("inviteToOrg", () => {
 
   it("hands the mailer the school's name and the link", async () => {
     const sendInvitation = vi.fn(async () => ({ sent: true }));
-    const mailer: Mailer = { sendInvitation };
+    const mailer: Mailer = { sendInvitation, sendGuardianConsent: async () => ({ sent: false }) };
     const result = await inviteToOrg(
       client(vi.fn(async () => created)),
       ORG,
@@ -99,6 +99,7 @@ describe("inviteToOrg", () => {
       sendInvitation: async () => {
         throw new Error("smtp down");
       },
+      sendGuardianConsent: async () => ({ sent: false }),
     };
     const result = await inviteToOrg(
       client(vi.fn(async () => created)),

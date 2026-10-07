@@ -36,6 +36,7 @@ export class FakeSupabase {
     enrollments: [],
     pending_enrollments: [],
     org_memberships: [],
+    user_consents: [],
   };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
@@ -110,7 +111,9 @@ export class FakeSupabase {
     }
     // The fake has no classes, so a test seeds only the assignments the learner would see.
     if (table === "assignments" || table === "classrooms") return rows;
-    if (table === "org_memberships") return rows.filter((r) => r.user_id === userId);
+    if (table === "org_memberships" || table === "user_consents") {
+      return rows.filter((r) => r.user_id === userId);
+    }
     if (table === "render_profiles" || table === "concept_mastery") {
       return rows.filter((r) => r.user_id === userId);
     }
