@@ -135,3 +135,55 @@ export function sortStudents(
     return sign * byKey || a.name.localeCompare(b.name);
   });
 }
+
+export interface HardIdea {
+  conceptId: string;
+  title: string;
+  attempts: number;
+  correct: number;
+  /** The share of answers that were wrong, from 0 to 1. */
+  errorRate: number;
+}
+
+/**
+ * The ideas this class finds hardest (PRD 5.8, P6-07): highest share of wrong answers first.
+ * An idea nobody has answered yet has no error rate, so it is left out rather than ranked.
+ * With equal rates, the idea with more answers behind it comes first.
+ */
+export async function loadHardestIdeas(
+  user: UserClient,
+  classroomId: string,
+  lessonId: string,
+): Promise<HardIdea[]> {
+  const { data, error } = await user
+    .from("v_classroom_concept_difficulty")
+    .select("concept_id, concept_title, attempts, correct, error_rate")
+    .eq("classroom_id", classroomId)
+    .eq("lesson_id", lessonId);
+  if (error) {
+    logger.error("could not load idea difficulty", { error: error.message });
+    throw new ServiceError(500, "read_failed", "We could not load the ideas. Please try again.");
+  }
+  return rankHardestIdeas(
+    (data ?? []).flatMap((row) =>
+      row.concept_id && row.error_rate !== null
+        ? [
+            {
+              conceptId: row.concept_id,
+              title: row.concept_title ?? row.concept_id,
+              attempts: row.attempts ?? 0,
+              correct: row.correct ?? 0,
+              errorRate: Number(row.error_rate),
+            },
+          ]
+        : [],
+    ),
+  );
+}
+
+export function rankHardestIdeas(ideas: HardIdea[]): HardIdea[] {
+  return [...ideas].sort(
+    (a, b) =>
+      b.errorRate - a.errorRate || b.attempts - a.attempts || a.title.localeCompare(b.title),
+  );
+}

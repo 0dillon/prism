@@ -4,13 +4,14 @@ import { notFound, redirect } from "next/navigation";
 import { ServiceError } from "@/lib/api/http";
 import { formatDue, listClassroomAssignments } from "@/lib/assignments/service";
 import { getClassroom } from "@/lib/classrooms/service";
-import { loadMasteryGrid } from "@/lib/classrooms/grid";
+import { loadHardestIdeas, loadMasteryGrid } from "@/lib/classrooms/grid";
 import { loadRoster } from "@/lib/classrooms/students";
 import { createClient } from "@/lib/supabase/server";
 import { countOf } from "@/renderers/shared/lesson";
 import { AddStudents } from "./AddStudents";
 import { AssignedLessons } from "./AssignedLessons";
 import { ClassroomSettings } from "./ClassroomSettings";
+import { HardestIdeas } from "./HardestIdeas";
 import { MasteryGridTable } from "./MasteryGridTable";
 
 export const metadata: Metadata = { title: "Class" };
@@ -41,7 +42,12 @@ export default async function ClassroomPage({
 
   const requested = (await searchParams).lesson;
   const selected = assigned.find((a) => a.lessonId === requested) ?? assigned[0];
-  const grid = selected ? await loadMasteryGrid(supabase, classroom.id, selected.lessonId) : null;
+  const [grid, hardest] = selected
+    ? await Promise.all([
+        loadMasteryGrid(supabase, classroom.id, selected.lessonId),
+        loadHardestIdeas(supabase, classroom.id, selected.lessonId),
+      ])
+    : [null, []];
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 p-6">
@@ -107,6 +113,15 @@ export default async function ClassroomPage({
           </>
         )}
       </section>
+
+      {selected && grid ? (
+        <section aria-labelledby="hardest-heading" className="flex flex-col gap-3">
+          <h2 id="hardest-heading" className="text-xl font-semibold">
+            Hardest ideas in {selected.title}
+          </h2>
+          <HardestIdeas lessonId={selected.lessonId} ideas={hardest} />
+        </section>
+      ) : null}
 
       <AddStudents
         classroomId={classroom.id}
