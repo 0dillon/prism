@@ -442,6 +442,41 @@ export type Database = {
           },
         ];
       };
+      data_requests: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: string;
+          status: string;
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kind: string;
+          status?: string;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          kind?: string;
+          status?: string;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "data_requests_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       enrollments: {
         Row: { classroom_id: string; student_id: string; created_at: string };
         Insert: { classroom_id: string; student_id: string; created_at?: string };
@@ -928,6 +963,53 @@ export type Database = {
           },
         ];
       };
+      user_consents: {
+        Row: {
+          user_id: string;
+          birth_date: string | null;
+          status: string;
+          guardian_email: string | null;
+          token_hash: string | null;
+          token_expires_at: string | null;
+          requested_at: string | null;
+          granted_at: string | null;
+          granted_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          birth_date?: string | null;
+          status?: string;
+          guardian_email?: string | null;
+          token_hash?: string | null;
+          token_expires_at?: string | null;
+          requested_at?: string | null;
+          granted_at?: string | null;
+          granted_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          birth_date?: string | null;
+          status?: string;
+          guardian_email?: string | null;
+          token_hash?: string | null;
+          token_expires_at?: string | null;
+          requested_at?: string | null;
+          granted_at?: string | null;
+          granted_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_consents_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       users_public: {
         Row: { id: string; display_name: string; is_creator: boolean; created_at: string };
         Insert: { id: string; display_name?: string; is_creator?: boolean; created_at?: string };
@@ -1011,6 +1093,7 @@ export type Database = {
         Args: { p_classroom: string; p_emails: string[] };
         Returns: { student_email: string; outcome: string }[];
       };
+      consent_pending: { Args: { p_user: string }; Returns: boolean };
       create_classroom: {
         Args: { p_org: string; p_name: string; p_grade?: string; p_subject?: string };
         Returns: string;
@@ -1022,6 +1105,7 @@ export type Database = {
       create_organization: { Args: { p_name: string; p_slug: string }; Returns: string };
       enroll_student: { Args: { p_classroom: string; p_student: string }; Returns: boolean };
       get_shared_profile: { Args: { p_classroom: string; p_student: string }; Returns: Json };
+      grant_guardian_consent: { Args: { p_token: string }; Returns: string };
       is_classroom_principal: { Args: { p_classroom: string }; Returns: boolean };
       is_classroom_teacher: { Args: { p_classroom: string }; Returns: boolean };
       is_enrolled: { Args: { p_classroom: string }; Returns: boolean };
@@ -1045,8 +1129,11 @@ export type Database = {
       };
       owns_course: { Args: { p_course: string }; Returns: boolean };
       owns_lesson: { Args: { p_lesson: string }; Returns: boolean };
+      pending_consents: { Args: { p_classroom: string }; Returns: { student_id: string }[] };
       publish_lesson: { Args: { p_lesson_id: string; p_graph: Json }; Returns: number };
+      record_school_consent: { Args: { p_student: string }; Returns: undefined };
       regenerate_join_code: { Args: { p_classroom: string }; Returns: string };
+      request_guardian_consent: { Args: { p_guardian_email: string }; Returns: string };
       set_profile_sharing: { Args: { p_share: boolean }; Returns: boolean };
       try_uuid: { Args: { p_text: string }; Returns: string };
     };
