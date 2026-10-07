@@ -175,6 +175,30 @@ describe("enrollments and assignments", () => {
     ).rejects.toThrow(RLS);
   });
 
+  it("lets a teacher change a due date by assigning again", async () => {
+    const result = await asUser(db, teacherA, (tx) =>
+      tx.query(
+        `insert into assignments (classroom_id, lesson_id, due_at) values ($1, $2, '2026-11-01T23:59:59Z')
+         on conflict (classroom_id, lesson_id) do update set due_at = excluded.due_at`,
+        [roomA, lessonA],
+      ),
+    );
+    expect(result.affectedRows).toBe(1);
+    const row = await db.query<{ due_at: Date }>(
+      `select due_at from assignments where classroom_id = $1`,
+      [roomA],
+    );
+    expect(row.rows[0].due_at.toISOString()).toBe("2026-11-01T23:59:59.000Z");
+    await db.query(`update assignments set due_at = null where classroom_id = $1`, [roomA]);
+  });
+
+  it("lets a teacher take a lesson away from their own class only", async () => {
+    const other = await asUser(db, teacherB, (tx) =>
+      tx.query(`delete from assignments where classroom_id = $1`, [roomA]),
+    );
+    expect(other.affectedRows).toBe(0);
+  });
+
   it("does not assign the same lesson to a classroom twice", async () => {
     await expect(
       asUser(db, teacherA, (tx) =>

@@ -14,6 +14,11 @@ class InList {
   constructor(readonly values: unknown[]) {}
 }
 
+/** A filter that tests a row with a function, for `.is()` and `.not()`. */
+class Check {
+  constructor(readonly test: (row: Row) => boolean) {}
+}
+
 export class FakeSupabase {
   tables: Record<string, Row[]> = {
     lessons: [],
@@ -26,6 +31,10 @@ export class FakeSupabase {
     concept_mastery: [],
     users_public: [],
     learning_events: [],
+    assignments: [],
+    classrooms: [],
+    enrollments: [],
+    pending_enrollments: [],
   };
   uploadUrls: { bucket: string; path: string }[] = [];
   /** Stand-ins for database functions, keyed by name. publish_lesson mimics the real one. */
@@ -98,6 +107,8 @@ export class FakeSupabase {
     if (table === "lessons") {
       return rows.filter((r) => r.owner_id === userId || r.status === "published");
     }
+    // The fake has no classes, so a test seeds only the assignments the learner would see.
+    if (table === "assignments" || table === "classrooms") return rows;
     if (table === "render_profiles" || table === "concept_mastery") {
       return rows.filter((r) => r.user_id === userId);
     }
@@ -201,7 +212,10 @@ export class FakeSupabase {
         }
 
         let rows = this.visible(table, userId).filter((r) =>
-          filters.every(([c, v]) => (v instanceof InList ? v.values.includes(r[c]) : r[c] === v)),
+          filters.every(([c, v]) => {
+            if (v instanceof Check) return v.test(r);
+            return v instanceof InList ? v.values.includes(r[c]) : r[c] === v;
+          }),
         );
 
         if (op === "update") {
@@ -267,6 +281,15 @@ export class FakeSupabase {
         },
         eq: (column: string, value: unknown) => {
           filters.push([column, value]);
+          return builder;
+        },
+        is: (column: string, value: unknown) => {
+          filters.push([column, new Check((r) => (r[column] ?? null) === value)]);
+          return builder;
+        },
+        not: (column: string, operator: string, value: unknown) => {
+          if (operator !== "is") throw new Error(`the fake supports only not(column, "is", value)`);
+          filters.push([column, new Check((r) => (r[column] ?? null) !== value)]);
           return builder;
         },
         in: (column: string, values: unknown[]) => {

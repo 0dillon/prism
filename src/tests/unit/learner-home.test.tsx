@@ -18,6 +18,7 @@ vi.mock("next/navigation", () => ({
   redirect: (to: string) => {
     throw Object.assign(new Error(to), { to });
   },
+  useRouter: () => ({ refresh: () => {} }),
 }));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
@@ -35,7 +36,12 @@ let db: FakeSupabase;
 
 type Mastery = [user: string, lesson: string, concept: string, status: string];
 
-function seed(mastery: Mastery[] = []) {
+/** Assigns a lesson to a class the learner is in. */
+function assign(lesson: string, dueAt: string | null = null, classroom = "class-1") {
+  db.tables.assignments.push({ classroom_id: classroom, lesson_id: lesson, due_at: dueAt });
+}
+
+function seed(mastery: Mastery[] = [], due: Partial<Record<string, string | null>> = {}) {
   db.tables.lessons.push(
     {
       id: L1,
@@ -53,6 +59,7 @@ function seed(mastery: Mastery[] = []) {
       created_at: "2026-10-03",
     },
   );
+  for (const lesson of [L1, L2, DRAFT]) assign(lesson, due[lesson] ?? null);
   for (const [lesson, ids] of [
     [L1, ["a", "b", "c", "d", "e"]],
     [L2, ["x", "y"]],
@@ -103,6 +110,49 @@ describe("loadLearnerHome", () => {
     expect(progressFraction(byTitle["Fractions"])).toBe(1);
   });
 
+  it("lists only lessons assigned to the learner, however many are published", async () => {
+    seed();
+    db.tables.lessons.push({
+      id: "99999999-9999-4999-8999-999999999999",
+      title: "Not mine",
+      status: "published",
+      owner_id: OWNER,
+      created_at: "2026-10-04",
+    });
+    const home = await loadLearnerHome(db.asUser(ME));
+    expect(home.map((p) => p.title)).not.toContain("Not mine");
+  });
+
+  it("puts the soonest due date first, and lessons with no date after them", async () => {
+    seed([], { [L1]: null, [L2]: "2026-10-20T23:59:59.000Z" });
+    const home = await loadLearnerHome(db.asUser(ME));
+    expect(home.map((p) => [p.title, p.dueAt])).toEqual([
+      ["Fractions", "2026-10-20T23:59:59.000Z"],
+      ["The Water Cycle", null],
+    ]);
+  });
+
+  it("uses the earliest due date when two classes assign the same lesson", async () => {
+    seed();
+    assign(L1, "2026-12-01T23:59:59.000Z", "class-2");
+    assign(L1, "2026-11-01T23:59:59.000Z", "class-3");
+    const home = await loadLearnerHome(db.asUser(ME));
+    expect(home.find((p) => p.lessonId === L1)?.dueAt).toBe("2026-11-01T23:59:59.000Z");
+  });
+
+  it("marks a lesson overdue only if it is past due and not finished", async () => {
+    seed(
+      [
+        [ME, L2, "x", "mastered"],
+        [ME, L2, "y", "mastered"],
+      ],
+      { [L1]: "2020-01-01T23:59:59.000Z", [L2]: "2020-01-01T23:59:59.000Z" },
+    );
+    const home = await loadLearnerHome(db.asUser(ME));
+    expect(home.find((p) => p.lessonId === L1)?.overdue).toBe(true);
+    expect(home.find((p) => p.lessonId === L2)?.overdue).toBe(false);
+  });
+
   it("lists only published lessons, and marks lessons with no record as not started", async () => {
     seed();
     const home = await loadLearnerHome(db.asUser(ME));
@@ -148,6 +198,7 @@ describe("loadLearnerHome", () => {
       owner_id: OWNER,
       created_at: "x",
     });
+    assign(L1);
     const [only] = await loadLearnerHome(db.asUser(ME));
     expect(only).toMatchObject({ totalConcepts: 0, status: "not_started" });
     expect(progressFraction(only)).toBe(0);
@@ -159,11 +210,13 @@ describe("loadLearnerHome", () => {
 
   it("says plainly when a read fails", async () => {
     seed();
-    db.failures.add("lessons.select");
+    db.failures.add("assignments.select");
     await expect(loadLearnerHome(db.asUser(ME))).rejects.toMatchObject({
       status: 500,
       code: "read_failed",
     });
+    db.failures.add("lessons.select");
+    await expect(loadLearnerHome(db.asUser(ME))).rejects.toMatchObject({ status: 500 });
     db.failures.add("concepts.select");
     await expect(loadLearnerHome(db.asUser(ME))).rejects.toMatchObject({ status: 500 });
   });
@@ -190,6 +243,15 @@ describe("the learner home page", () => {
       within(card).getByRole("progressbar", { name: "Progress in The Water Cycle" }),
     ).toHaveAttribute("value", "40");
     expect(within(card).getByText("In progress")).toBeInTheDocument();
+  });
+
+  it("groups the lessons under an Assigned heading and says when each is due", async () => {
+    seed([], { [L1]: "2026-10-14T23:59:59.000Z", [L2]: "2020-01-01T23:59:59.000Z" });
+    render(await LearnerHomePage());
+    const section = screen.getByRole("region", { name: "Assigned" });
+    expect(within(section).getAllByRole("heading", { level: 3 })).toHaveLength(2);
+    expect(within(section).getByText(/Due 14 Oct 2026/)).toBeInTheDocument();
+    expect(within(section).getByText(/Due 1 Jan 2020 · Overdue/)).toBeInTheDocument();
   });
 
   it("matches mastered over total for every lesson", async () => {

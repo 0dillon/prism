@@ -22,6 +22,7 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw Object.assign(new Error("notFound"), { kind: "notFound" });
   },
+  useRouter: () => ({ refresh: () => {} }),
 }));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
