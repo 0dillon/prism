@@ -615,6 +615,13 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: "lessons_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "lessons_owner_id_fkey";
             columns: ["owner_id"];
             isOneToOne: false;
@@ -1026,6 +1033,7 @@ export type Database = {
         Returns: { classroom_id: string; active_learners: number; active_seconds: number }[];
       };
       org_role: { Args: { p_org: string }; Returns: string };
+      org_spend: { Args: { p_org: string }; Returns: { cap_usd: number; spent_usd: number }[] };
       org_weekly_activity: {
         Args: { p_org: string; p_from: string; p_to: string };
         Returns: {
