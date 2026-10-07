@@ -30,7 +30,7 @@ create index org_memberships_user_idx on public.org_memberships (user_id);
 create table public.classrooms (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references public.organizations (id) on delete cascade,
-  teacher_id uuid not null references public.users_public (id) on delete restrict,
+  teacher_id uuid not null references public.users_public (id) on delete cascade,
   name text not null check (char_length(name) between 1 and 200),
   grade text check (grade is null or char_length(grade) <= 40),
   subject text check (subject is null or char_length(subject) <= 80),
