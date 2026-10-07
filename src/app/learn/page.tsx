@@ -5,6 +5,7 @@ import { loadLearnerHome, progressFraction } from "@/lib/lessons/home-service";
 import { createClient } from "@/lib/supabase/server";
 import { ProgressBar } from "@/renderers/shared/ProgressBar";
 import { countOf } from "@/renderers/shared/lesson";
+import { JoinClassForm } from "./JoinClassForm";
 
 export const metadata: Metadata = { title: "My lessons" };
 
@@ -53,6 +54,7 @@ export default async function LearnerHomePage() {
           ))}
         </ul>
       )}
+      <JoinClassForm />
     </div>
   );
 }

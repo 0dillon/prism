@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ServiceError } from "@/lib/api/http";
 import { getClassroom } from "@/lib/classrooms/service";
+import { loadRoster } from "@/lib/classrooms/students";
 import { createClient } from "@/lib/supabase/server";
 import { countOf } from "@/renderers/shared/lesson";
+import { AddStudents } from "./AddStudents";
 import { ClassroomSettings } from "./ClassroomSettings";
 
 export const metadata: Metadata = { title: "Class" };
@@ -24,6 +26,8 @@ export default async function ClassroomPage({ params }: PageProps<"/teach/classr
     if (error instanceof ServiceError && error.status === 404) notFound();
     throw error;
   }
+
+  const roster = await loadRoster(supabase, classroom.id);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 p-6">
@@ -45,6 +49,32 @@ export default async function ClassroomPage({ params }: PageProps<"/teach/classr
           {classroom.archived ? " · Archived" : ""}
         </p>
       </div>
+      <AddStudents
+        classroomId={classroom.id}
+        joinCode={classroom.joinCode}
+        archived={classroom.archived}
+      />
+
+      <section aria-labelledby="roster-heading" className="flex flex-col gap-3">
+        <h2 id="roster-heading" className="text-xl font-semibold">
+          Students
+        </h2>
+        {roster.students.length === 0 ? (
+          <p className="text-muted">No students have joined yet.</p>
+        ) : (
+          <ul className="flex flex-col gap-1">
+            {roster.students.map((student) => (
+              <li key={student.studentId}>{student.name}</li>
+            ))}
+          </ul>
+        )}
+        {roster.pending > 0 ? (
+          <p className="text-muted">
+            {countOf(roster.pending, "address")} waiting for the student to sign up.
+          </p>
+        ) : null}
+      </section>
+
       <ClassroomSettings classroom={classroom} />
     </div>
   );
