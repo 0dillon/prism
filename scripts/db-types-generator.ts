@@ -36,6 +36,8 @@ interface FunctionRow {
   arg_defaults: number;
   return_type: string;
   returns_set: boolean;
+  /** Columns of a `returns table (...)` function, in order. Null for other functions. */
+  table_columns: { name: string; type: string }[] | null;
 }
 
 export const HEADER = `/**
@@ -120,7 +122,12 @@ export async function generateDatabaseTypes(db: Db): Promise<string> {
                    join pg_type t on t.oid = u.oid order by u.ord) as arg_types,
              p.pronargdefaults as arg_defaults,
              rt.typname as return_type,
-             p.proretset as returns_set
+             p.proretset as returns_set,
+             (select json_agg(json_build_object('name', u.n, 'type', t.typname) order by u.ord)
+                from unnest(p.proargnames, p.proargmodes, p.proallargtypes)
+                  with ordinality as u(n, m, ty, ord)
+                join pg_type t on t.oid = u.ty
+                where u.m = 't') as table_columns
       from pg_proc p
       join pg_namespace n on n.oid = p.pronamespace
       join pg_type rt on rt.oid = p.prorettype
@@ -191,7 +198,9 @@ export async function generateDatabaseTypes(db: Db): Promise<string> {
               return `${quote(argName)}${optional ? "?" : ""}: ${tsType(type)}`;
             })
             .join("\n")} }`;
-    const returns = tsType(fn.return_type);
+    const returns = fn.table_columns
+      ? `{ ${fn.table_columns.map((c) => `${quote(c.name)}: ${tsType(c.type)}`).join("\n")} }`
+      : tsType(fn.return_type);
     return `${quote(fn.name)}: { Args: ${args}; Returns: ${fn.returns_set ? `${returns}[]` : returns} }`;
   });
 
