@@ -192,7 +192,12 @@ describe("loadMasteryGrid", () => {
 describe("MasteryGridTable", () => {
   const renderGrid = () =>
     render(
-      <MasteryGridTable lessonTitle="The Water Cycle" concepts={concepts} students={roster} />,
+      <MasteryGridTable
+        classroomId={CLASS}
+        lessonTitle="The Water Cycle"
+        concepts={concepts}
+        students={roster}
+      />,
     );
 
   it("has no accessibility violations", async () => {

@@ -271,6 +271,12 @@ describe("the learner home page", () => {
     expect(screen.getByText("Complete")).toBeInTheDocument();
   });
 
+  it("offers the sharing choice, off by default, below the lessons", async () => {
+    seed();
+    render(await LearnerHomePage());
+    const box = screen.getByRole("checkbox", { name: "Share my settings with my teachers" });
+    expect(box).not.toBeChecked();
+  });
   it("explains an empty home kindly", async () => {
     render(await LearnerHomePage());
     expect(screen.getByText(/no lessons for you yet/)).toBeInTheDocument();
