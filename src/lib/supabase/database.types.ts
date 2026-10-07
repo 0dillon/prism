@@ -941,6 +941,21 @@ export type Database = {
         };
         Relationships: [];
       };
+      v_classroom_concept_mastery: {
+        Row: {
+          classroom_id: string | null;
+          student_id: string | null;
+          display_name: string | null;
+          lesson_id: string | null;
+          concept_id: string | null;
+          concept_title: string | null;
+          order_index: number | null;
+          status: string | null;
+          attempts: number | null;
+          correct: number | null;
+        };
+        Relationships: [];
+      };
       v_classroom_student_progress: {
         Row: {
           classroom_id: string | null;

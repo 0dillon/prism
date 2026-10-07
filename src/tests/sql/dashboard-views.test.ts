@@ -263,3 +263,37 @@ describe("v_org_layout_usage", () => {
     expect(await read(teacherA, `select 1 from v_org_layout_usage`)).toEqual([]);
   });
 });
+
+describe("v_classroom_concept_mastery", () => {
+  it("has a cell for every student and every current idea, with not_started where nothing has happened", async () => {
+    const rows = await read(
+      teacherA,
+      `select display_name, concept_id, status, attempts from v_classroom_concept_mastery
+       where display_name in ('a1', 'a2', 'a3') order by display_name, order_index`,
+    );
+    expect(rows).toEqual([
+      { display_name: "a1", concept_id: "c_1", status: "mastered", attempts: 2 },
+      { display_name: "a1", concept_id: "c_2", status: "mastered", attempts: 2 },
+      { display_name: "a2", concept_id: "c_1", status: "mastered", attempts: 3 },
+      { display_name: "a2", concept_id: "c_2", status: "not_started", attempts: 0 },
+      { display_name: "a3", concept_id: "c_1", status: "in_progress", attempts: 0 }, // viewed, not yet asked
+      { display_name: "a3", concept_id: "c_2", status: "not_started", attempts: 0 },
+    ]);
+  });
+
+  it("leaves out retired ideas and the classroom's other teachers' students", async () => {
+    const rows = await read(
+      teacherA,
+      `select distinct concept_id, classroom_id from v_classroom_concept_mastery`,
+    );
+    expect(rows.map((r) => r.concept_id).sort()).toEqual(["c_1", "c_2"]);
+    expect(new Set(rows.map((r) => r.classroom_id))).toEqual(new Set([roomA]));
+  });
+
+  it("is closed to people who do not run the classroom, and carries no layout", async () => {
+    expect(await read(outsider, `select 1 from v_classroom_concept_mastery`)).toEqual([]);
+    expect(await read(studentsA[0], `select 1 from v_classroom_concept_mastery`)).toEqual([]);
+    const columns = await read(principal, `select * from v_classroom_concept_mastery limit 1`);
+    expect(Object.keys(columns[0]).join(",")).not.toMatch(/layout|profile/);
+  });
+});
