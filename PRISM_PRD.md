@@ -964,7 +964,7 @@ Update this table when a phase completes.
 - [x] **P1-12** Migration: `organizations`, `org_memberships`, `classrooms`, `enrollments`, `assignments`, `audit_log`, with row-level security per the access table in Section 5.8. Done when: SQL tests prove a teacher reads only their own classrooms and a principal reads all classrooms in their org.
 - [x] **P1-13** Migration: `courses`, `course_lessons`, `creator_accounts`, `purchases`, with row-level security (published courses are public, purchases readable by buyer and by course creator). Done when: migration and SQL tests pass.
 - [x] **P1-14** SQL function `is_entitled(user_id, lesson_id)` returning true if the user owns the lesson, is enrolled in a classroom it is assigned to, has a paid purchase of a course containing it, or it is a preview lesson. Use it in the lesson read policy. Done when: SQL tests cover all four paths and one denial.
-- [ ] **P1-15** SQL views from Section 5.8: `v_classroom_student_progress`, `v_classroom_concept_difficulty`, `v_org_classroom_summary`, `v_org_layout_usage` (with suppression under 5). Done when: SQL tests on seed data return expected rows and the layout view hides a group of 4.
+- [x] **P1-15** SQL views from Section 5.8: `v_classroom_student_progress`, `v_classroom_concept_difficulty`, `v_org_classroom_summary`, `v_org_layout_usage` (with suppression under 5). Done when: SQL tests on seed data return expected rows and the layout view hides a group of 4.
 
 ### Phase 2: AI ingestion pipeline
 
