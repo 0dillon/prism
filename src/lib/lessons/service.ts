@@ -4,6 +4,7 @@ import { runIngestion, type IngestionResult } from "@/lib/ai/ingestion/pipeline"
 import { isIngestionStage, STAGE_LABELS, type IngestionStage } from "@/lib/ai/ingestion/stages";
 import { createSupabaseStore, type PipelineStore } from "@/lib/ai/ingestion/store";
 import { logger } from "@/lib/log";
+import { assertIngestionAllowed } from "@/lib/orgs/spend";
 import {
   BUCKETS,
   createSignedUploadUrl,
@@ -36,6 +37,8 @@ export const CreateLessonInput = z.object({
     .positive("The file is empty.")
     .max(MAX_UPLOAD_BYTES, "Files can be up to 50 MB."),
   title: z.string().trim().max(120, "Use 120 characters or fewer for the title.").optional(),
+  /** The school the lesson is for. Optional: a teacher in one school does not need to say. */
+  orgId: z.uuid().optional(),
 });
 export type CreateLessonInput = z.infer<typeof CreateLessonInput>;
 
@@ -59,6 +62,32 @@ function titleFromFileName(fileName: string): string {
     (dot > 0 ? base.slice(0, dot) : base).replace(/[_-]+/g, " ").trim().slice(0, 120) ||
     "Untitled lesson"
   );
+}
+
+/**
+ * The school a new lesson is for: the one the teacher asked for if they teach there, else the
+ * school they have been in longest, else none (an independent creator). The database refuses
+ * a school they do not belong to, so this is a convenience and not the safeguard.
+ */
+async function resolveLessonOrg(
+  user: UserClient,
+  userId: string,
+  requested: string | undefined,
+): Promise<string | null> {
+  const { data } = await user
+    .from("org_memberships")
+    .select("org_id")
+    .eq("user_id", userId)
+    .in("role", ["teacher", "principal"])
+    .order("created_at", { ascending: true });
+  const orgs = (data ?? []).map((m) => m.org_id);
+  if (requested) {
+    if (!orgs.includes(requested)) {
+      throw new ServiceError(403, "forbidden", "You do not teach in that school.");
+    }
+    return requested;
+  }
+  return orgs[0] ?? null;
 }
 
 /** Creates the lesson and its job, and returns a signed URL the browser uploads the file to. */
@@ -85,10 +114,15 @@ export async function createLesson(
     );
   }
 
+  const orgId = await resolveLessonOrg(clients.user, userId, input.orgId);
+  // A school that has used its monthly AI budget cannot start new uploads.
+  if (orgId) await assertIngestionAllowed(clients.admin, orgId);
+
   const { data: lesson, error } = await clients.user
     .from("lessons")
     .insert({
       owner_id: userId,
+      org_id: orgId,
       title: input.title || titleFromFileName(input.fileName),
       status: "uploading",
       source_type: type,
@@ -137,6 +171,7 @@ export async function createLesson(
 
 interface OwnedLesson {
   id: string;
+  org_id: string | null;
   title: string;
   status: string;
   source_path: string | null;
@@ -150,7 +185,7 @@ async function loadOwnedLesson(
 ): Promise<OwnedLesson> {
   const { data, error } = await user
     .from("lessons")
-    .select("id, owner_id, title, status, source_path, source_type")
+    .select("id, owner_id, org_id, title, status, source_path, source_type")
     .eq("id", lessonId)
     .maybeSingle();
   if (error) {
@@ -187,6 +222,7 @@ export async function startIngestion(
   if (!lesson.source_path || !lesson.source_type) {
     throw new ServiceError(409, "no_source", "Upload a file for this lesson first.");
   }
+  if (lesson.org_id) await assertIngestionAllowed(clients.admin, lesson.org_id);
 
   const jobs = await clients.admin
     .from("ingestion_jobs")
