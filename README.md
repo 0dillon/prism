@@ -44,3 +44,9 @@ Optional demo data: `DEMO_PASSWORD=<8+ chars> npm run seed:demo -- --with-progre
 - `supabase/migrations` — schema, row-level security, dashboard views
 - `src/tests` — unit, SQL and end-to-end tests
 - `PRISM_PRD.md` — the product spec, task list and decision log
+
+## Activity
+
+![GitHub streak](https://streak-stats.demolab.com/?user=0dillon&theme=transparent&hide_border=false)
+
+![Contribution graph](https://github-readme-activity-graph.vercel.app/graph?username=0dillon&theme=github-compact)
