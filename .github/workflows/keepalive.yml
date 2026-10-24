@@ -1,0 +1,15 @@
+name: Keep the database awake
+
+# A free Supabase project is paused after 7 days without activity. This calls the deployed
+# keepalive endpoint every two days, as a backup to the daily Vercel cron.
+on:
+  schedule:
+    - cron: "17 7 */2 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the keepalive endpoint
+        run: curl --fail --silent --show-error --max-time 30 https://prism-ng.vercel.app/api/keepalive
