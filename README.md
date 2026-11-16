@@ -22,6 +22,14 @@ security), LangChain with Gemini, Vitest, Playwright.
 
 Optional demo data: `DEMO_PASSWORD=<8+ chars> npm run seed:demo -- --with-progress`
 
+## Keeping the database awake
+
+A free Supabase project is paused after a week with no activity. `/api/keepalive` runs one small
+query, and two schedules call it: a daily Vercel cron (`vercel.json`) and a GitHub Actions job every
+two days (`.github/workflows/keepalive.yml`). If that job fails, the project has probably been
+paused already. Open it in the Supabase dashboard and choose **Restore project**; a ping cannot wake
+a paused project.
+
 ## Scripts
 
 | Command                             | What it does                                                  |
