@@ -66,3 +66,35 @@ export function summarizeCost(jobs: JobUsage[]): CostSummary {
     overTarget: lessons.filter((l) => l.overTarget).length,
   };
 }
+
+const usd = (n: number) => `$${n.toFixed(4)}`;
+
+/** The summary as a plain-text table, for the terminal. */
+export function formatCostTable(summary: CostSummary): string {
+  if (summary.lessons.length === 0) return "No ingestion runs recorded yet.";
+  const rows = [
+    ["Lesson", "Runs", "Tokens in", "Tokens out", "Cost", "Target"],
+    ...summary.lessons.map((l) => [
+      l.title || "Untitled lesson",
+      String(l.runs),
+      String(l.tokensIn),
+      String(l.tokensOut),
+      usd(l.costUsd),
+      l.overTarget ? "OVER" : "ok",
+    ]),
+  ];
+  const widths = rows[0].map((_, col) => Math.max(...rows.map((r) => r[col].length)));
+  const line = (r: string[]) =>
+    r
+      .map((cell, col) => (col === 0 ? cell.padEnd(widths[col]) : cell.padStart(widths[col])))
+      .join("  ");
+  return [
+    line(rows[0]),
+    widths.map((w) => "-".repeat(w)).join("  "),
+    ...rows.slice(1).map(line),
+    "",
+    `${summary.lessons.length} lessons, total ${usd(summary.totalUsd)}, average ${usd(summary.averageUsd)}.`,
+    `${summary.overTarget} over the ${usd(INGESTION_TARGET_USD)} target per source.`,
+    "Learner session cost is not recorded per lesson yet, so it is not included.",
+  ].join("\n");
+}
