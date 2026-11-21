@@ -16,6 +16,7 @@
     "demo:pdf": "tsx scripts/make-demo-pdf.ts",
     "seed:demo": "tsx --env-file=.env.local scripts/seed-demo.ts",
     "account:deletions": "tsx --env-file=.env.local scripts/process-deletions.ts",
+    "report:cost": "tsx --env-file=.env.local scripts/report-cost.ts",
     "db:types:supabase": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
     "db:reset": "supabase db reset",
     "smoke:supabase": "node --env-file=.env.local scripts/smoke-supabase.mjs",
