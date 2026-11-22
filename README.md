@@ -43,6 +43,7 @@ a paused project.
 | `npm run db:types`                  | Regenerate database types from the migrations                 |
 | `npm run seed:demo`                 | Create the demo school, teacher, learners and lesson          |
 | `npm run account:deletions`         | List (or with `--apply`, carry out) account deletion requests |
+| `npm run report:cost`               | Ingestion cost per lesson against the budget target           |
 
 ## Project layout
 
