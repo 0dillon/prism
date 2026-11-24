@@ -56,6 +56,6 @@ a paused project.
 
 ## Activity
 
-![GitHub streak](https://streak-stats.demolab.com/?user=0dillon&theme=transparent&hide_border=false)
+![GitHub streak](https://streak-stats.demolab.com/?user=0dillon&theme=transparent&hide_border=false&v=20261125)
 
 ![Contribution graph](https://github-readme-activity-graph.vercel.app/graph?username=0dillon&theme=github-compact)
