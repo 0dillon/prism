@@ -100,6 +100,12 @@ beforeAll(async () => {
   await event(students[2], "2026-10-13T09:00:00Z", { ms: 40_000 });
   // A student in the archived class only, and a student in no class: neither is counted.
   await event(students[3], "2026-10-06T12:00:00Z", { ms: 99_000 });
+  // The trigger stamps mastery with the time it ran. Pin it to the week of the answers, so the
+  // weekly counts do not depend on the day the tests run.
+  await db.query(
+    `update concept_mastery set updated_at = '2026-10-06T10:06:00Z' where user_id = $1`,
+    [students[0]],
+  );
 });
 
 afterAll(async () => {
