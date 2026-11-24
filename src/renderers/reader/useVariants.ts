@@ -79,7 +79,7 @@ export function useVariants({
       if (asked.current.has(key)) return;
       asked.current.add(key);
       setLoading((current) => ({ ...current, [key]: true }));
-      setErrors(({ [key]: _gone, ...rest }) => rest);
+      setErrors((current) => without(current, key));
       track({
         type: "concept_variant_requested",
         lessonId,
@@ -97,7 +97,7 @@ export function useVariants({
             [key]: error instanceof Error ? error.message : "We could not make that simpler.",
           }));
         })
-        .finally(() => setLoading(({ [key]: _done, ...rest }) => rest));
+        .finally(() => setLoading((current) => without(current, key)));
     },
     [lessonId, graphVersion, request],
   );
@@ -132,8 +132,15 @@ export function useVariants({
     retry: (id) => {
       const level = levelFor(id);
       const key = cacheKey(id, level);
-      setErrors(({ [key]: _gone, ...rest }) => rest);
+      setErrors((current) => without(current, key));
     },
     canSimplify: (id) => levelFor(id) !== "simple",
   };
+}
+
+/** A copy of the record without one key. */
+function without<T>(record: Record<string, T>, key: string): Record<string, T> {
+  const copy = { ...record };
+  delete copy[key];
+  return copy;
 }
