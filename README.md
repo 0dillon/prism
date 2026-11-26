@@ -22,6 +22,17 @@ security), LangChain with Gemini, Vitest, Playwright.
 
 Optional demo data: `DEMO_PASSWORD=<8+ chars> npm run seed:demo -- --with-progress`
 
+## Privacy and data rights
+
+- Profiles are preferences, never diagnoses. There is no disability field anywhere.
+- Teachers see progress on one scale. They see a learner's settings only if the learner turns on
+  "Share my settings with my teachers", and every change to that choice is audit-logged.
+- School-wide layout counts hide any group of fewer than 5 learners.
+- A learner under 13 stays inactive until a parent or guardian agrees, or the school records
+  consent it holds.
+- Anyone can download their data or ask for deletion from `/account`. Deletions are carried out
+  with `npm run account:deletions -- --apply`.
+
 ## Keeping the database awake
 
 A free Supabase project is paused after a week with no activity. `/api/keepalive` runs one small
